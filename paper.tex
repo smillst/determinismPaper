@@ -169,7 +169,44 @@ Text of abstract \ldots.
 
 \section{Introduction}
 
-Text of paper \ldots
+Writing correct programs is hard. Programmers often write correctness specifications for their code in the form of assertions. They write test cases that cover several usage scenarios to strengthen their belief that
+the code works as intended. Despite all the testing effort, it often happens that a test suite produces
+diverging results for different users or for the same user when the test suite is run again. When a test suite fails
+nondeterministically, it  reduces the programmers' confidence in the program. Additionally, reproducing
+such bugs is difficult making debugging an onerous task. Examples of the underlying causes of such flakiness 
+could be OS scheduling in case of concurrent programs, use of an API that has nondeterministic specification,
+accessing system properties such as the file system or environment variables. In this paper, we focus on
+nondeterminism arising from the usage of APIs that have nondeterministic specifications in java programs.
+Instances of such APIs in the JDK include Date(), Random(), iterating over a HashSet. Note that mere calls
+to these APIs is not problematic. But if the programmer intends the results of these calls to be deterministic,
+it could result in undesirable results and we aim to capture this behavior and report it. The high level goal
+of our work is to provide programmers with a tool for specifying  deterministic properties ina program
+and be able to verify them at compile time.
+
+Ideally with any program, we expect the output to be the same.
+Example sources of nondeterminism
+
+Test suites, production environemnt, Flakiness, recent work in this area
+
+Dependency on APIs , Talk about specifications
+
+Approach is to build a type system
+
+Focus on collections
+ 
+Ease of extensibility of our approach
+
+We make the folowing contributions through this paper:
+\begin{enumerate}
+	\item Design and implement a type system for expressing deterministic properties in sequential programs.
+	\item Annotate several classes in JDK. By doing this, we have translated the specification for these APIs from
+	human readable comments to machine readable and verifyable documentation.
+	\item Perform a case study of a real work Java program - Randoop (loc, etc) which revealed bugs.
+	\item Compare our technique to flaky test detectors and present results.
+\end{enumerate}
+
+\section{Design}
+
 
 
 %% Acknowledgments
