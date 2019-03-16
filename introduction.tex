@@ -1,0 +1,48 @@
+\section{Introduction}
+
+Writing correct programs is hard. Programmers often write correctness specifications for their code in the form of assertions. They write test cases that cover several usage scenarios to strengthen their belief that
+the code works as intended. Despite all the testing effort, it often happens that a test suite produces
+diverging results for different users or for the same user when the test suite is run again. When a test suite fails
+nondeterministically, it  reduces the programmers' confidence in the program. Additionally, reproducing
+such bugs is difficult making debugging an onerous task. Examples of the underlying causes of such flakiness 
+could be OS scheduling in case of concurrent programs, use of an API that has nondeterministic specification,
+accessing system properties such as the file system or environment variables. In this paper, we focus on
+nondeterminism arising from the use of APIs that have nondeterministic specifications in java programs.
+Instances of such APIs in the JDK include Date(), Random(), and HashSet iteration. Note that mere calls
+to these APIs is not problematic. But if the programmer intends the results of these calls to be deterministic,
+it could result in undesirable results. We aim to capture this behavior and report it. The high level goal
+of our work is to provide programmers with a tool for specifying  deterministic properties in a program
+and be able to verify them at compile time.
+
+Recent work in this area~\cite{nondex,deflaker} has focussed its efforts on identifying flaky test cases.
+NONDEX~\cite{nondex} is a tool that manually identifies methods in the JDK that have nondeterministic specifications, builds models for
+these methods that behave nondeterministically, and  use sa modified JVM that runs the test suite multiple times.
+Diverging test results in this setting indicate a flaky test. DeFlaker~\cite{deflaker} looks at a range of commit versions
+of a code, and marks a test as flaky if it doesn't execute any modified code but still fails in the newer version. These techniques
+have been able to identify issues in real world programs, some of which have been fixed by the developers. This shows that nondeterminism
+is an important problem and solving it at an earlier phase in the software development lifecycle would be greatly beneficial to 
+developers. 
+
+In this paper, we propose to build a lightweight compile time checker that can verify deterministic properties. We design a
+type system that allows programmers to express deterministic properties as types in their programs. We use
+java's annotation support to build our type system. Since our approach is based on compile time type checking, we provide
+soundness guarantees. Another advantage of our approach
+is that the analysis designer doesn't need to make changes to the JVM or have to rerun the test suite multiple times in order
+to detect flakiness. Like with any static time checker, our approach is prone to producing false positives. There is also increased programmer effort involved in writing type annotations while developing.
+We believe (give numbers here) that the benefits of having a verified system far exceed the programmer efforts.
+
+Our type system hierarchy consists of three types: a) @Det which represents values that will be the same across executions,
+b) @OrderNonDet which represents collections that are guaranteed to contain the same elements albeit in possibly
+different iteration order, and c) @NonDet which provides no determism guarantees.  We found this type hierarchy 
+is expressive enough to identify nondeterministic behaviors in production software. We annotated all the collection
+classes (Lists, Sets and Maps) in the JDK with our new type system. Our tool is therefore guaranteed to report any violation
+of deterministic properties in a client program caused by methods in these classes. 
+
+We make the folowing contributions through this paper:
+\begin{enumerate}
+	\item We provide a design and implemention of a type system for expressing deterministic properties in sequential programs.
+	\item We annotated several classes in JDK. By doing this, we have translated the specification for these APIs from
+	human readable comments to machine readable and verifyable documentation.
+	\item We performed a case study of a real world java program Randoop (loc, etc) which revealed bugs.
+	\item We perform a comparative study of our technique with state of the art flaky test detectors and present results.
+\end{enumerate}
