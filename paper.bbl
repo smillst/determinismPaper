@@ -1,0 +1,75 @@
+%%% -*-BibTeX-*-
+%%% Do NOT edit. File created by BibTeX with style
+%%% ACM-Reference-Format-Journals [18-Jan-2012].
+
+\begin{thebibliography}{2}
+
+%%% ====================================================================
+%%% NOTE TO THE USER: you can override these defaults by providing
+%%% customized versions of any of these macros before the \bibliography
+%%% command.  Each of them MUST provide its own final punctuation,
+%%% except for \shownote{}, \showDOI{}, and \showURL{}.  The latter two
+%%% do not use final punctuation, in order to avoid confusing it with
+%%% the Web address.
+%%%
+%%% To suppress output of a particular field, define its macro to expand
+%%% to an empty string, or better, \unskip, like this:
+%%%
+%%% \newcommand{\showDOI}[1]{\unskip}   % LaTeX syntax
+%%%
+%%% \def \showDOI #1{\unskip}           % plain TeX syntax
+%%%
+%%% ====================================================================
+
+\ifx \showCODEN    \undefined \def \showCODEN     #1{\unskip}     \fi
+\ifx \showDOI      \undefined \def \showDOI       #1{#1}\fi
+\ifx \showISBNx    \undefined \def \showISBNx     #1{\unskip}     \fi
+\ifx \showISBNxiii \undefined \def \showISBNxiii  #1{\unskip}     \fi
+\ifx \showISSN     \undefined \def \showISSN      #1{\unskip}     \fi
+\ifx \showLCCN     \undefined \def \showLCCN      #1{\unskip}     \fi
+\ifx \shownote     \undefined \def \shownote      #1{#1}          \fi
+\ifx \showarticletitle \undefined \def \showarticletitle #1{#1}   \fi
+\ifx \showURL      \undefined \def \showURL       {\relax}        \fi
+% The following commands are used for tagged output and should be
+% invisible to TeX
+\providecommand\bibfield[2]{#2}
+\providecommand\bibinfo[2]{#2}
+\providecommand\natexlab[1]{#1}
+\providecommand\showeprint[2][]{arXiv:#2}
+
+\bibitem[\protect\citeauthoryear{Bell, Legunsen, Hilton, Eloussi, Yung, and
+  Marinov}{Bell et~al\mbox{.}}{2018}]%
+        {deflaker}
+\bibfield{author}{\bibinfo{person}{Jonathan Bell}, \bibinfo{person}{Owolabi
+  Legunsen}, \bibinfo{person}{Michael Hilton}, \bibinfo{person}{Lamyaa
+  Eloussi}, \bibinfo{person}{Tifany Yung}, {and} \bibinfo{person}{Darko
+  Marinov}.} \bibinfo{year}{2018}\natexlab{}.
+\newblock \showarticletitle{DeFlaker: Automatically Detecting Flaky Tests}. In
+  \bibinfo{booktitle}{\emph{Proceedings of the 40th International Conference on
+  Software Engineering}} \emph{(\bibinfo{series}{ICSE '18})}.
+  \bibinfo{publisher}{ACM}, \bibinfo{address}{New York, NY, USA},
+  \bibinfo{pages}{433--444}.
+\newblock
+\showISBNx{978-1-4503-5638-1}
+\urldef\tempurl%
+\url{https://doi.org/10.1145/3180155.3180164}
+\showDOI{\tempurl}
+
+
+\bibitem[\protect\citeauthoryear{{Shi}, {Gyori}, {Legunsen}, and
+  {Marinov}}{{Shi} et~al\mbox{.}}{2016}]%
+        {nondex}
+\bibfield{author}{\bibinfo{person}{A. {Shi}}, \bibinfo{person}{A. {Gyori}},
+  \bibinfo{person}{O. {Legunsen}}, {and} \bibinfo{person}{D. {Marinov}}.}
+  \bibinfo{year}{2016}\natexlab{}.
+\newblock \showarticletitle{Detecting Assumptions on Deterministic
+  Implementations of Non-deterministic Specifications}. In
+  \bibinfo{booktitle}{\emph{2016 IEEE International Conference on Software
+  Testing, Verification and Validation (ICST)}}. \bibinfo{pages}{80--90}.
+\newblock
+\urldef\tempurl%
+\url{https://doi.org/10.1109/ICST.2016.40}
+\showDOI{\tempurl}
+
+
+\end{thebibliography}
