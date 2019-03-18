@@ -1,0 +1,35 @@
+\section{Design}
+\subsection{Type checking background}
+type hierarchy, subtype checking, Dataflow analysis rules, polymorphism
+
+\subsection{Determinism type hierarchy}
+Diagram of type hierarchy and explanation
+Examples of errors produced when subtyping rules are violated (here or in the section above this)?
+
+\subsection{Additional typing rules for collection elements}
+Lists, set and maps - element types have to be subtypes of collection type 
+Explain iterator and extracting elements of an ordernondet collection here
+Examples of valid and invalid types
+
+\subsection{Avoid aliasing unsoundness}
+Give an example of unsoundness 
+Recall CLIMB-to-top rule and defaulting choice for local collections (to avoid too many warnings)
+Required user annotations for collections and arrays
+
+\subsection{Special cases of polymorphism}
+Explain modifiers to Polymorphic annotations
+Poly up and down for ordernondetermistic types
+Poly use for avoiding polluting det/ordernondet collections
+Subtype hierarchy among all variants of Poly
+Possibility of type refinement?	
+
+\subsection{Discussion on defaulting rules}
+Choice of defaults on class type, constructors and method params and return types
+
+\subsection{Additional hardcoded rules for precision}
+Example: equals on HashSet
+Discussion on System properties - env, line, file and path separator.
+
+\subsection{Annotating more classes/providing more specifications}
+Ease of annotating more JDk classes
+User provided stub files to override existing behavior
