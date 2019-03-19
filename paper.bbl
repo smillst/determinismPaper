@@ -2,7 +2,7 @@
 %%% Do NOT edit. File created by BibTeX with style
 %%% ACM-Reference-Format-Journals [18-Jan-2012].
 
-\begin{thebibliography}{2}
+\begin{thebibliography}{3}
 
 %%% ====================================================================
 %%% NOTE TO THE USER: you can override these defaults by providing
@@ -70,6 +70,18 @@
 \urldef\tempurl%
 \url{https://doi.org/10.1109/ICST.2016.40}
 \showDOI{\tempurl}
+
+
+\bibitem[\protect\citeauthoryear{Zeller}{Zeller}{1999}]%
+        {Zeller1999}
+\bibfield{author}{\bibinfo{person}{Andreas Zeller}.}
+  \bibinfo{year}{1999}\natexlab{}.
+\newblock \showarticletitle{Yesterday, my program worked. {Today}, it does not.
+  {Why}?}. In \bibinfo{booktitle}{\emph{ESEC/FSE '99: Proceedings of the 7th
+  European Software Engineering Conference and the 7th {ACM} {SIGSOFT}
+  Symposium on the Foundations of Software Engineering}}.
+  \bibinfo{address}{Toulouse, France}, \bibinfo{pages}{253--267}.
+\newblock
 
 
 \end{thebibliography}
