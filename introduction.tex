@@ -1,22 +1,70 @@
 \section{Introduction}
 
-Writing correct programs is hard. Programmers often write correctness specifications for their code in the form of assertions. They write test cases that cover several usage scenarios to strengthen their belief that
-the code works as intended. Despite all the testing effort, it often happens that a test suite produces
-diverging results for different users or for the same user when the test suite is run again. When a test suite fails
-nondeterministically, it  reduces the programmers' confidence in the program. Additionally, reproducing
-such bugs is difficult making debugging an onerous task. Examples of the underlying causes of such flakiness 
-could be OS scheduling in case of concurrent programs, use of an API that has nondeterministic specification,
-accessing system properties such as the file system or environment variables. In this paper, we focus on
-nondeterminism arising from the use of APIs that have nondeterministic specifications in java programs.
-Instances of such APIs in the JDK include Date(), Random(), and HashSet iteration. Note that mere calls
-to these APIs is not problematic. But if the programmer intends the results of these calls to be deterministic,
-it could result in undesirable results. We aim to capture this behavior and report it. The high level goal
-of our work is to provide programmers with a tool for specifying  deterministic properties in a program
-and be able to verify them at compile time.
+A nondeterministic program may produce different output on different runs
+when provided with the same input.
+Nondeterminism is a serious problem for software developers.
+\todo{Add lots of citations in the below.}
+\begin{itemize}
+\item
+  Nondeterminism makes a program difficult to \textbf{test}, because test
+  oracles must account for all possible behaviors while still enforcing
+  correct behaviors.  Test oracles that are too strict lead to flaky tests
+  that sometimes pass and sometimes fail.  Flaky tests must be re-run, or
+  developers ignore them; in either case, their utility to detect defects
+  is limited.
+\item
+  Nondeterminism makes it difficult to \textbf{compare} two runs of a
+  program on different data, or to compare a run of a slightly modified
+  program to an original program.  This hinders debugging and maintenance,
+  and prevents use of techniques such as Delta Debugging~\cite{Zeller1999}.
+\item
+  Nondeterminism reduces users' and developers' \textbf{trust} in a program's output.
+\end{itemize}
 
-Recent work in this area~\cite{nondex,deflaker} has focussed its efforts on identifying flaky test cases.
-NONDEX~\cite{nondex} is a tool that manually identifies methods in the JDK that have nondeterministic specifications, builds models for
-these methods that behave nondeterministically, and  use sa modified JVM that runs the test suite multiple times.
+Two well-known sources of nondeterminism are concurrency
+% (due to OS scheduling or message delivery over a network)
+and coin-flipping
+(calls to a \<random> API).
+It may be surprising that nondeterminism is common even in sequential
+programs that do not flip coins.
+For example, any program that iterates over a set or map, and that uses the
+results to affect the output, may suffer from nondeterminism.
+Other nondeterministic APIs include date-and-time functions and
+accessing system properties such as the file system or environment variables.
+
+We have created an analysis that detects nondeterminism so that
+programmers can eliminate it.
+The analysis permits programmers to specify which parts of their program
+are nondeterministic, and it verifies that the remainder is deterministic.
+%
+The analysis is sound:  if it issues no warnings, then the program does not
+suffer nondeterminism of the given types.  (If the program uses concurrent,
+it might still be nondeterministic.)
+%
+The analysis works at compile time, giving a guarantee over every possible
+execution of the program, by contrast to unsound dynamic tools that attempt
+to discover when a program has exhibited nondeterministic behavior on
+specific runs.
+%
+The analysis differentiates between values that can differ arbitrarily on
+different runs, and collections that will contain the same values, but
+possibly in a different order.
+%
+The analysis is precise enough for practical use.  It permits calls to
+nondeterministic APIs, and only issues a warning if they are used in ways
+that may lead to nondeterministic output observed by a users.  Like any
+sound analysis, it can issue false positive warnings.
+
+
+The high level goal of our work is to provide programmers with a tool for
+specifying deterministic properties in a program and be able to verify them
+at compile time.
+
+
+Previous work in program analysis for nondeterminism has focused on unsound dynamic
+approaches that identify flaky test cases.
+NonDex~\cite{nondex} is a tool that manually identifies methods in the JDK that have nondeterministic specifications, builds models for
+these methods that behave nondeterministically, and  use a modified JVM that runs the test suite multiple times.
 Diverging test results in this setting indicate a flaky test. DeFlaker~\cite{deflaker} looks at a range of commit versions
 of a code, and marks a test as flaky if it doesn't execute any modified code but still fails in the newer version. These techniques
 have been able to identify issues in real world programs, some of which have been fixed by the developers. This shows that nondeterminism
@@ -33,16 +81,18 @@ We believe (give numbers here) that the benefits of having a verified system far
 
 Our type system hierarchy consists of three types: a) @Det which represents values that will be the same across executions,
 b) @OrderNonDet which represents collections that are guaranteed to contain the same elements albeit in possibly
-different iteration order, and c) @NonDet which provides no determism guarantees.  We found this type hierarchy 
+different iteration order, and c) @NonDet which provides no determinism guarantees.  We found this type hierarchy 
 is expressive enough to identify nondeterministic behaviors in production software. We annotated all the collection
 classes (Lists, Sets and Maps) in the JDK with our new type system. Our tool is therefore guaranteed to report any violation
 of deterministic properties in a client program caused by methods in these classes. 
 
-We make the folowing contributions through this paper:
+We make the following contributions through this paper:
 \begin{enumerate}
-	\item We provide a design and implemention of a type system for expressing deterministic properties in sequential programs.
+	\item We provide a design and implementation of a type system for expressing deterministic properties in sequential programs.
 	\item We annotated several classes in JDK. By doing this, we have translated the specification for these APIs from
-	human readable comments to machine readable and verifyable documentation.
+	human readable comments to machine readable and verifiable documentation.
 	\item We performed a case study of a real world java program Randoop (loc, etc) which revealed bugs.
 	\item We perform a comparative study of our technique with state of the art flaky test detectors and present results.
 \end{enumerate}
+
+% LocalWords:  NONDEX NonDex DeFlaker
