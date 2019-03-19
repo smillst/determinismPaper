@@ -53,11 +53,26 @@
 \usepackage{subcaption} %% For complex figures with subfigures/subcaptions
                         %% http://ctan.org/pkg/subcaption
 
+\usepackage{color}
+%% Comment out one of these two definitions.
+% \newcommand{\todo}[1]{\relax}
+\newcommand{\todo}[1]{{\color{red}\bfseries [[#1]]}}
+
+% \|name| or \mathid{name} denotes identifiers and slots in formulas
+\def\|#1|{\mathid{#1}}
+\newcommand{\mathid}[1]{\ensuremath{\mathit{#1}}}
+% \<name> or \codeid{name} denotes computer code identifiers
+\def\<#1>{\codeid{#1}}
+\protected\def\codeid#1{\ifmmode{\mbox{\sf{#1}}}\else{\sf #1}\fi}
+\protected\def\codeid#1{\ifmmode{\mbox{\ttfamily{#1}}}\else{\ttfamily #1}\fi}
+\protected\def\codeid#1{\ifmmode{\mbox{\smaller\ttfamily{#1}}}\else{\smaller\ttfamily #1}\fi}
 
 \begin{document}
 
 %% Title information
-\title{Compile Time Verification of Deterministic properties for Sequential Programs}         %% [Short Title] is optional;
+% \title{Compile Time Verification of Deterministic properties for Sequential Programs}
+\title{Making Sequential Programs Deterministic}
+         %% [Short Title] is optional;
                                         %% when present, will be used in
                                         %% header instead of Full Title.
 %\titlenote{with title note}             %% \titlenote is optional;
@@ -129,7 +144,7 @@
 %% Note: \begin{abstract}...\end{abstract} environment must come
 %% before \maketitle command
 \begin{abstract}
-Text of abstract \ldots.
+\todo{Text of abstract \ldots.}
 \end{abstract}
 
 
