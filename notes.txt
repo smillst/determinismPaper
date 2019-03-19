@@ -1,0 +1,5 @@
+We are comparing other tools to the Determinism Checker.
+Can we try to run those other tools on Randoop?
+I think that would be a compelling way to argue that they don't scale.
+Using a type-checker does require a commitment of time to do annotations,
+which we should admit, of course.
