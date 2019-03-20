@@ -50,8 +50,8 @@ in \<class Y>.
 The overriding method is invalid for two reasons: type of the parameter (\<@B>) is not a subtype of the parameter type in the overriden method (\<@C>) and the return type (\<@C>) is not a supertype of the return type of the overriden method (\<@B>).
 
 %collections type parameters - invariant
-Collection types are invariant. So, if a \<List> x is declared as \<@A List><\<@A String>> \<x;> and another \<List y> is declared
-as  \<@A List><\<@B String>> \<y;>, writing \<x = y> would result in an error.
+Collection types are invariant. So, if a \<List> x is declared as \codeid{@A List<@A String> x;} and another \<List y> is declared
+as  \codeid{@A List<@B String> y;}, writing \<x = y> would result in an error.
 
 %covariant array types
 Arrays follow covariant subtyping rules in java. Therefore, the assignment statement \<@A int @A[] x = y;> where \<y> was 
@@ -108,26 +108,170 @@ client code that would produce errors at compile time.
 \end{figure}
 
 \subsection{Additional typing rules for collection elements}
-Lists, set and maps - element types have to be subtypes of collection type 
-Explain iterator and extracting elements of an ordernondet collection here
-Examples of valid and invalid types
+The (determinism) type of a Collection or Iterator must be a supertype or equal to
+the type of the type parameter (see Figure~\ref{fig-determinism-collections}).
+If the Collection is \<@NonDet>, then the type parameter may not be
+\<@Det> or \<@OrderNonDet>. Although such types could exist, they are
+disallowed to prevent the following bug:
 
-\subsection{Avoid aliasing unsoundness}
-Give an example of unsoundness 
-Recall CLIMB-to-top rule and defaulting choice for local collections (to avoid too many warnings)
-Required user annotations for collections and arrays
+\begin{verbatim}
+public static void add(@NonDet List<@Det String> list, @NonDet int index, @Det String s) {
+    list.add(index, s);
+}
 
-\subsection{Special cases of polymorphism}
-Explain polymorphism first
-Explain modifiers to Polymorphic annotations
-Poly up and down for ordernondetermistic types
-Poly use for avoiding polluting det/ordernondet collections
-Subtype hierarchy among all variants of Poly
-Possibility of type refinement?	
+public static void f(@Det List<@Det String> list, @NonDet int index, @Det String s) {
+    add(list, index, s);
+}
+\end{verbatim}
+
+The possibility of mutation allows us to add to the \<@Det List> at a
+\<@NonDet> index, which is unsound.
+
+Some examples of valid types are:
+\begin{itemize}
+	\item \codeid{@NonDet\ \ \ \ \ \ List<@NonDet\ \ \ \ \ \ Integer>}
+	\item \codeid{@Det\ \ \ \ \ \ \ \ \ List<@Det\ \ \ \ \ \ \ \ \ Integer>}
+	\item \codeid{@OrderNonDet Set <@OrderNonDet Set<...>\relax >}
+	\item \codeid{@OrderNonDet Set <@Det String>}
+	\item \codeid{@Det\ \ \ \ \ \ \ \ \ Map <@Det String, @Det Integer>}
+	\item \codeid{@NonDet\ \ \ \ \ \ Set <T extends @NonDet Object>}
+\end{itemize}
+
+These types are invalid:
+\begin{itemize}
+	\item \codeid{@OrderNonDet Set <@NonDet\ \ \ \ \ \ Integer>}
+	\item \codeid{@NonDet\ \ \ \ \ \ List<@Det\ \ \ \ \ \ \ \ \ Integer>}
+	\item \codeid{@NonDet\ \ \ \ \ \ List<@OrderNonDet Set<...>\relax >}
+	\item \codeid{@Det\ \ \ \ \ \ \ \ \ List<@NonDet\ \ \ \ \ \ Integer>}
+	\item \codeid{@Det\ \ \ \ \ \ \ \ \ List<@OrderNonDet Set<...>\relax >}
+	\item \codeid{@Det\ \ \ \ \ \ \ \ \ Map <@Det String, @OrderNonDet List<@Det String>>}
+	\item \codeid{@Det\ \ \ \ \ \ \ \ \ List<T extends @NonDet Object>}
+	\item \codeid{@NonDet\ \ \ \ \ \ Set\ <T extends @Det Object>}
+\end{itemize}
+
+Similarly, the (determinism) type of an array must be a supertype or equal to
+the type of the component type (see Figure~\ref{fig-determinism-collections}).
+As with collections, \codeid{@NonDet} arrays of \codeid{@Det} or \codeid{@OrderNonDet}
+elements are not allowed.
+
+For example, these types are valid:
+\begin{itemize}
+	\item \codeid{@NonDet int @NonDet \ \ \ \ []}
+	\item \codeid{@Det \ \ \ int @Det \ \ \ \ \ \ \ []}
+	\item \codeid{@Det \ \ \ int @OrderNonDet[] @OrderNonDet[]}
+\end{itemize}
+
+These types are invalid:
+\begin{itemize}
+	\item \codeid{@NonDet int @OrderNonDet[]}
+	\item \codeid{@NonDet int @Det \ \ \ \ \ \ \ []}
+	\item \codeid{@Det \ \ \ int @NonDet \ \ \ \ []}
+\end{itemize}
+
+\begin{figure}
+	\centering
+	\begin{tabular}{|l|l|l|l|l|}
+		\cline{3-5}
+		\multicolumn{2}{c|}{~}  &  \multicolumn{3}{c|}{Type Argument (or array component type)} \\ \cline{3-5}
+		\multicolumn{2}{c|}{~}  & NonDet     & OrderNonDet & Det \\ \hline
+		& NonDet      &   valid    &  invalid    & invalid  \\ \cline{2-5}
+		Collection (or array)   & OrderNonDet &   invalid  &  valid      & valid  \\ \cline{2-5}
+		& Det         &   invalid  &  invalid    & valid      \\ \hline
+	\end{tabular}
+	\caption{Valid Collection (and array) declarations.  The Collection's (or array's) type qualifier
+		must be a supertype or equal to the type argument (or array component type).}
+	\label{fig-determinism-collections}
+\end{figure}
+
+A collection (\<List, Set, or a Map>) annotated as \<@OrderNonDet> has the following properties:
+\begin{enumerate}
+	\item The individual elements extracted by iterating over the collection get the type \<@NonDet>.
+	\item Accessing properties sich as \<size()> or querying if the collection \<isEmpty()> will return types
+	that are annotated as \<@Det> as they do not depend on the iteration order. 
+\end{enumerate}
+
+A user defined type may be annotated as \<@OrderNonDet> if and only if it
+is a subtype of Collection or Iterator.
+For example, if a user defines a type as
+\begin{verbatim}
+public class TestUserCollection<E> extends ArrayList<E> {...}
+\end{verbatim}
+Writing \codeid{@OrderNonDet TestUserCollection<@Det Integer>} is valid.\\
+Writing \codeid{@OrderNonDet TestUserCollection<@NonDet Integer>} is invalid
+because the type of the type parameter (\codeid{@NonDet}) is not a subtype
+of the user defined Collection type (\codeid{@OrderNonDet}).
+
+User defined types that are not a subtype of Collection or Iterator
+may not be annotated as \codeid{@OrderNonDet}.
+
+\subsection{Polymorphic annotations and special cases}
+The underlying checker-framework on which we build our determinism checker has support for
+polymorphic annotations. When a user writes a polymorphic annotation on a method signature or a type parameter,
+it indicates that it could resolve to any type in the type system depending on how it is used.
+In the determinism checker, we define a polymorphic annotation \<@PolyDet>.
+One of the most common locations for a polymorphic annotation is at a method signature.
+Consider the following method declaration annotated with polymorphic annotations
+\begin{verbatim}
+@PolyDet int foo (@PolyDet String param1, @PolyDet boolean param2) { }
+\end{verbatim}
+This indicates that method \<foo> can be called with arguments having any of the \codeid{@Det or @NonDet} type annotations 
+(\<@OrderNonDet> is not allowed because it is invalid on primitive types). \<@PolyDet> resolves to the least upper bound of
+the actual types on arguments. For instance, if this method is called as \codeid{foo(@Det String arg1, @NonDet boolean arg2)}, the 
+checker framework resolves the method declaration as \codeid{@NonDet int foo(@NonDet String param1, @NonDet boolean param2)}
+causing the return type to have the type annotation \<@NonDet>. 
+
+Recall that the determinism checker does not permit \<@OrderNonDet> on a type that isn't a collection, iterator, or an array.
+As a consequence, resolution of polymorphic type annotations at method signatures could have undesirable effects.
+Suppose a method declaration is annotated as \codeid{@PolyDet int size(@PolyDet List<T> list)}. Invoking this method
+as \codeid{size(@OrderNonDet List<@Det String>)} will result in \<@PolyDet> getting resolved to \<@OrderNonDet> which is invalid
+on the return type \<int>. We circumvent this scenario by introducing two variants to the \<@PolyDet> annotation, \<@PolyDet("up")>
+and \<@PolyDet("down")>. The semantics of these variants are as follows:
+\begin{itemize}
+	\item \<@PolyDet("up")>: Same as \<@PolyDet> except when it resolves to \<@OrderNonDet>, it is replaced with \<@NonDet>.
+	\item \<@PolyDet("down")>: Same as \<@PolyDet> except when it resolves to \<@OrderNonDet>, it is replaced with \<@Det>.
+\end{itemize} 
+The modifiers "up" and "down" are indicative of the subtyping relationship of \<@OrderNonDet> with \<@NonDet> and \<@Det> respectively
+in the determinism type hierarchy.
+Annotating \<size()> as \codeid{@PolyDet("down") int size(@PolyDet List<T> list)} will only allow the following type resolutions:
+\begin{itemize}
+	\item \codeid{@Det int size(@Det List<T> list)}
+	\item \codeid{@Det int size(@OrderNonDet List<T> list)}
+	\item \codeid{@NonDet int size(@NonDet List<T> list)}
+\end{itemize}
+
+In order to provide soundness guarantees, we must ensure that a collection that is
+declared as \<@Det> is not side-effected in non-deterministic ways. Consider the following annotation 
+on the List add method: \codeid{public void add(@PolyDet ArrayList<E> this, @PolyDet int index, E element)}.
+Suppose a client calls this method as follows:
+\begin{verbatim}
+@Det ArrayList<@Det String> list;
+@NonDet int random;
+@Det String str;
+list.add(random, str);
+\end{verbatim}
+This will result in the instantion \codeid{public void add(@NonDet ArrayList<E> this, @NonDet int index, E element)} and
+the method invocation will type check. This is problematic because even though \<list> was declared to be \<@Det>,
+the type checker allows the addition of an element at a \<@NonDet> location violating our determinism guarantees.
+We prevent this behavior by introducing another valiant of \<@PolyDet>, \<@PolyDet("use")> that does not affect
+type instantiations. This is especially useful in preventing methods from non-deterministically modifying the state
+of a deterministic receiver. To have this effect, the library method \<ArrayList.add> is annotated as:
+\codeid{public void add(@PolyDet ArrayList<E> this, @PolyDet("use") int index, E element)}.
+Since \<@PolyDet("use")> has no effect on type instantiations, calling this method on a \<@Det List>
+will result in the method declaration being resolved as \codeid{public void add(@Det ArrayList<E> this, @Det int index, E element)}
+irrespective of the type of \<index>, thereby preventing undesired side-effects.
+
+\subsection{Dataflow analysis}
+
+\subsection{Type Refinement}
 
 \subsection{Discussion on defaulting rules}
 Det - default, but @Poly is the default for parameters and return types
 Choice of defaults on class type, constructors and method params and return types
+Defaults on hashsets, hashmap, etc
+
+\subsection{Avoid aliasing unsoundness}
+Recall CLIMB-to-top rule and defaulting choice for local collections (to avoid too many warnings)
+Required user annotations for collections and arrays
 
 \subsection{Additional hardcoded rules for precision}
 Example: equals on HashSet
@@ -136,3 +280,9 @@ Discussion on System properties - env, line, file and path separator.
 \subsection{Annotating more classes/providing more specifications}
 Ease of annotating more JDk classes
 User provided stub files to override existing behavior
+
+\subsection{Maps discussion}
+@Det --> keySet iteration is @Det
+get(): can return o-nd collections
+
+\subsection{About generics and upper bounds?}
