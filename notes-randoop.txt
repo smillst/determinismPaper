@@ -1,8 +1,15 @@
+[cite personal communication]
+
 We chose to perform a case study on the Randoop test generator.
  * it is frequently used in SE experiments
  * it is actively maintained
+ * the developers have struggled with nondeterminism
 
+Randoop is intended to be deterministic, when invoked on a deterministic program.
+Users of Randoop can pass in a different seed in order to obtain a different deterministic output.)
+\footnote{Randoop has a few command-line options that enable concurrency and timeouts, both of which can lead to nondeterministic behavior.)
 
+However, Randoop was not deterministic.
 
 Motivation:
  * preventing test failures
@@ -10,22 +17,60 @@ Motivation:
  * reproducing bugs reported by users or encountered by the development team
  * comparing executions when changing Randoop itself (mostly) or inputs to it
 
-Two weeks of full-time work in July, 2017 and July 13, 2017.
-Then, 5 additional bug fixes over the next 12 months.
-2413 changed lines in the diffs.
-(This number slightly overstates the number of code changes made, because sometimes changing code would result in code formatting changes, and some changes in those commits are unrelated to determinism, such as documentation improvements.)
-(Plus, use of Docker, test infrastructure to handle nondeterminism in coverage, etc.)
-(Plus, use of tools such as Error Prone, which has some checks; for example, it warns if toString is used on array objects, which don't override Object.toString and therefore print a hash code.)
-(Plus, tools to preprocess output and logs to make nondeterministic ones easier to compare.)
-(Plus, setting hash codes to be deterministic.)
+Actions taken by the developers to eliminate, or mitigate the effect of, nondeterminism included:
 
+This was in addition to other effort already expended by the developers.  Each of the following had been helpful (and some are good practice regardless), but they didn't solve the problem:
+ * Use Docker images to run tests, to avoid system dependencies such as a different JDK having a different number of classes or methods.  [This is necessary regardless of our work; should we mention it?]
+ * test infrastructure to create relaxed oracles that permit small deviations in code coverage [of generated tests].
+ * Use of tools such as Error Prone, which has some checks; for example, it warns if toString is used on array objects, which don't override Object.toString and therefore print a hash code.
+ * Custom tools to preprocess output and logs to make nondeterministic ones easier to compare.
+ * Deterministic hash codes (custom hashCode() routines that count up from 1 rather than using a memory address).
+
+In July 2017, the Randoop developers spent
+two weeks of full-time work to eliminate unintentional nondeterministic behavior in Randoop.
 Methodology:
  * run system
  * look for differences in (logging) output
  * find root cause
  * repeat
+The most common causes were iteration order of sets and maps, and toString routines.
+Some of the nondeterminism was in libraries, such as the JDK.
+
+[Can compare this to the effort to annotate.]
+
+That coding sprint did not find all the problems; the developers committed 5 additional bug fixes over the next 12 months.
+[2413 changed lines in the diffs.
+(This number slightly overstates the number of code changes made, because sometimes changing code would result in code formatting changes, and some changes in those commits are unrelated to determinism, such as documentation improvements.)]
+
 
 Nonetheless, the Determinism Checker found more occurrences of nondeterminism.
+We ran the Determinism Checker.
+Our bug reports were accepted by the maintainers and committed to the Randoop repository.
+Example: getTypeParameters.  Usually there are few type parameters.  No problems arose in the tests.
+
+===========================================================================
+
+Found by the Determinism Checker:
+
+
+commit c975a9f7d862b97064c0559875e6e2a65510e92b
+Author: Michael Ernst <mernst@cs.washington.edu>
+Date:   Sat Feb 23 21:13:28 2019 -0800
+
+    Make getTypeParameters deterministic (bug found by Determinism Checker)
+
+commit 661a49700fefbd78ef9cb71b89e0be0d4235a7bd
+Author: Michael Ernst <mernst@cs.washington.edu>
+Date:   Fri Mar 8 15:26:17 2019 -0800
+
+    Don't print nondeterministic hashCode()
+
+    Problem noticed by Determinism Checker.
+    This method isn't currently called, but it is still a source of nondeterminism.
+
+===========================================================================
+
+Changes made before running the Determinism Checker:
 
 b473fd14b83e3adb6c3da019e1b2f544f4791273 22eda87f84b5e8b161185304625ea6d7065099b8 5ff5b4c44bba93b6557827488401127e8eb3098c 44bdeebdf2b471b66504b54490563b9c821b7910 c15ccbf21829335f31580845c9f84b86926b58a5 32f7223438363ebdfe3f2f8e5da7e21f7196397c 3f1ebea7a5cbf922a1d04321e9d5d43af6739140 20751a82aab6826901220c2fa4021731935172d4 59eeffb07101a12256fcc4f3b74a9d270ab79aeb 467ab360c01cfd9de570a9992dc0a89406f8d32b 0c3d91051a138a7fb83a0bd4a794a92f5d769a23 fa49811c498f7711041034b66278c85300771259 e15f915504cb48b84f5a51f488eebc3057a1b45b
 
