@@ -43,6 +43,11 @@ That coding sprint did not find all the problems; the developers committed 5 add
 (This number slightly overstates the number of code changes made, because sometimes changing code would result in code formatting changes, and some changes in those commits are unrelated to determinism, such as documentation improvements.)]
 
 
+We annotated the core of Randoop (the `src/main/java` directory), which contains 24 KLOC of non-comment, non-blank lines (41 KLOC including blanks and comments).
+% Also 9 KLOC of tests in the `src/test/java` directory.
+
+
+
 Nonetheless, the Determinism Checker found more occurrences of nondeterminism.
 We ran the Determinism Checker.
 Our bug reports were accepted by the maintainers and committed to the Randoop repository.
