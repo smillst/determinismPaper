@@ -18,7 +18,7 @@ Nondeterminism is a serious problem for software developers and users.
   program to an original program.  This hinders debugging and maintenance,
   and prevents use of techniques such as Delta Debugging~\cite{Zeller1999}.
 \item
-  Nondeterminism may may outputs incompatible with previous outputs relied
+  Nondeterminism may make outputs incompatible with previous outputs relied
   on by users or by other systems.\todo{Citations about bugs related to this?}
 \item
   Nondeterminism reduces users' and developers' \textbf{trust} in a program's output.
@@ -31,7 +31,7 @@ and coin-flipping
 It may be surprising that nondeterminism is common even in sequential
 programs that do not flip coins.
 For example, any program that iterates over a set or map, and that uses the
-results to affect the output, may suffer from nondeterminism.
+results to affect the output, may produce different output on different runs.
 So may any program that uses default formatting, such as Java's
 \<Object.toString()> which includes an address or hash code.
 Other nondeterministic APIs include date-and-time functions and
@@ -39,35 +39,35 @@ accessing system properties such as the file system or environment variables.
 
 We have created an analysis that detects nondeterminism or verifies its
 absence.
-The analysis permits programmers to specify which parts of their program
-are nondeterministic, and it verifies that the remainder is deterministic.
+Our analysis permits programmers to specify which parts of their program
+are intentionally nondeterministic, and it verifies that the remainder is deterministic.
 %
-The analysis is sound:  if it issues no warnings, then the program does not
+Our analysis is sound:  if it issues no warnings, then the program does not
 suffer nondeterminism of the given types.  (If the program uses concurrency,
 it might still be nondeterministic.)
 %
-The analysis works at compile time, giving a guarantee over every possible
+Our analysis works at compile time, giving a guarantee over every possible
 execution of the program, by contrast to unsound dynamic tools that attempt
 to discover when a program has exhibited nondeterministic behavior on
-specific runs.
+specific runs.  There is no need for a special JVM nor rerunning a program
+multiple times.
 %
-The analysis handles collections that will contain the same values, but
+Our analysis handles collections that will contain the same values, but
 possibly in a different order, on different runs.
 %
-The analysis is precise enough for practical use.  It permits calls to
+Our analysis is precise enough for practical use.  It permits calls to
 nondeterministic APIs, and only issues a warning if they are used in ways
 that may lead to nondeterministic output observed by a user.  Like any
 sound analysis, it can issue false positive warnings.
-\todo{Another advantage of our approach
-is that the analysis designer doesn't need to make changes to the JVM or have to rerun the test suite multiple times in order
-to detect flakiness.}
 
 
-The high level goal of our work is to provide programmers with a tool for
-specifying deterministic properties in a program and be able to verify them
+
+The high-level goal of our work is to provide programmers with a tool for
+specifying deterministic properties in a program and verifing them
 at compile time.
 
 
+Other researchers have also recognized the importance of this problem.
 Previous work in program analysis for nondeterminism has focused on unsound dynamic
 approaches that identify flaky test cases.
 NonDex~\cite{nondex} is a tool that manually\todo{This is confusing:  the
