@@ -263,16 +263,31 @@ irrespective of the type of \<index>, thereby preventing undesired side-effects.
 \subsection{Dataflow analysis and type refinement}
 The checker framework performs automatic type inference for local types within method bodies.
 It also performs dataflow analysis and refines the types of these locals, thereby reducing the annotation burden 
-on the programmer.
+on the programmer. Consider the example below:
+\begin{verbatim}
+void foo(@Det int x) {
+    @NonDet int y = x;    // Type of y gets refined to @Det.
+    @Det int z = y;       //  No error here.
+}
+\end{verbatim}
+The checker framework performs dataflow analysis within method bodies and refines the types of local variables.
+In the example above, even though the local variable \codeid{y} was declared to be \codeid{@NonDet}, it gets
+type refined to \codeid{@Det} after the first assignment statement. As the result, the assignment of \codeid{y}
+to a \codeid{@Det} variable \codeid{z} is sound. In the follwing example,
+\begin{verbatim}
+void foo(@NonDet Object x, @Det Object y) {
+    x = y;                // No type refinement for x.
+    @Det Object z = x;    // Error.
+}
+\end{verbatim}
+the checker reports a warning at the second assignment statement of \codeid{foo}. Type refinement only applies to locals. Refining non-locals can result in side effects making the analysis unsound.
 
-\begin{itemize}
-	\item Example code with explicit annotations on local variable, showing flow of values into this local variable
-	\item Explain that CF refines the type of this local variable; inbuild dataflow analysis
-	\item Constrast this with a type on a method argument that won't be type refined.
-	\item CF allows type system developers to define additional refinement rules.
-	\item Determinism checker performs type refinement for the receivers of sort() methods in Collection classes.
-	\item Example client code where this type refinement results in precise results
-\end{itemize}
+The determinism checker has additional type refinement rules for the sorting methods in collections. 
+The checker type refines a receiver of type \codeid{@OrderNonDet List} to a \codeid{@Det List} if all the
+type argument of this \codeid{List} have the type annotation \codeid{@Det}. Similar rules apply for \codeid{Arrays.sort()} and
+\codeid{Collections.sort()}.
+Under this if \codeid{sort()} is called on a receiver of type \codeid{@OrderNonDet List<@Det Set<@Det String>>}, it will
+be type refined to \codeid{@Det List<@Det Set<@Det String>>}. However a receiver of type \codeid{@OrderNonDet List<@OrderNonDet Set<@Det String>>} will not be type refined.
 
 \subsubsection{CLIMB-to-top and collection, array locals}
 
