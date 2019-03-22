@@ -63,7 +63,7 @@ sound analysis, it can issue false positive warnings.
 
 
 The high-level goal of our work is to provide programmers with a tool for
-specifying deterministic properties in a program and verifing them
+specifying deterministic properties in a program and verifying them
 at compile time.
 
 
@@ -83,19 +83,20 @@ resolving nondeterminism
 at an earlier phase in the software development lifecycle would be greatly beneficial to
 developers.
 
-We have defined a type system with three types\todo{reference a figure}:
-\<Det> represents values that will be the same across executions,
-\<OrderNonDet> represents collections that are guaranteed to contain the same elements albeit in possibly
-different iteration order, and
-\<NonDet> provides no determinism guarantees:  it represents values that
+Our analysis uses three main abstractions, or approximations to run-time values:
+\begin{description}
+\item[\<Det>] represents values that will be the same across executions.
+\item[\<OrderNonDet>] represents collections that are guaranteed to contain the same elements albeit in possibly
+different iteration order.
+\item[\<NonDet>] represents values that
 might differ from run to run.
-Programmers can write these types to specify their program's behavior.
+\end{description}
+\noindent
+Programmers can write these to specify their program's behavior.
 Our type system contains a variety of other features that increase
 expressiveness and reduce false positive alarms.\todo{reference a section}
 
-We have implemented this type system in the context of Java.
-We annotated all the collection
-classes (Lists, Sets and Maps) in the JDK with our new type system.
+We have implemented this analysis as a pluggable type system for Java.
 
 We have run experiments\todo{describe them}.
 We found this type hierarchy
@@ -103,11 +104,22 @@ is expressive enough to identify nondeterministic behaviors in production softwa
 
 This paper makes the following contributions:
 \begin{enumerate}
-	\item We provide a design and implementation of a type system for expressing deterministic properties in sequential programs.
-	\item We annotated several classes in JDK. By doing this, we have translated the specification for these APIs from
-	human readable comments to machine readable and verifiable documentation.
-	\item We performed a case study of a real world java program Randoop (loc, etc) which revealed bugs.
-	\item We perform a comparative study of our technique with state of the art flaky test detectors and present results.
+  \item We designed a type type system for expressing determinism properties.
+
+  \item We implemented the type system for Java.
+
+  \item In a case study, we annotated several libraries, including the
+    relevant parts of the JDK (Java's standard library).  This provides a
+    formal, machine-readable specification for the libraries, and it
+    demonstrates the richness of our type system.
+
+  \item In another case study, we ran our analysis on a 24 KLOC project that
+    developers had spent weeks of effort to make deterministic.  Our system
+    discovered nondeterminism that the developers had overlooked, and they
+    accepted our patches.
+
+  \item We compared our tool against state-of-the-art flaky test
+    detectors.\todo{Say something about the results.}
 \end{enumerate}
 
-% LocalWords:  NONDEX NonDex DeFlaker
+% LocalWords:  NONDEX NonDex DeFlaker Det OrderNonDet NonDet
