@@ -289,10 +289,12 @@ type argument of this \codeid{List} have the type annotation \codeid{@Det}. Simi
 Under this if \codeid{sort()} is called on a receiver of type \codeid{@OrderNonDet List<@Det Set<@Det String>>}, it will
 be type refined to \codeid{@Det List<@Det Set<@Det String>>}. However a receiver of type \codeid{@OrderNonDet List<@OrderNonDet Set<@Det String>>} will not be type refined.
 
-\subsubsection{CLIMB-to-top and collection, array locals}
+\subsection{CLIMB-to-top and collection, array locals}
+
+Every type system in the checker framework must define a default type annotation. This annotation will be applied
+to every location that isn't explicitly annotated.
 
 \begin{itemize}
-	\item Every type system has a default annotation - the type that will be applied to unannotated locations.
 	\item CF defaults types at CLIMB locations to top and type refines them. (steal some text from manual).
 	\item CLIMB locations do not include type parameters. So this is problematic for determinism checker
 	\item Example: Unannotated collection; its default would be @NonDet<@Det> which is invalid.
