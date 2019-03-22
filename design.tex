@@ -37,10 +37,10 @@ in \<class Y>.
 \begin{figure}
 	\begin{verbatim}
 	class X {
-	    @B int foo (@C int param) {}
+	    @B int foo(@C int param) {}
 	}
 	class Y extends X {
-	    @C int foo (@B int param) {}
+	    @C int foo(@B int param) {}
 	}
 	\end{verbatim}
 	\caption{Example: Invalid Method override}
@@ -106,6 +106,24 @@ client code that would produce errors at compile time.
 	\caption{Example: Errors detected by determinism checker}
 	\label{code-determinism}
 \end{figure}
+
+\subsection{Determinism}
+
+The underlying checker-framework on which we build our determinism checker has support for
+polymorphic annotations. When a user writes a polymorphic annotation on a method signature or a type parameter,
+it indicates that it could resolve to any type in the type system depending on how it is used.
+In the determinism checker, we define a polymorphic annotation \<@PolyDet>.
+One of the most common locations for a polymorphic annotation is at a method signature.
+Consider the following method declaration annotated with polymorphic annotations
+\begin{verbatim}
+@PolyDet int foo(@PolyDet String param1, @PolyDet boolean param2) { }
+\end{verbatim}
+This indicates that method \<foo> can be called with arguments having any of the \codeid{@Det or @NonDet} type annotations 
+(\<@OrderNonDet> is not allowed because it is invalid on primitive types). \<@PolyDet> resolves to the least upper bound of
+the actual types on arguments. For instance, if this method is called as \codeid{foo(@Det String arg1, @NonDet boolean arg2)}, the 
+checker framework resolves the method declaration as \codeid{@NonDet int foo(@NonDet String param1, @NonDet boolean param2)}
+causing the return type to have the type annotation \<@NonDet>.
+
 
 \subsection{Additional typing rules for collection elements}
 The (determinism) type of a Collection or Iterator must be a supertype or equal to
@@ -204,21 +222,7 @@ of the user defined Collection type (\codeid{@OrderNonDet}).
 User defined types that are not a subtype of Collection or Iterator
 may not be annotated as \codeid{@OrderNonDet}.
 
-\subsection{Polymorphic annotations and special cases}
-The underlying checker-framework on which we build our determinism checker has support for
-polymorphic annotations. When a user writes a polymorphic annotation on a method signature or a type parameter,
-it indicates that it could resolve to any type in the type system depending on how it is used.
-In the determinism checker, we define a polymorphic annotation \<@PolyDet>.
-One of the most common locations for a polymorphic annotation is at a method signature.
-Consider the following method declaration annotated with polymorphic annotations
-\begin{verbatim}
-@PolyDet int foo (@PolyDet String param1, @PolyDet boolean param2) { }
-\end{verbatim}
-This indicates that method \<foo> can be called with arguments having any of the \codeid{@Det or @NonDet} type annotations 
-(\<@OrderNonDet> is not allowed because it is invalid on primitive types). \<@PolyDet> resolves to the least upper bound of
-the actual types on arguments. For instance, if this method is called as \codeid{foo(@Det String arg1, @NonDet boolean arg2)}, the 
-checker framework resolves the method declaration as \codeid{@NonDet int foo(@NonDet String param1, @NonDet boolean param2)}
-causing the return type to have the type annotation \<@NonDet>. 
+\subsection{Polymorphism extensions}
 
 Recall that the determinism checker does not permit \<@OrderNonDet> on a type that isn't a collection, iterator, or an array.
 As a consequence, resolution of polymorphic type annotations at method signatures could have undesirable effects.
@@ -238,6 +242,8 @@ Annotating \<size()> as \codeid{@PolyDet("down") int size(@PolyDet List<T> list)
 	\item \codeid{@Det int size(@OrderNonDet List<T> list)}
 	\item \codeid{@NonDet int size(@NonDet List<T> list)}
 \end{itemize}
+
+\subsection{Differentiating binding and use}
 
 In order to provide soundness guarantees, we must ensure that a collection that is
 declared as \<@Det> is not side-effected in non-deterministic ways. Consider the following annotation 
