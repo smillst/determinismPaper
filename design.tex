@@ -321,7 +321,7 @@ be type refined to \codeid{@Det List<@Det Set<@Det String>>}. However a receiver
 \subsection{Additional hardcoded rules in the determinism checker  for precision}
 
 \begin{itemize}
-	\item Set.equals() is annotated as \<@Poly("up")>. This is sound but imprecise.
+	\item \<Set.equals()> is annotated as \<@Poly("up")>. This is sound but imprecise.
 	\item Example1: \codeid{@OrderNonDet Set<@Det List>.equals(@OrderNonDet Set<@Det List>)} is deterministic
 	\item Example2: \codeid{@OrderNonDet Set<@OrderNonDet List>.equals(@OrderNonDet Set<@OrderNonDet List>)} is not deterministic.
 	\item Explain the rules under which we make Set equality deterministic.
@@ -332,7 +332,9 @@ be type refined to \codeid{@Det List<@Det Set<@Det String>>}. However a receiver
 \subsection{Maps discussion}
 
 \begin{itemize}
-	\item A map is deterministic if the keySet() is deterministic.
+	\item A map is deterministic iff the \<entrySet()> is
+          deterministic; equivalently, iff the \<keySet()> and \<values()>
+          are both deterministic
 	\item the iteration order of a keyset is the same as the iteration order of entrySet and Values.
 	\item \<HashMap> - can be \<@OrderNonDet> or \<@NonDet>.
 	\item \<LinkedHashMap> - can be \<@Det>, \<@OrderNonDet>, ot \<@NonDet>.
