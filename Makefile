@@ -23,3 +23,7 @@ bib-update: bib
 ifndef NOGIT
 	-(cd bib && git pull && make)
 endif
+
+TAGS: tags
+tags:
+	etags `latex-process-inputs -list paper.tex`
