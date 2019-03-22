@@ -295,10 +295,10 @@ be type refined to \codeid{@Det List<@Det Set<@Det String>>}. However a receiver
 	\item Every type system has a default annotation - the type that will be applied to unannotated locations.
 	\item CF defaults types at CLIMB locations to top and type refines them. (steal some text from manual).
 	\item CLIMB locations do not include type parameters. So this is problematic for determinism checker
-	\item Example: Unannotated collection; its default would be @NonDet<@Det> which is invalid.
-	\item So we default locals collections to @NonDet<@NonDet>. 
-	\item This is sound but could produce a lot of FPs. Example assignment: @NonDet<@NonDet> collection = collection1.
-	Type of collection1 is @Det<@Det> and it is a method argument.
+	\item Example: Unannotated collection; its default would be \codeid{@NonDet<@Det>} which is invalid.
+	\item So we default locals collections to \codeid{@NonDet<@NonDet>}. 
+	\item This is sound but could produce a lot of FPs. Example assignment: \codeid{@NonDet<@NonDet> collection = collection1}.
+	Type of collection1 is \codeid{@Det<@Det>} and it is a method argument.
 	\item To avoid this, we require users to explicitly annotate local collections.
 	\item Similarly for local arrays.
 \end{itemize}
@@ -306,24 +306,26 @@ be type refined to \codeid{@Det List<@Det Set<@Det String>>}. However a receiver
 \subsection{Discussion on defaulting rules}
 
 \begin{itemize}
-	\item Determinism checker has @Det as the usual default. Reason being we expect the program to be 
+	\item Determinism checker has \<@Det> as the usual default. Reason being we expect the program to be 
 	deterministic unless specified by programmer or nondeterminism from libraries that we have annotated (Random, Collections, etc).
-	\item All method parameters and return types (including constructors) are @PolyDet.
+	\item All method parameters and return types (including constructors) are \<@PolyDet>.
 	\item Reason: We want to be able to report nondeterministic behavior only where it is invalid.
-	\item Example of a method with params and return types annotated as @PolyDet
-	This method called from 2 places - one harmless(@Det instantiations), and another that call with @NonDet args and prints the retun type.
-	\item Exception to this defaulting is the construction of HashSets and HashMaps because they can't be @Det.
-	We explicitly annotate the return type on constructors as @OrderNonDet and disallow constructing @Det HashSet or HashMap.
+	\item Example of a method with params and return types annotated as \<@PolyDet>.
+	This method called from 2 places - one harmless(@Det instantiations), and another that call with \<@NonDet> args and prints the retun type.
+	\item Exception to this defaulting is the construction of HashSets and HashMaps because they can't be \<@Det>.
+	We explicitly annotate the return type on constructors as
+        \<@OrderNonDet> and disallow constructing \<@Det HashSet> or \<@Det
+        HashMap>.
 \end{itemize}
 
 \subsection{Additional hardcoded rules in the determinism checker  for precision}
 
 \begin{itemize}
-	\item Set.equals() is annotated as @Poly("up"). This is sound but imprecise.
-	\item Example1: @OrderNonDet Set<@Det List>.equals(@OrderNonDet Set<@Det List>) is deterministic
-	\item Example2: @OrderNonDet Set<@OrderNonDet List>.equals(@OrderNonDet Set<@OrderNonDet List>) is not deterministic.
+	\item Set.equals() is annotated as \<@Poly("up")>. This is sound but imprecise.
+	\item Example1: \codeid{@OrderNonDet Set<@Det List>.equals(@OrderNonDet Set<@Det List>)} is deterministic
+	\item Example2: \codeid{@OrderNonDet Set<@OrderNonDet List>.equals(@OrderNonDet Set<@OrderNonDet List>)} is not deterministic.
 	\item Explain the rules under which we make Set equality deterministic.
-	\item We annotate System.getProperty as @NonDet because the results could vary across machines.
+	\item We annotate System.getProperty as \<@NonDet> because the results could vary across machines.
 	\item Exceptions: line.Sepaator, file.Separator. and path.Separator.
 \end{itemize}
 
@@ -332,10 +334,10 @@ be type refined to \codeid{@Det List<@Det Set<@Det String>>}. However a receiver
 \begin{itemize}
 	\item A map is deterministic if the keySet() is deterministic.
 	\item the iteration order of a keyset is the same as the iteration order of entrySet and Values.
-	\item HashMap - can be @OrderNonDet or @NonDet.
-	\item LinkedHashMap - can be @Det, @OrderNonDet, ot @NonDet.
-	\item TreeMap - can be @Det or @NonDet.
-	\item Problm with Map.get() : Annotating as @PolyDet is imprecise.
+	\item \<HashMap> - can be \<@OrderNonDet> or \<@NonDet>.
+	\item \<LinkedHashMap> - can be \<@Det>, \<@OrderNonDet>, ot \<@NonDet>.
+	\item \<TreeMap> - can be \<@Det> or \<@NonDet>.
+	\item Problem with \<Map.get()> : Annotating as \<@PolyDet> is imprecise.
 	\item We circumvent this by hardcoding rules to make it precise. (Describe the rule here)
 	\item It was probably a bad design choice to make HashMap a subclass of Map (talk about how
 	every method is overriden). Similarly for HashSet.
