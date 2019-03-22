@@ -260,29 +260,55 @@ Since \<@PolyDet("use")> has no effect on type instantiations, calling this meth
 will result in the method declaration being resolved as \codeid{public void add(@Det ArrayList<E> this, @Det int index, E element)}
 irrespective of the type of \<index>, thereby preventing undesired side-effects.
 
-\subsection{Dataflow analysis}
+\subsection{Dataflow analysis and type refinement}
+The checker framework performs automatic type inference for local types within method bodies.
+It also performs dataflow analysis and refines the types of these locals, thereby reducing the annotation burden 
+on the programmer.
 
-\subsection{Type Refinement}
+\begin{itemize}
+	\item Example code with explicit annotations on local variable, showing flow of values into this local variable
+	\item Explain that CF refines the type of this local variable; inbuild dataflow analysis
+	\item Constrast this with a type on a method argument that won't be type refined.
+	\item CF allows type system developers to define additional refinement rules.
+	\item Determinism checker performs type refinement for the receivers of sort() methods in Collection classes.
+	\item Example client code where this type refinement results in precise results
+\end{itemize}
+
+\subsubsection{CLIMB-to-top and collection, array locals}
+
+\begin{itemize}
+	\item Every type system has a default annotation - the type that will be applied to unannotated locations.
+	\item CF defaults types at CLIMB locations to top and type refines them. (steal some text from manual).
+	\item CLIMB locations do not include type parameters. So this is problematic for determinism checker
+	\item Example: Unannotated collection; its default would be @NonDet<@Det> which is invalid.
+	\item So we default locals collections to @NonDet<@NonDet>. 
+	\item This is sound but could produce a lot of FPs. Example assignment: @NonDet<@NonDet> collection = collection1.
+	Type of collection1 is @Det<@Det> and it is a method argument.
+	\item To avoid this, we require users to explicitly annotate local collections.
+	\item Similarly for local arrays.
+\end{itemize}
 
 \subsection{Discussion on defaulting rules}
-Det - default, but @Poly is the default for parameters and return types
-Choice of defaults on class type, constructors and method params and return types
-Defaults on hashsets, hashmap, etc
 
-\subsection{Avoid aliasing unsoundness}
-Recall CLIMB-to-top rule and defaulting choice for local collections (to avoid too many warnings)
-Required user annotations for collections and arrays
+\begin{itemize}
+	\item Determinism checker has @Det as the usual default. Reason being we expect the program to be 
+	deterministic unless specified by programmer or nondeterminism from libraries that we have annotated (Random, Collections, etc).
+	\item All method parameters and return types (including constructors) are @PolyDet.
+	\item Reason: We want to be able to report nondeterministic behavior only where it is invalid.
+	\item Example of a method with params and return types annotated as @PolyDet
+	This method called from 2 places - one harmless(@Det instantiations), and another that call with @NonDet args and prints the retun type.
+	\item Exception to this defaulting is the construction of HashSets and HashMaps because they can't be @Det.
+	We explicitly annotate the return type on constructors as @OrderNonDet and disallow constructing @Det HashSet or HashMap.
+\end{itemize}
 
-\subsection{Additional hardcoded rules for precision}
+\subsection{Additional hardcoded rules in the determinism checker  for precision}
 Example: equals on HashSet
 Discussion on System properties - env, line, file and path separator.
-
-\subsection{Annotating more classes/providing more specifications}
-Ease of annotating more JDk classes
-User provided stub files to override existing behavior
 
 \subsection{Maps discussion}
 @Det --> keySet iteration is @Det
 get(): can return o-nd collections
 
-\subsection{About generics and upper bounds?}
+\subsection{Annotating more classes/providing more specifications}
+Ease of annotating more JDk classes
+User provided stub files to override existing behavior
