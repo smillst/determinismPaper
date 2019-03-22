@@ -313,9 +313,22 @@ on the programmer.
 \end{itemize}
 
 \subsection{Maps discussion}
-@Det --> keySet iteration is @Det
-get(): can return o-nd collections
+
+\begin{itemize}
+	\item A map is deterministic if the keySet() is deterministic.
+	\item the iteration order of a keyset is the same as the iteration order of entrySet and Values.
+	\item HashMap - can be @OrderNonDet or @NonDet.
+	\item LinkedHashMap - can be @Det, @OrderNonDet, ot @NonDet.
+	\item TreeMap - can be @Det or @NonDet.
+	\item Problm with Map.get() : Annotating as @PolyDet is imprecise.
+	\item We circumvent this by hardcoding rules to make it precise. (Describe the rule here)
+	\item It was probably a bad design choice to make HashMap a subclass of Map (talk about how
+	every method is overriden). Similarly for HashSet.
+\end{itemize}
 
 \subsection{Annotating more classes/providing more specifications}
-Ease of annotating more JDk classes
-User provided stub files to override existing behavior
+\begin{itemize}
+	\item Type system developer has to annotate methods in the JDK or any other library.
+	\item Note: Another source of Nondeterminism we haven't analyzed: File system.
+	\item Users can also provide stubs instead. (Steal some text from manual here)
+\end{itemize}
