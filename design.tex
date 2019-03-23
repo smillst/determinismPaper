@@ -1,19 +1,15 @@
-\section{Design}
-
+\section{Design}\label{design}
 
 %% This section is too basic, and therefore is boring because most readers
 %% will already know it.  It also delays the interesting parts of the paper
 %% for too long.  We can introduce concepts as they are needed in the rest
 %% of the paper.
-% \subsection{Type checking background}
+% \subsection{Type checking background}\label{type-checking}
 % The major components of a type system include: 1) \textit{types}, 2) \textit{subtyping rules}, and 3) \textit{dataflow analysis}.
 % A \textit{type} serves as an abstraction for the set of acceptable values for any expression. The types in a type system form a lattice of finite height. 
 % The hierarchy of types in this lattice defines subtyping relationships among them.
 % In our framework, we require every type hierarchy to define a unique\<@Top> and a \<@Bottom> element. This ensures that
-% any given pair of types has a \textit{least upper bound} and a
-% \textit{greatest lower bound}.\todo{It guarantees that any pair of types
-%   has an upper and a lower bound, but not that a unique least upper bound
-%   and greatest lower bound exist.}
+% any given pair of types has a \textit{least upper bound} and a \textit{greatest lower bound}.
 % Throughout this paper, we use the notation \<@A> <: \<@B> to denote that type \<@A> is a subtype of type \<@B>.
 % As an illustration of the type hierarchy, consider the lattice of types shown in Figure~\ref{fig-example-lattice}.
 % \begin{figure}
@@ -36,9 +32,6 @@
 % \label{code-invalid1}
 % \end{figure}
 % 
-% Similarly, if the return type of a method is annotated as \<@C> but it returns a type that has either \<@A> or \<@B>, the
-% checker would report an error at compile time.
-% 
 % %Method overriding and example
 % For method overriding, the usual rules apply for parameters and arguments i.e covariant subtyping for parameters
 % and contravariant subtyping for return types. Consider the example in Figure~\ref{code-invalid2} where method \<foo> of \<class X> is overridden
@@ -56,7 +49,7 @@
 %     \label{code-invalid2}
 % \end{figure}
 % 
-% The overriding method is invalid for two reasons: type of the parameter (\<@B>) is not a subtype of the parameter type in the overriden method (\<@C>) and the return type (\<@C>) is not a supertype of the return type of the overriden method (\<@B>).
+% The overriding method is invalid for two reasons: type of the parameter (\<@B>) is not a subtype of the parameter type in the overridden method (\<@C>) and the return type (\<@C>) is not a supertype of the return type of the overridden method (\<@B>).
 % 
 % %collections type parameters - invariant
 % Collection types are invariant. So, if a \<List> x is declared as \codeid{@A List<@A String> x;} and another \<List y> is declared
@@ -67,10 +60,11 @@
 % declared as \<@B int @A[] y> would type check without any warning.
 
 
+
 \todo{Need some background around here about what a type qualifier is,
   how it is represented in Java, and how to read a type \<@Q BaseType>.}
 
-\subsection{Determinism type hierarchy}
+\subsection{Determinism type hierarchy}\label{type-hierarchy}
 The core of the determinism type system is the following type qualifiers (see Figure~\ref{fig-determinism-hierarchy}):
 \todo{introduce just @Det and @NonDet first, and then @OrderNonDet after polymorphism.}
 \begin{itemize}
@@ -122,7 +116,7 @@ client code that would produce errors at compile time.
     \label{code-determinism}
 \end{figure}
 
-\subsection{Polymorphism}
+\subsection{Polymorphism}\label{polymorphism}
 
 The underlying checker-framework on which we build our determinism checker has support for
 polymorphic annotations. When a user writes a polymorphic annotation on a method signature or a type parameter,
@@ -140,7 +134,7 @@ checker framework resolves the method declaration as \codeid{@NonDet int foo(@No
 causing the return type to have the type annotation \<@NonDet>.
 
 
-\subsection{Additional typing rules for collection elements}
+\subsection{Additional typing rules for collection elements}\label{collection-rules}
 
 \todo{It is very important to express the whole section as formal type
   jugdments, or we will get laughed
@@ -253,7 +247,7 @@ of the user defined Collection type (\codeid{@OrderNonDet}).
 User defined types that are not a subtype of Collection or Iterator
 may not be annotated as \codeid{@OrderNonDet}.
 
-\subsection{Polymorphism extensions}
+\subsection{Polymorphism extensions}\label{polymorphism}
 
 Recall that the determinism checker does not permit \<@OrderNonDet> on a type that isn't a collection, iterator, or an array.
 As a consequence, resolution of polymorphic type annotations at method signatures could have undesirable effects.
@@ -274,7 +268,7 @@ Annotating \<size()> as \codeid{@PolyDet("down") int size(@PolyDet List<T> list)
     \item \codeid{@NonDet int size(@NonDet List<T> list)}
 \end{itemize}
 
-\subsection{Differentiating binding and use}
+\subsection{Differentiating binding and use}\label{bindings-uses}
 
 In order to provide soundness guarantees, we must ensure that a collection that is
 declared as \<@Det> is not side-effected in non-deterministic ways. Consider the following annotation 
@@ -297,7 +291,7 @@ Since \<@PolyDet("use")> has no effect on type instantiations, calling this meth
 will result in the method declaration being resolved as \codeid{public void add(@Det ArrayList<E> this, @Det int index, E element)}
 irrespective of the type of \<index>, thereby preventing undesired side-effects.
 
-\subsection{Dataflow analysis and type refinement}
+\subsection{Dataflow analysis and type refinement}\label{dataflow}
 The checker framework performs automatic type inference for local types within method bodies.
 It also performs dataflow analysis and refines the types of these locals, thereby reducing the annotation burden 
 on the programmer. Consider the example below:
@@ -310,7 +304,7 @@ void foo(@Det int x) {
 The checker framework performs dataflow analysis within method bodies and refines the types of local variables.
 In the example above, even though the local variable \codeid{y} was declared to be \codeid{@NonDet}, it gets
 type refined to \codeid{@Det} after the first assignment statement. As the result, the assignment of \codeid{y}
-to a \codeid{@Det} variable \codeid{z} is sound. In the follwing example,
+to a \codeid{@Det} variable \codeid{z} is sound. In the following example,
 \begin{verbatim}
 void foo(@NonDet Object x, @Det Object y) {
     x = y;                // No type refinement for x.
@@ -326,38 +320,70 @@ type argument of this \codeid{List} have the type annotation \codeid{@Det}. Simi
 Under this if \codeid{sort()} is called on a receiver of type \codeid{@OrderNonDet List<@Det Set<@Det String>>}, it will
 be type refined to \codeid{@Det List<@Det Set<@Det String>>}. However a receiver of type \codeid{@OrderNonDet List<@OrderNonDet Set<@Det String>>} will not be type refined.
 
-\subsection{CLIMB-to-top and collection, array locals}
+\subsection{CLIMB-to-top and collection, array locals}\label{climb-rules}
 
 Every type system in the checker framework must define a default type annotation. This annotation will be applied
-to every location that isn't explicitly annotated.
+to every location that isn't explicitly annotated. In our determinism checker, we chose \codeid{@Det} as the default annotation.
+The reason for this design choice is that we expect the program to be 
+deterministic unless specified by programmer or the program calls nondeterministic library methods that we have annotated 
+(Random, Collections, etc).
+The framework applies the CLIMB-to-top rule. This rule states that the \textit{top} qualifier 
+in the hierarchy is the default for the CLIMB locations: Casts, Locals, Instanceof, and (some) iMplicit Bounds. The rationale
+for this rule is as follows:
 
 \begin{itemize}
-  \item CF defaults types at CLIMB locations to top and type refines them. (steal some text from manual).
-  \item CLIMB locations do not include type parameters. So this is problematic for determinism checker
-  \item Example: Unannotated collection; its default would be @NonDet<@Det> which is invalid.
-  \item So we default locals collections to @NonDet<@NonDet>.
-  \item This is sound but could produce a lot of FPs. Example assignment: @NonDet<@NonDet> collection = collection1.
-  Type of collection1 is @Det<@Det> and it is a method argument.
-  \item To avoid this, we require users to explicitly annotate local collections.
-  \item Similarly for local arrays.
+	\item Local variables are defaulted to top because type refinement is applied to local variables. If a local variable starts as the 
+	\textit{top} type, then the Checker Framework refines it to the best (most specific) possible type based on assignments to it. As a 
+	result, a programmer rarely writes an explicit annotation on any of those locations.
+	Variables defaulted to top include \textit{local variables}, resource variables in the \textit{try-with-resources} construct, variables 
+	in \textit{for} statements, and \textit{catch} arguments (known as exception parameters in the Java Language Specification). 
+	\textit{Exception parameters} need to have the \textit{top} type because exceptions of arbitrary qualified types can be thrown 
+	and the Checker Framework does not provide runtime checks.
+	\item \textit{Cast} and \textit{instanceof} types are given the same type as their argument expression. This has the same effect as 
+	if they were given the \textit{top} type and then flow-sensitively refined to the type of their argument.
+	\item Implicit upper bounds are defaulted to top to allow them to be instantiated in any way. If a user declared class \codeid{C<T> 
+		{ ... }}, then the Checker Framework assumes that the user intended to allow any instantiation of the class, and the declaration
+	is interpreted as class \codeid{C<T extends @NonDet Object> { ... }} rather than as class \codeid{C<T extends @Det Object> { ... }}. The latter would forbid instantiations such as \codeid{C<@Det String>}, or would require rewriting of code. On the other hand, if a user writes 
+	an explicit bound such as class \codeid{C<T extends D> { ... }}, then the user intends some restriction on instantiation and can write a 
+	qualifier on the upper bound as desired.
+	This rule means that the upper bound of class \codeid{C<T>} is defaulted differently than the upper bound of class \codeid{C<T extends Object>}. 
+	This may seem confusing, but it is the least bad option. The more confusing alternative would be for \codeid{Object} to be defaulted 
+	differently in class \codeid{C<T extends Object>} and in an instantiation \codeid{C<Object>}, and for the upper bounds to be defaulted differently 
+	in class \codeid{C<T extends Object>} and class \codeid{C<T extends Date>}.
+	\item \textit{Implicit lower bounds} are defaulted to the \textit{bottom} type, again to allow maximal instantiation. Note that Java does not allow a programmer to express both the upper and lower bounds of a type, but the Checker Framework allows the programmer to specify either or both.
 \end{itemize}
+With the above rules, the checker framework will automatically annotate a local collection with type \<@NonDet> and its
+type arguments will get the type \<@Det>. For example, a locally declared \codeid{List} of \codeid{Strings} will be automatically annotated
+as \codeid{@NonDet List<@Det String>}. Recall from~\ref{collection-rules} that the determinism checker does not allow this type on
+any collection. While this is still sound, it will result in the determinism checker reporting a lot of errors because every locally declared 
+collection gets annotated with this invalid type. To avoid this situation, we make an exception to the defaulting rules for local collections
+and annotate their type parameters also with \<@NonDet>. So a local list of Strings gets the default annotation of \codeid{@NonDet List<@NonDet String>}. While this defaulting eliminates the possibility of automatically annotating locals collections with an invalid
+type, it would could in a high number of false positives. In the following code snippet,
+\begin{verbatim}
+void test(@Det List<@Det String> argList) {
+            List<String> localList = argList;
+}    
+\end{verbatim}
+the checker would report an error at the assignment statement since the inferred type for \codeid{localList} is 
+\codeid{@NonDet List<@NonDet> String} and since collections types are invariant.
+We therefore recommend that programmers explicitly annotate
+all local variables that are collections to reduce false positives. The same reasoning and recommendation applies to arrays.
 
-\subsection{Discussion on defaulting rules}
+\subsection{Discussion on defaulting rules}\label{defaulting}
+In our determinism checker, we chose \<@PolyDet> as the default for all method parameters and return types including constructors.
+The rationale for this design choice was to not make our type checker too restrictive by making everything \<@Det>.  This implies that
+the checker still allows some non-determinism as long as it doesn't break any determinism specifications explicitly written by the programmer.
 
 \begin{itemize}
-    \item Determinism checker has \<@Det> as the usual default. Reason being we expect the program to be 
-    deterministic unless specified by programmer or nondeterminism from libraries that we have annotated (Random, Collections, etc).
-    \item All method parameters and return types (including constructors) are \<@PolyDet>.
-    \item Reason: We want to be able to report nondeterministic behavior only where it is invalid.
     \item Example of a method with params and return types annotated as \<@PolyDet>.
-    This method called from 2 places - one harmless(@Det instantiations), and another that call with \<@NonDet> args and prints the retun type.
+    This method called from 2 places - one harmless(@NonDet instantiations but no printing), and another that call with \<@NonDet> args and prints the return type.
     \item Exception to this defaulting is the construction of HashSets and HashMaps because they can't be \<@Det>.
     We explicitly annotate the return type on constructors as
         \<@OrderNonDet> and disallow constructing \<@Det HashSet> or \<@Det
         HashMap>.
 \end{itemize}
 
-\subsection{Additional hardcoded rules in the determinism checker  for precision}
+\subsection{Determinism checker specific rules for precision}
 
 \begin{itemize}
     \item \<Set.equals()> is annotated as \<@Poly("up")>. This is sound but imprecise.
@@ -366,6 +392,7 @@ to every location that isn't explicitly annotated.
     \item Explain the rules under which we make Set equality deterministic.
     \item We annotate System.getProperty as \<@NonDet> because the results could vary across machines.
     \item Exceptions: line.Sepaator, file.Separator. and path.Separator.
+    \item discuss type on Exceptions and unsoundness due to this.
 \end{itemize}
 
 \subsection{Maps discussion}
