@@ -345,12 +345,13 @@ We therefore recommend that programmers explicitly annotate
 all local variables that are collections to reduce false positives. The same reasoning and recommendation applies to arrays.
 
 \subsection{Discussion on defaulting rules}\label{defaulting}
+In our determinism checker, we chose \<@PolyDet> as the default for all method parameters and return types including constructors.
+The rationale for this design choice was to not make our type checker too restrictive by making everything \<@Det>.  This implies that
+the checker still allows some non-determinism as long as it doesn't break any determinism specifications explicitly written by the programmer.
 
 \begin{itemize}
-    \item All method parameters and return types (including constructors) are \<@PolyDet>.
-    \item Reason: We want to be able to report nondeterministic behavior only where it is invalid.
     \item Example of a method with params and return types annotated as \<@PolyDet>.
-    This method called from 2 places - one harmless(@Det instantiations), and another that call with \<@NonDet> args and prints the retun type.
+    This method called from 2 places - one harmless(@NonDet instantiations but no printing), and another that call with \<@NonDet> args and prints the return type.
     \item Exception to this defaulting is the construction of HashSets and HashMaps because they can't be \<@Det>.
     We explicitly annotate the return type on constructors as
         \<@OrderNonDet> and disallow constructing \<@Det HashSet> or \<@Det
