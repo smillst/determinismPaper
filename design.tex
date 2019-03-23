@@ -67,16 +67,21 @@
 % declared as \<@B int @A[] y> would type check without any warning.
 
 
+\todo{Need some background around here about what a type qualifier is,
+  how it is represented in Java, and how to read a type \<@Q BaseType>.}
+
 \subsection{Determinism type hierarchy}
-The Determinism type system uses the following type qualifiers (see Figure~\ref{fig-determinism-hierarchy}) (We have omitted the
-\<@Top> and \<@Bottom> types for brevity):
+The core of the determinism type system is the following type qualifiers (see Figure~\ref{fig-determinism-hierarchy}):
+\todo{introduce just @Det and @NonDet first, and then @OrderNonDet after polymorphism.}
 \begin{itemize}
     \item \<@NonDet> indicates
     that the expression might have different values in two different executions.
     \item \<@OrderNonDet> indicates that
-    a collection (i.e any class that is a subtype of java.util.Collection, java.util.Iterator, or java.util.Map) or an array will have the same elements in every execution, but in a
+    a collection or an array will have the same elements in every execution, but in a
     possibly different order.  \<@OrderNonDet> may only be written on
     collections and arrays.
+    A collection is any subtype of \<java.util.Collection>,
+    \<java.util.Iterator>, or \<java.util.Map>, including user-defined types.
     \item \<@Det> indicates that
     the expression evaluates to the same value (with respect to \<.equals()>) in all
     executions; for a collection, iteration also yields the values in the same
@@ -109,7 +114,7 @@ client code that would produce errors at compile time.
         void test() {
             @Det double d = Math.random();  // Error - subtyping rules violated.
             @NonDet double nd = Math.random(); // No error.
-            System.out.println(nd);                    // Error - println takes @Det arguments.
+            System.out.println(nd);      // Error - println takes @Det arguments.
         }
     }
     \end{verbatim}
@@ -117,7 +122,7 @@ client code that would produce errors at compile time.
     \label{code-determinism}
 \end{figure}
 
-\subsection{Determinism}
+\subsection{Polymorphism}
 
 The underlying checker-framework on which we build our determinism checker has support for
 polymorphic annotations. When a user writes a polymorphic annotation on a method signature or a type parameter,
@@ -136,6 +141,20 @@ causing the return type to have the type annotation \<@NonDet>.
 
 
 \subsection{Additional typing rules for collection elements}
+
+\todo{It is very important to express the whole section as formal type
+  jugdments, or we will get laughed
+  out of the room as amateurs, during the program committee meeting.  Also,
+  the formalism will help make the ideas precise.
+
+  Type well-formedness rules:\todo{format nicely in \LaTeX}
+
+  antecedent: $\Gamma : \kappa_e <: \kappa_c$
+
+  consequent: $\Gamma : \kappa_c \ \codeid{List}\langle\kappa_e\ 
+  \codeid{Object}\rangle$
+  }
+
 The (determinism) type of a Collection or Iterator must be a supertype or equal to
 the type of the type parameter (see Figure~\ref{fig-determinism-collections}).
 If the Collection is \<@NonDet>, then the type parameter may not be
@@ -154,6 +173,8 @@ public static void f(@Det List<@Det String> list, @NonDet int index, @Det String
 
 The possibility of mutation allows us to add to the \<@Det List> at a
 \<@NonDet> index, which is unsound.
+
+\todo{Fewer examples, less variation.  Use \<List> and \<String>.}
 
 Some examples of valid types are:
 \begin{itemize}
@@ -311,14 +332,14 @@ Every type system in the checker framework must define a default type annotation
 to every location that isn't explicitly annotated.
 
 \begin{itemize}
-	\item CF defaults types at CLIMB locations to top and type refines them. (steal some text from manual).
-	\item CLIMB locations do not include type parameters. So this is problematic for determinism checker
-	\item Example: Unannotated collection; its default would be @NonDet<@Det> which is invalid.
-	\item So we default locals collections to @NonDet<@NonDet>. 
-	\item This is sound but could produce a lot of FPs. Example assignment: @NonDet<@NonDet> collection = collection1.
-	Type of collection1 is @Det<@Det> and it is a method argument.
-	\item To avoid this, we require users to explicitly annotate local collections.
-	\item Similarly for local arrays.
+  \item CF defaults types at CLIMB locations to top and type refines them. (steal some text from manual).
+  \item CLIMB locations do not include type parameters. So this is problematic for determinism checker
+  \item Example: Unannotated collection; its default would be @NonDet<@Det> which is invalid.
+  \item So we default locals collections to @NonDet<@NonDet>.
+  \item This is sound but could produce a lot of FPs. Example assignment: @NonDet<@NonDet> collection = collection1.
+  Type of collection1 is @Det<@Det> and it is a method argument.
+  \item To avoid this, we require users to explicitly annotate local collections.
+  \item Similarly for local arrays.
 \end{itemize}
 
 \subsection{Discussion on defaulting rules}
