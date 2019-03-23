@@ -47,7 +47,7 @@ in \<class Y>.
     \label{code-invalid2}
 \end{figure}
 
-The overriding method is invalid for two reasons: type of the parameter (\<@B>) is not a subtype of the parameter type in the overriden method (\<@C>) and the return type (\<@C>) is not a supertype of the return type of the overriden method (\<@B>).
+The overriding method is invalid for two reasons: type of the parameter (\<@B>) is not a subtype of the parameter type in the overridden method (\<@C>) and the return type (\<@C>) is not a supertype of the return type of the overridden method (\<@B>).
 
 %collections type parameters - invariant
 Collection types are invariant. So, if a \<List> x is declared as \codeid{@A List<@A String> x;} and another \<List y> is declared
@@ -279,7 +279,7 @@ void foo(@Det int x) {
 The checker framework performs dataflow analysis within method bodies and refines the types of local variables.
 In the example above, even though the local variable \codeid{y} was declared to be \codeid{@NonDet}, it gets
 type refined to \codeid{@Det} after the first assignment statement. As the result, the assignment of \codeid{y}
-to a \codeid{@Det} variable \codeid{z} is sound. In the follwing example,
+to a \codeid{@Det} variable \codeid{z} is sound. In the following example,
 \begin{verbatim}
 void foo(@NonDet Object x, @Det Object y) {
     x = y;                // No type refinement for x.
@@ -332,15 +332,17 @@ type arguments will get the type \<@Det>. For example, a locally declared \codei
 as \codeid{@NonDet List<@Det String>}. Recall from~\ref{collection-rules} that the determinism checker does not allow this type on
 any collection. While this is still sound, it will result in the determinism checker reporting a lot of errors because every locally declared 
 collection gets annotated with this invalid type. To avoid this situation, we make an exception to the defaulting rules for local collections
-and annotate their type parameters also with \<@NonDet>.
-
-\begin{itemize}
-	\item So we default locals collections to @NonDet<@NonDet>. 
-	\item This is sound but could produce a lot of FPs. Example assignment: @NonDet<@NonDet> collection = collection1.
-	Type of collection1 is @Det<@Det> and it is a method argument.
-	\item To avoid this, we require users to explicitly annotate local collections.
-	\item Similarly for local arrays.
-\end{itemize}
+and annotate their type parameters also with \<@NonDet>. So a local list of Strings gets the default annotation of \codeid{@NonDet List<@NonDet String>}. While this defaulting eliminates the possibility of automatically annotating locals collections with an invalid
+type, it would could in a high number of false positives. In the following code snippet,
+\begin{verbatim}
+void test(@Det List<@Det String> argList) {
+            List<String> localList = argList;
+}    
+\end{verbatim}
+the checker would report an error at the assignment statement since the inferred type for \codeid{localList} is 
+\codeid{@NonDet List<@NonDet> String} and since collections types are invariant.
+We therefore recommend that programmers explicitly annotate
+all local variables that are collections to reduce false positives. The same reasoning and recommendation applies to arrays.
 
 \subsection{Discussion on defaulting rules}\label{defaulting}
 
