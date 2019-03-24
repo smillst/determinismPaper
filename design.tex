@@ -61,8 +61,16 @@
 
 
 
-\todo{Need some background around here about what a type qualifier is,
-  how it is represented in Java, and how to read a type \<@Q BaseType>.}
+%\todo{Need some background around here about what a type qualifier is,
+%  how it is represented in Java, and how to read a type \<@Q BaseType>.}
+
+A \textit{type} serves as an abstraction for the set of acceptable values for any expression.
+A \textit{type qualifier} on a \textit{type} adds additional constraints on the values represented by that \textit{type}.
+A compile time type checker can verify the correctness of this \textit{type} with its dataflow analysis and subtyping rules.
+In Java, a type qualifier is written as an annotation. The type \<Integer> represents positive and negative integers besides zero.
+A program analysis developer could design a type system that differentiates positive integers from the negative ones with type qualifiers
+\<@Positive> and \<@Negative>.  The type \<@Positive Integer> now represents only positive values and the dataflow analysis ensures that
+any negative integer value flowing into this type is reported as an error.
 
 \subsection{Determinism type hierarchy}\label{type-hierarchy}
 The core of the determinism type system is the following type qualifiers (see Figure~\ref{fig-determinism-hierarchy}):
