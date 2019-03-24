@@ -70,11 +70,12 @@ at compile time.
 Other researchers have also recognized the importance of this problem.
 Previous work in program analysis for nondeterminism has focused on unsound dynamic
 approaches that identify flaky test cases.
-NonDex~\cite{nondex} is a tool that manually\todo{This is confusing:  the
-  tool can't manually identify.  Do you mean that the developers manually
-  identified, then the tool uses those models?}
-identifies methods in the JDK that have nondeterministic specifications, builds models for
-these methods that behave nondeterministically, and  use a modified JVM that runs the test suite multiple times.
+The authors of~\cite{nondex} manually identify methods in the JDK that have nondeterministic specifications and build models for
+these methods. They  modified that JVM so that it runs the test suite multiple times.
+%NonDex~\cite{nondex} is a tool that manually\todo{This is confusing:  the
+%  tool can't manually identify.  Do you mean that the developers manually
+%  identified, then the tool uses those models?}
+%identifies 
 Diverging test results in this setting indicate a flaky test. DeFlaker~\cite{deflaker} looks at a range of commit versions
 of a code, and marks a test as flaky if it doesn't execute any modified code but still fails in the newer version. These techniques
 have been able to identify issues in real-world programs, some of which
