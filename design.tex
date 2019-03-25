@@ -74,26 +74,26 @@ any negative integer value flowing into this type is reported as an error.
 
 Subtyping rule:
 
-$\infer{\Gamma \vdash x : \tau_2}{\Gamma \vdash x : \tau_1 & \tau_1 <: \tau_2}$
+$\infer{\Gamma \vdash x : \tau_2}{\Gamma \vdash x : \tau_1 & \tau_1 \sqsubseteq \tau_2}$
 
 Typing rule for method calls:
 \todo{typesetting}
 
-$\forall i : i >= 0 \infer{method(\overline{a_i}) : \tau_r}{\tau_r \  method(\overline{\tau_i \  p_i}) & \overline{a_i : \tau_i}}$
+$\infer{\mathit{method}(\overline{a_i}) : \tau_r}{\tau_r \  \mathit{method}(\overline{\tau_i \  p_i}) & \overline{a_i : \tau_i}}$
 
 \subsection{Determinism type hierarchy}\label{type-hierarchy}
 The core of the determinism type system is the following type qualifiers (see Figure~\ref{fig-determinism-hierarchy}):
 %\todo{introduce just @Det and @NonDet first, and then @OrderNonDet after polymorphism.}
 \begin{itemize}
-    \item \<@NonDet> indicates
+    \item \<NonDet> indicates
     that the expression might have different values in two different executions.
-    \item \<@Det> indicates that
+    \item \<Det> indicates that
     the expression evaluates to the same value (with respect to \<.equals()>) in all
     executions; for a collection, iteration also yields the values in the same
     order.
 \end{itemize}
 
-In this type system, \<@Det> is a subtype of \<@NonDet> denoted as \codeid{@Det <: @NonDet}.
+In this type system, \<Det> is a subtype of \<NonDet> denoted as \codeid{Det $\sqsubseteq$ NonDet}.
 
 \begin{figure}
     \begin{center}
@@ -134,7 +134,7 @@ client code that would produce errors at compile time.
 The underlying checker-framework on which we build our determinism checker has support for
 polymorphic annotations. When a user writes a polymorphic annotation on a method signature or a type parameter,
 it indicates that it could resolve to any type in the type system depending on how it is used.
-In the determinism checker, we define a polymorphic annotation \<@PolyDet>.
+In the determinism checker, we define a polymorphic annotation \<PolyDet>.
 One of the most common locations for a polymorphic annotation is at a method signature.
 Consider the following method declaration annotated with polymorphic annotations:
 \begin{verbatim}
@@ -155,13 +155,13 @@ causing the return type to have the type annotation \<@NonDet>.
 
 \subsection{Handling order nondeterminism}
 In addition to the type qualifiers described in~\ref{type-hierarchy}, the determinism checker 
-defines the type qualifier \<@OrderNonDet>. This qualifier represents
+defines the type qualifier \<OrderNonDet>. This qualifier represents
 a collection or an array that will have the same elements in every execution, but in a
-possibly different order.  \<@OrderNonDet> may only be written on
+possibly different order.  \<OrderNonDet> may only be written on
 collections and arrays.
 A collection is any subtype of \<java.util.Collection>,
 \<java.util.Iterator>, or \<java.util.Map>, including user-defined types. The relationship
-of \<@OrderNonDet> with respect the the other two type qualifiers is \codeid{@Det <: @OrderNonDet <: @NonDet} as shown in Figure~\ref{fig-determinism-hierarchy}.
+of \<OrderNonDet> with respect the the other two type qualifiers is \codeid{Det $\sqsubseteq$ OrderNonDet $\sqsubseteq$ NonDet} as shown in Figure~\ref{fig-determinism-hierarchy}.
 
 \subsection{Additional typing rules for collection elements}\label{collection-rules}
 
@@ -179,22 +179,22 @@ of \<@OrderNonDet> with respect the the other two type qualifiers is \codeid{@De
 %  }
 Type validity rules:
 
-$\infer[ANY TYPE]{\vdash : \kappa \  \tau}{\kappa : @Det / @NonDet}$
+$\infer[\sc{ANY TYPE}]{\vdash : \kappa \  \beta}{\kappa : \mathit{Det / NonDet}}$
 
-%$\infer[COLLECTION TYPE]{\vdash : \kappa \  \tau}{\kappa : @OrderNonDet & \tau : Collection/Map/Iterator/array}$
+%$\infer[COLLECTION TYPE]{\vdash : \kappa \  \beta}{\kappa : OrderNonDet & \beta : Collection/Map/Iterator/array}$
 
-$\infer[ORDERNONDET \ COLLECTION]{\vdash : \kappa_c <\kappa_e \ \tau_e> \tau_c}{\kappa_c : @OrderNonDet/@Det & \kappa_e <: \kappa_c & \tau_c <: Collection/Map/Iterator}$
+$\infer[\sc{ORDERNONDET \ COLLECTION}]{\vdash : \kappa_c \langle\kappa_e \ \beta_e\rangle \beta_c}{\kappa_c : \mathit{OrderNonDet/Det} & \kappa_e \sqsubseteq \kappa_c & \beta_c \sqsubseteq \mathit{Collection/Map/Iterator}}$
 
-$\infer[ORDERNONDET \ ARRAY]{\vdash : \kappa_c [\kappa_e \ \tau_e] \tau_c}{\kappa_c : @OrderNonDet/@Det & \kappa_e <: \kappa_c }$
+$\infer[\sc{ORDERNONDET \ ARRAY}]{\vdash : \kappa_c [\kappa_e \ \beta_e] \beta_c}{\kappa_c : \mathit{OrderNonDet/Det} & \kappa_e \sqsubseteq \kappa_c }$
 
-$\infer[NONDET \ COLLECTION]{\vdash : \kappa_c <\kappa_e \ \tau_e> \tau_c}{\kappa_c : @NonDet & \kappa_e : @NonDet & \tau_c <: Collection/Map/Iterator}$
+$\infer[\sc{NONDET \ COLLECTION}]{\vdash : \kappa_c \langle\kappa_e \ \beta_e\rangle \beta_c}{\kappa_c : \mathit{NonDet} & \kappa_e : \mathit{NonDet} & \beta_c \sqsubseteq \mathit{Collection/Map/Iterator}}$
 
-$\infer[NONDET \ ARRAY]{\vdash : \kappa_c [\kappa_e \ \tau_e] \tau_c}{\kappa_c : @NonDet & \kappa_e : @NonDet }$
+$\infer[\sc{NONDET \ ARRAY}]{\vdash : \kappa_c [\kappa_e \ \beta_e] \beta_c}{\kappa_c : \mathit{NonDet} & \kappa_e : \mathit{NonDet} }$
 
 The (determinism) type of a Collection or Iterator must be a supertype or equal to
 the type of the type parameter (see Figure~\ref{fig-determinism-collections}).
-If the Collection is \<@NonDet>, then the type parameter may not be
-\<@Det> or \<@OrderNonDet>. Although such types could exist, they are
+If the Collection is \<NonDet>, then the type parameter may not be
+\<Det> or \<OrderNonDet>. Although such types could exist, they are
 disallowed to prevent the following bug:
 
 \begin{verbatim}
@@ -249,12 +249,12 @@ elements are not allowed.
 
 A collection (\<List, Set, or a Map>) annotated as \<@OrderNonDet> has the following properties:
 \begin{enumerate}
-    \item The individual elements extracted by iterating over the collection get the type \<@NonDet>.
+    \item The individual elements extracted by iterating over the collection get the type \<NonDet>.
     \item Accessing properties sich as \<size()> or querying if the collection \<isEmpty()> will return types
-    that are annotated as \<@Det> as they do not depend on the iteration order. 
+    that are annotated as \<Det> as they do not depend on the iteration order. 
 \end{enumerate}
 
-A user defined type may be annotated as \<@OrderNonDet> if and only if it
+A user defined type may be annotated as \<OrderNonDet> if and only if it
 is a subtype of Collection or Iterator.
 For example, if a user defines a type as
 \begin{verbatim}
@@ -279,15 +279,15 @@ and \<@PolyDet("down")>.
 
 Valid locations for \codeid{@PolyDet("up")} and  \codeid{@PolyDet("down")}:
 
-$\infer{\vdash : \kappa \  \tau}{isParam(\tau) / isReturn(\tau) & \kappa : @PolyDet("up") / @PolyDet("down")}$
+$\infer{\vdash : \kappa \  \beta}{isParam(\beta) / isReturn(\beta) & \kappa : @PolyDet("up") / @PolyDet("down")}$
 
 Resolution of \<@PolyDet("up")>:\todo{typesetting}
 
-$\infer{\Gamma \vdash x : @NonDet \ \tau_a}{\Gamma \vdash x : \kappa_a \ \tau_a &  \kappa_a : @OrderNonDet/@NonDet & \kappa_p : @PolyDet("up") & \kappa_p \ \tau_p : declaration \ type & \kappa_a \ \tau_a : resolved \ type}$
+$\infer{\Gamma \vdash x : @NonDet \ \beta_a}{\Gamma \vdash x : \kappa_a \ \beta_a &  \kappa_a : @OrderNonDet/@NonDet & \kappa_p : @PolyDet("up") & \kappa_p \ \beta_p : declaration \ type & \kappa_a \ \beta_a : resolved \ type}$
 
 Resolution of \<@PolyDet("down")>:
 
-$\infer{\Gamma \vdash x : @Det \  \tau_a}{\Gamma \vdash x :  \kappa_a \tau_a & \kappa_a : @OrderNonDet/@Det & \kappa_p : @PolyDet("down") & \kappa_p \ \tau_p : declaration \ type & \kappa_a \ \tau_a : resolved \ type}$
+$\infer{\Gamma \vdash x : @Det \  \beta_a}{\Gamma \vdash x :  \kappa_a \beta_a & \kappa_a : @OrderNonDet/@Det & \kappa_p : @PolyDet("down") & \kappa_p \ \beta_p : declaration \ type & \kappa_a \ \beta_a : resolved \ type}$
 
 
 The semantics of these variants are as follows:
@@ -349,9 +349,6 @@ void foo(@NonDet Object x, @Det Object y) {
 the checker reports a warning at the second assignment statement of \codeid{foo}. Type refinement only applies to locals. Refining non-locals can result in side effects making the analysis unsound.
 
 The determinism checker has additional type refinement rule for the sorting methods in collections. 
-
-$\infer{}{}$
-
 
 The checker type refines a receiver of type \codeid{@OrderNonDet List} to a \codeid{@Det List} if all the
 type argument of this \codeid{List} have the type annotation \codeid{@Det}. Similar rules apply for \codeid{Arrays.sort()} and
