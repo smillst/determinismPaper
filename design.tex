@@ -283,11 +283,11 @@ $\infer{\vdash : \kappa \  \tau}{isParam(\tau) / isReturn(\tau) & \kappa : @Poly
 
 Resolution of \<@PolyDet("up")>:
 
-$\infer{\Gamma \vdash : \kappa_a : @NonDet}{\Gamma \vdash \kappa_a : @OrderNonDet & \kappa_p : @PolyDet("up") & \kappa_p \ \tau_p : declaration \ type & \kappa_a \ \tau_a : resolved \ type}$
+$\infer{\Gamma \vdash : \kappa_a : @NonDet}{\Gamma \vdash \kappa_a : @OrderNonDet/@NonDet & \kappa_p : @PolyDet("up") & \kappa_p \ \tau_p : declaration \ type & \kappa_a \ \tau_a : resolved \ type}$
 
 Resolution of \<@PolyDet("down")>:
 
-$\infer{\Gamma \vdash : \kappa_a : @Det}{\Gamma \vdash \kappa_a : @OrderNonDet & \kappa_p : @PolyDet("down") & \kappa_p \ \tau_p : declaration \ type & \kappa_a \ \tau_a : resolved \ type}$
+$\infer{\Gamma \vdash : \kappa_a : @Det}{\Gamma \vdash \kappa_a : @OrderNonDet/@Det & \kappa_p : @PolyDet("down") & \kappa_p \ \tau_p : declaration \ type & \kappa_a \ \tau_a : resolved \ type}$
 
 
 The semantics of these variants are as follows:
