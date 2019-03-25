@@ -165,18 +165,30 @@ of \<@OrderNonDet> with respect the the other two type qualifiers is \codeid{@De
 
 \subsection{Additional typing rules for collection elements}\label{collection-rules}
 
-\todo{It is very important to express the whole section as formal type
-  jugdments, or we will get laughed
-  out of the room as amateurs, during the program committee meeting.  Also,
-  the formalism will help make the ideas precise.
+%\todo{It is very important to express the whole section as formal type
+%  jugdments, or we will get laughed
+%  out of the room as amateurs, during the program committee meeting.  Also,
+%  the formalism will help make the ideas precise.
+%
+%  Type well-formedness rules:\todo{format nicely in \LaTeX}
+%
+%  antecedent: $\Gamma : \kappa_e <: \kappa_c$
+%
+%  consequent: $\Gamma : \kappa_c \ \codeid{List}\langle\kappa_e\ 
+%  \codeid{Object}\rangle$
+%  }
 
-  Type well-formedness rules:\todo{format nicely in \LaTeX}
+$\infer[ANY TYPE]{\vdash : \kappa \  \tau}{\kappa : @Det / @NonDet}$
 
-  antecedent: $\Gamma : \kappa_e <: \kappa_c$
+%$\infer[COLLECTION TYPE]{\vdash : \kappa \  \tau}{\kappa : @OrderNonDet & \tau : Collection/Map/Iterator/array}$
 
-  consequent: $\Gamma : \kappa_c \ \codeid{List}\langle\kappa_e\ 
-  \codeid{Object}\rangle$
-  }
+$\infer[ORDERNONDET \ COLLECTION]{\vdash : \kappa_c <\kappa_e \ \tau_e> \tau_c}{\kappa_c : @OrderNonDet/@Det & \kappa_e <: \kappa_c & \tau_c <: Collection/Map/Iterator}$
+
+$\infer[ORDERNONDET \ ARRAY]{\vdash : \kappa_c [\kappa_e \ \tau_e] \tau_c}{\kappa_c : @OrderNonDet/@Det & \kappa_e <: \kappa_c }$
+
+$\infer[NONDET \ COLLECTION]{\vdash : \kappa_c <\kappa_e \ \tau_e> \tau_c}{\kappa_c : @NonDet & \kappa_e : @NonDet & \tau_c <: Collection/Map/Iterator}$
+
+$\infer[NONDET \ ARRAY]{\vdash : \kappa_c [\kappa_e \ \tau_e] \tau_c}{\kappa_c : @NonDet & \kappa_e : @NonDet }$
 
 The (determinism) type of a Collection or Iterator must be a supertype or equal to
 the type of the type parameter (see Figure~\ref{fig-determinism-collections}).
