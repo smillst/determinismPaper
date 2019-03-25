@@ -275,7 +275,22 @@ As a consequence, resolution of polymorphic type annotations at method signature
 Suppose a method declaration is annotated as \codeid{@PolyDet int size(@PolyDet List<T> list)}. Invoking this method
 as \codeid{size(@OrderNonDet List<@Det String>)} will result in \<@PolyDet> getting resolved to \<@OrderNonDet> which is invalid
 on the return type \<int>. We circumvent this scenario by introducing two variants to the \<@PolyDet> annotation, \<@PolyDet("up")>
-and \<@PolyDet("down")>. The semantics of these variants are as follows:
+and \<@PolyDet("down")>. 
+
+Valid locations for \codeid{@PolyDet("up")} and  \codeid{@PolyDet("down")}:
+
+$\infer{\vdash : \kappa \  \tau}{isParam(\tau) / isReturn(\tau) & \kappa : @PolyDet("up") / @PolyDet("down")}$
+
+Resolution of \<@PolyDet("up")>:
+
+$\infer{\Gamma \vdash : \kappa_a : @NonDet}{\Gamma \vdash \kappa_a : @OrderNonDet & \kappa_p : @PolyDet("up") & \kappa_p \ \tau_p : declaration \ type & \kappa_a \ \tau_a : resolved \ type}$
+
+Resolution of \<@PolyDet("down")>:
+
+$\infer{\Gamma \vdash : \kappa_a : @Det}{\Gamma \vdash \kappa_a : @OrderNonDet & \kappa_p : @PolyDet("down") & \kappa_p \ \tau_p : declaration \ type & \kappa_a \ \tau_a : resolved \ type}$
+
+
+The semantics of these variants are as follows:
 \begin{itemize}
     \item \<@PolyDet("up")>: Same as \<@PolyDet> except when it resolves to \<@OrderNonDet>, it is replaced with \<@NonDet>.
     \item \<@PolyDet("down")>: Same as \<@PolyDet> except when it resolves to \<@OrderNonDet>, it is replaced with \<@Det>.
