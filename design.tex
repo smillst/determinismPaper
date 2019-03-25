@@ -72,23 +72,28 @@ A program analysis developer could design a type system that differentiates posi
 \<@Positive> and \<@Negative>.  The type \<@Positive Integer> now represents only positive values and the dataflow analysis ensures that
 any negative integer value flowing into this type is reported as an error.
 
+Subtyping rule:
+
+$\infer{\Gamma \vdash x : \tau_2}{\Gamma \vdash x : \tau_1 & \tau_1 <: \tau_2}$
+
+Typing rule for method calls:
+\todo{typesetting}
+
+$\forall i : i >= 0 \infer{method(\overline{a_i}) : \tau_r}{\tau_r \  method(\overline{\tau_i \  p_i}) & \overline{a_i : \tau_i}}$
+
 \subsection{Determinism type hierarchy}\label{type-hierarchy}
 The core of the determinism type system is the following type qualifiers (see Figure~\ref{fig-determinism-hierarchy}):
-\todo{introduce just @Det and @NonDet first, and then @OrderNonDet after polymorphism.}
+%\todo{introduce just @Det and @NonDet first, and then @OrderNonDet after polymorphism.}
 \begin{itemize}
     \item \<@NonDet> indicates
     that the expression might have different values in two different executions.
-    \item \<@OrderNonDet> indicates that
-    a collection or an array will have the same elements in every execution, but in a
-    possibly different order.  \<@OrderNonDet> may only be written on
-    collections and arrays.
-    A collection is any subtype of \<java.util.Collection>,
-    \<java.util.Iterator>, or \<java.util.Map>, including user-defined types.
     \item \<@Det> indicates that
     the expression evaluates to the same value (with respect to \<.equals()>) in all
     executions; for a collection, iteration also yields the values in the same
     order.
 \end{itemize}
+
+In this type system, \<@Det> is a subtype of \<@NonDet> denoted as \codeid{@Det <: @NonDet}.
 
 \begin{figure}
     \begin{center}
@@ -114,9 +119,9 @@ client code that would produce errors at compile time.
     // Client code
     class Client {
         void test() {
-            @Det double d = Math.random();  // Error - subtyping rules violated.
+            @Det double d = Math.random(); // Error - subtyping rules violated.
             @NonDet double nd = Math.random(); // No error.
-            System.out.println(nd);      // Error - println takes @Det arguments.
+            System.out.println(nd); // Error - println takes @Det arguments.
         }
     }
     \end{verbatim}
@@ -131,16 +136,32 @@ polymorphic annotations. When a user writes a polymorphic annotation on a method
 it indicates that it could resolve to any type in the type system depending on how it is used.
 In the determinism checker, we define a polymorphic annotation \<@PolyDet>.
 One of the most common locations for a polymorphic annotation is at a method signature.
-Consider the following method declaration annotated with polymorphic annotations
+Consider the following method declaration annotated with polymorphic annotations:
 \begin{verbatim}
 @PolyDet int foo(@PolyDet String param1, @PolyDet boolean param2) { }
 \end{verbatim}
-This indicates that method \<foo> can be called with arguments having any of the \codeid{@Det or @NonDet} type annotations 
-(\<@OrderNonDet> is not allowed because it is invalid on primitive types). \<@PolyDet> resolves to the least upper bound of
+There are two valid instantiations for this declaration:
+\begin{enumerate}
+    \item @NonDet int foo(@NonDet String param1, @NonDet boolean param2) { }
+    \item @Det int foo(@Det String param1, @Det boolean param2) { }
+\end{enumerate}
+This indicates that method \<foo> can be called with arguments having any of the \codeid{@Det or @NonDet} type annotations.
+%   (\<@OrderNonDet> is not allowed because it is invalid on primitive types).
+ \<@PolyDet> resolves to the least upper bound of
 the actual types on arguments. For instance, if this method is called as \codeid{foo(@Det String arg1, @NonDet boolean arg2)}, the 
 checker framework resolves the method declaration as \codeid{@NonDet int foo(@NonDet String param1, @NonDet boolean param2)}
 causing the return type to have the type annotation \<@NonDet>.
 
+
+\subsection{Handling order nondeterminism}
+In addition to the type qualifiers described in~\ref{type-hierarchy}, the determinism checker 
+defines the type qualifier \<@OrderNonDet>. This qualifier represents
+a collection or an array that will have the same elements in every execution, but in a
+possibly different order.  \<@OrderNonDet> may only be written on
+collections and arrays.
+A collection is any subtype of \<java.util.Collection>,
+\<java.util.Iterator>, or \<java.util.Map>, including user-defined types. The relationship
+of \<@OrderNonDet> with respect the the other two type qualifiers is \codeid{@Det <: @OrderNonDet <: @NonDet} as shown in Figure~\ref{fig-determinism-hierarchy}.
 
 \subsection{Additional typing rules for collection elements}\label{collection-rules}
 
