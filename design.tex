@@ -281,13 +281,13 @@ Valid locations for \codeid{@PolyDet("up")} and  \codeid{@PolyDet("down")}:
 
 $\infer{\vdash : \kappa \  \tau}{isParam(\tau) / isReturn(\tau) & \kappa : @PolyDet("up") / @PolyDet("down")}$
 
-Resolution of \<@PolyDet("up")>:
+Resolution of \<@PolyDet("up")>:\todo{typesetting}
 
-$\infer{\Gamma \vdash : \kappa_a : @NonDet}{\Gamma \vdash \kappa_a : @OrderNonDet/@NonDet & \kappa_p : @PolyDet("up") & \kappa_p \ \tau_p : declaration \ type & \kappa_a \ \tau_a : resolved \ type}$
+$\infer{\Gamma \vdash x : @NonDet \ \tau_a}{\Gamma \vdash x : \kappa_a \ \tau_a &  \kappa_a : @OrderNonDet/@NonDet & \kappa_p : @PolyDet("up") & \kappa_p \ \tau_p : declaration \ type & \kappa_a \ \tau_a : resolved \ type}$
 
 Resolution of \<@PolyDet("down")>:
 
-$\infer{\Gamma \vdash : \kappa_a : @Det}{\Gamma \vdash \kappa_a : @OrderNonDet/@Det & \kappa_p : @PolyDet("down") & \kappa_p \ \tau_p : declaration \ type & \kappa_a \ \tau_a : resolved \ type}$
+$\infer{\Gamma \vdash x : @Det \  \tau_a}{\Gamma \vdash x :  \kappa_a \tau_a & \kappa_a : @OrderNonDet/@Det & \kappa_p : @PolyDet("down") & \kappa_p \ \tau_p : declaration \ type & \kappa_a \ \tau_a : resolved \ type}$
 
 
 The semantics of these variants are as follows:
@@ -337,7 +337,6 @@ void foo(@Det int x) {
     @Det int z = y;       //  No error here.
 }
 \end{verbatim}
-The checker framework performs dataflow analysis within method bodies and refines the types of local variables.
 In the example above, even though the local variable \codeid{y} was declared to be \codeid{@NonDet}, it gets
 type refined to \codeid{@Det} after the first assignment statement. As the result, the assignment of \codeid{y}
 to a \codeid{@Det} variable \codeid{z} is sound. In the following example,
@@ -349,7 +348,11 @@ void foo(@NonDet Object x, @Det Object y) {
 \end{verbatim}
 the checker reports a warning at the second assignment statement of \codeid{foo}. Type refinement only applies to locals. Refining non-locals can result in side effects making the analysis unsound.
 
-The determinism checker has additional type refinement rules for the sorting methods in collections. 
+The determinism checker has additional type refinement rule for the sorting methods in collections. 
+
+$\infer{}{}$
+
+
 The checker type refines a receiver of type \codeid{@OrderNonDet List} to a \codeid{@Det List} if all the
 type argument of this \codeid{List} have the type annotation \codeid{@Det}. Similar rules apply for \codeid{Arrays.sort()} and
 \codeid{Collections.sort()}.
