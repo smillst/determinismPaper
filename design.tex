@@ -177,6 +177,7 @@ of \<@OrderNonDet> with respect the the other two type qualifiers is \codeid{@De
 %  consequent: $\Gamma : \kappa_c \ \codeid{List}\langle\kappa_e\ 
 %  \codeid{Object}\rangle$
 %  }
+Type validity rules:
 
 $\infer[ANY TYPE]{\vdash : \kappa \  \tau}{\kappa : @Det / @NonDet}$
 
@@ -209,48 +210,27 @@ public static void f(@Det List<@Det String> list, @NonDet int index, @Det String
 The possibility of mutation allows us to add to the \<@Det List> at a
 \<@NonDet> index, which is unsound.
 
-\todo{Fewer examples, less variation.  Use \<List> and \<String>.}
+%\todo{Fewer examples, less variation.  Use \<List> and \<String>.}
 
 Some examples of valid types are:
 \begin{itemize}
     \item \codeid{@NonDet\ \ \ \ \ \ List<@NonDet\ \ \ \ \ \ Integer>}
     \item \codeid{@Det\ \ \ \ \ \ \ \ \ List<@Det\ \ \ \ \ \ \ \ \ Integer>}
-    \item \codeid{@OrderNonDet Set <@OrderNonDet Set<...>\relax >}
-    \item \codeid{@OrderNonDet Set <@Det String>}
-    \item \codeid{@Det\ \ \ \ \ \ \ \ \ Map <@Det String, @Det Integer>}
-    \item \codeid{@NonDet\ \ \ \ \ \ Set <T extends @NonDet Object>}
+    \item \codeid{@OrderNonDet List <@OrderNonDet Set<...>\relax >}
+    \item \codeid{@OrderNonDet List <@Det String>}
 \end{itemize}
 
 These types are invalid:
 \begin{itemize}
     \item \codeid{@OrderNonDet Set <@NonDet\ \ \ \ \ \ Integer>}
     \item \codeid{@NonDet\ \ \ \ \ \ List<@Det\ \ \ \ \ \ \ \ \ Integer>}
-    \item \codeid{@NonDet\ \ \ \ \ \ List<@OrderNonDet Set<...>\relax >}
-    \item \codeid{@Det\ \ \ \ \ \ \ \ \ List<@NonDet\ \ \ \ \ \ Integer>}
     \item \codeid{@Det\ \ \ \ \ \ \ \ \ List<@OrderNonDet Set<...>\relax >}
-    \item \codeid{@Det\ \ \ \ \ \ \ \ \ Map <@Det String, @OrderNonDet List<@Det String>>}
-    \item \codeid{@Det\ \ \ \ \ \ \ \ \ List<T extends @NonDet Object>}
-    \item \codeid{@NonDet\ \ \ \ \ \ Set\ <T extends @Det Object>}
 \end{itemize}
 
 Similarly, the (determinism) type of an array must be a supertype or equal to
 the type of the component type (see Figure~\ref{fig-determinism-collections}).
 As with collections, \codeid{@NonDet} arrays of \codeid{@Det} or \codeid{@OrderNonDet}
 elements are not allowed.
-
-For example, these types are valid:
-\begin{itemize}
-    \item \codeid{@NonDet int @NonDet \ \ \ \ []}
-    \item \codeid{@Det \ \ \ int @Det \ \ \ \ \ \ \ []}
-    \item \codeid{@Det \ \ \ int @OrderNonDet[] @OrderNonDet[]}
-\end{itemize}
-
-These types are invalid:
-\begin{itemize}
-    \item \codeid{@NonDet int @OrderNonDet[]}
-    \item \codeid{@NonDet int @Det \ \ \ \ \ \ \ []}
-    \item \codeid{@Det \ \ \ int @NonDet \ \ \ \ []}
-\end{itemize}
 
 \begin{figure}
     \centering
