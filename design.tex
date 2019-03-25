@@ -177,19 +177,28 @@ of \<OrderNonDet> with respect the the other two type qualifiers is \codeid{Det 
 %  consequent: $\Gamma : \kappa_c \ \codeid{List}\langle\kappa_e\ 
 %  \codeid{Object}\rangle$
 %  }
-Type validity rules:
+\begin{figure}
+    $\infer[\sc{ANY TYPE}]{\vdash : \kappa \  \beta}{\kappa : \mathit{Det / NonDet}}$
+    
+    \bigskip
+    
+    $\infer[\sc{ORDERNONDET \ COLLECTION}]{\vdash : \kappa_c \  \beta_c \langle\kappa_e \ \beta_e\rangle}{\kappa_c : \mathit{OrderNonDet/Det} & \kappa_e \sqsubseteq \kappa_c & \beta_c \sqsubseteq \mathit{Collection/Map/Iterator}}$
+    
+    \bigskip
+    
+    $\infer[\sc{ORDERNONDET \ ARRAY}]{\vdash : \kappa_e \ \beta_e \ \  \kappa_a []}{\kappa_a : \mathit{OrderNonDet/Det} & \kappa_e \sqsubseteq \kappa_a }$
+    
+    \bigskip
+    
+    $\infer[\sc{NONDET \ COLLECTION}]{\vdash : \kappa_c \ \beta_c\langle\kappa_e \ \beta_e\rangle}{\kappa_c : \mathit{NonDet} & \kappa_e : \mathit{NonDet} & \beta_c \sqsubseteq \mathit{Collection/Map/Iterator}}$
+    
+    \bigskip
+    
+    $\infer[\sc{NONDET \ ARRAY}]{\vdash : \kappa_e \ \beta_e \ \  \kappa_a []}{\kappa_a : \mathit{NonDet} & \kappa_e : \mathit{NonDet} }$
+    \caption{Type well formedness}
+\end{figure}
 
-$\infer[\sc{ANY TYPE}]{\vdash : \kappa \  \beta}{\kappa : \mathit{Det / NonDet}}$
 
-%$\infer[COLLECTION TYPE]{\vdash : \kappa \  \beta}{\kappa : OrderNonDet & \beta : Collection/Map/Iterator/array}$
-
-$\infer[\sc{ORDERNONDET \ COLLECTION}]{\vdash : \kappa_c \langle\kappa_e \ \beta_e\rangle \beta_c}{\kappa_c : \mathit{OrderNonDet/Det} & \kappa_e \sqsubseteq \kappa_c & \beta_c \sqsubseteq \mathit{Collection/Map/Iterator}}$
-
-$\infer[\sc{ORDERNONDET \ ARRAY}]{\vdash : \kappa_c [\kappa_e \ \beta_e] \beta_c}{\kappa_c : \mathit{OrderNonDet/Det} & \kappa_e \sqsubseteq \kappa_c }$
-
-$\infer[\sc{NONDET \ COLLECTION}]{\vdash : \kappa_c \langle\kappa_e \ \beta_e\rangle \beta_c}{\kappa_c : \mathit{NonDet} & \kappa_e : \mathit{NonDet} & \beta_c \sqsubseteq \mathit{Collection/Map/Iterator}}$
-
-$\infer[\sc{NONDET \ ARRAY}]{\vdash : \kappa_c [\kappa_e \ \beta_e] \beta_c}{\kappa_c : \mathit{NonDet} & \kappa_e : \mathit{NonDet} }$
 
 The (determinism) type of a Collection or Iterator must be a supertype or equal to
 the type of the type parameter (see Figure~\ref{fig-determinism-collections}).
