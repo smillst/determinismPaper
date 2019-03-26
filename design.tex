@@ -320,6 +320,8 @@ The modifiers $\uparrow$ and $\downarrow$ are indicative of the subtyping relati
 in the determinism type hierarchy.
 
 Figure~\ref{fig-poly-resolution} presents the rule for type checking of methods annotated with \<PolyDet> or its variants.
+A polymorphic method type checks if every instantiation of \<PolyDet> type checks. If this method has \<PolyDet>$\uparrow$ or \<PolyDet>$\downarrow$
+in its signature then the instantiation of \<PolyDet> at that location gets replaced by the appropriate type as shown in Table~\ref{tab-poly-resolutions}.
 
 Annotating \<size()> as \codeid{PolyDet$\downarrow$ int size(PolyDet List<T> list)} will only allow the following type resolutions:
 \begin{itemize}
@@ -361,7 +363,7 @@ list.add(random, str);
 This will result in the instantion \codeid{public void add(NonDet ArrayList<E> this, NonDet int index, E element)} and
 the method invocation will type check. This is problematic because even though \<list> was declared to be \<Det>,
 the type checker allows the addition of an element at a \<NonDet> location violating our determinism guarantees.
-We prevent this behavior by introducing another valiant of \<PolyDet>, \<PolyDet("use")> that does not affect
+We prevent this behavior by introducing another variant of \<PolyDet>, \<PolyDet("use")> that does not affect
 type instantiations. This is especially useful in preventing methods from non-deterministically modifying the state
 of a deterministic receiver. To have this effect, the library method \<ArrayList.add> is annotated as:
 \codeid{public void add(PolyDet ArrayList<E> this, PolyDet("use") int index, E element)}.
