@@ -210,12 +210,13 @@ of \<OrderNonDet> with respect the the other two type qualifiers is \codeid{Det 
     \label{type-validity}
 \end{figure}
 
-
-
+Figure~\ref{type-validity} shows the type validity rules of our type system. A type $\tau$ is represented as $\kappa \ \beta$
+where $\kappa$ is a type qualifier from the determinism type hierarchy and $\beta$ is a Java type.
+As stated in the rule $\sc{\mathit{ANY\ TYPE}}$, the types \<Det> and \<NonDet> can be written on any Java type.
 The (determinism) type of a Collection or Iterator must be a supertype or equal to
-the type of the type parameter (see Figure~\ref{fig-determinism-collections}).
+the type of the type parameter (Rule $\sc{\mathit{ORDERNONDET \ COLLECTION}}$) (see Figure~\ref{fig-determinism-collections}).
 If the Collection is \<NonDet>, then the type parameter may not be
-\<Det> or \<OrderNonDet>. Although such types could exist, they are
+\<Det> or \<OrderNonDet> (Rule $\sc{\mathit{NONDET \ COLLECTION}}$ in Figure~\ref{type-validity}). Although such types could exist, they are
 disallowed to prevent the following bug:
 
 \begin{verbatim}
@@ -251,7 +252,7 @@ These types are invalid:
 Similarly, the (determinism) type of an array must be a supertype or equal to
 the type of the component type (see Figure~\ref{fig-determinism-collections}).
 As with collections, \codeid{@NonDet} arrays of \codeid{@Det} or \codeid{@OrderNonDet}
-elements are not allowed.
+elements are not allowed (Rules $\sc{\mathit{ORDERNONDET \ ARRAY}}$ and $\sc{\mathit{NONDET \ ARRAY}}$ in Figure~\ref{type-validity}).
 
 \begin{figure}
     \centering
