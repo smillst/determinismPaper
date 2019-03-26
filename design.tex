@@ -299,18 +299,17 @@ as \codeid{size(@OrderNonDet List<@Det String>)} will result in \<@PolyDet> gett
 on the return type \<int>. We circumvent this scenario by introducing two variants to the \<@PolyDet> annotation, \<@PolyDet("up")>
 and \<@PolyDet("down")>. 
 
-Valid locations for \codeid{@PolyDet("up")} and  \codeid{@PolyDet("down")}:
-
-$\infer{\vdash : \kappa \  \beta}{isParam(\beta) / isReturn(\beta) & \kappa : @PolyDet("up") / @PolyDet("down")}$
-
-Resolution of \<@PolyDet("up")>:\todo{typesetting}
-
-$\infer{\Gamma \vdash x : @NonDet \ \beta_a}{\Gamma \vdash x : \kappa_a \ \beta_a &  \kappa_a : @OrderNonDet/@NonDet & \kappa_p : @PolyDet("up") & \kappa_p \ \beta_p : declaration \ type & \kappa_a \ \beta_a : resolved \ type}$
-
-Resolution of \<@PolyDet("down")>:
-
-$\infer{\Gamma \vdash x : @Det \  \beta_a}{\Gamma \vdash x :  \kappa_a \beta_a & \kappa_a : @OrderNonDet/@Det & \kappa_p : @PolyDet("down") & \kappa_p \ \beta_p : declaration \ type & \kappa_a \ \beta_a : resolved \ type}$
-
+% Not true: We allow Poly(up) and down at every location where Poly is allowed.
+%Valid locations for \codeid{@PolyDet("up")} and  \codeid{@PolyDet("down")}:
+%$\infer{\vdash : \kappa \  \beta}{isParam(\beta) / isReturn(\beta) & \kappa : @PolyDet("up") / @PolyDet("down")}$
+%
+%Resolution of \<@PolyDet("up")>:\todo{typesetting}
+%
+%$\infer{\Gamma \vdash x : @NonDet \ \beta_a}{\Gamma \vdash x : \kappa_a \ \beta_a &  \kappa_a : @OrderNonDet/@NonDet & \kappa_p : @PolyDet("up") & \kappa_p \ \beta_p : declaration \ type & \kappa_a \ \beta_a : resolved \ type}$
+%
+%Resolution of \<@PolyDet("down")>:
+%
+%$\infer{\Gamma \vdash x : @Det \  \beta_a}{\Gamma \vdash x :  \kappa_a \beta_a & \kappa_a : @OrderNonDet/@Det & \kappa_p : @PolyDet("down") & \kappa_p \ \beta_p : declaration \ type & \kappa_a \ \beta_a : resolved \ type}$
 
 The semantics of these variants are as follows:
 \begin{itemize}
@@ -326,6 +325,10 @@ Annotating \<size()> as \codeid{@PolyDet("down") int size(@PolyDet List<T> list)
     \item \codeid{@NonDet int size(@NonDet List<T> list)}
 \end{itemize}
 
+\begin{figure}
+    $\infer[\sc{\mathit{POLY RESOLUTION}}]{\pi_r \ \beta_r method(\overline{\pi_i \ \beta_i})\{\ \}}{\forall K \in \{\mathit{NonDet, OrderNonDet, Det\}} : K \ \beta_r method(\overline{K \ \beta_i})\{\ \} & \pi_r, \pi_i \in \{\mathit{PolyDet}, \mathit{PolyDet}\uparrow, \mathit{PolyDet}\downarrow\}}$
+\end{figure}
+
 \begin{table}[]
     \begin{tabular}{|l|l|l|}
         \hline
@@ -334,6 +337,8 @@ Annotating \<size()> as \codeid{@PolyDet("down") int size(@PolyDet List<T> list)
         \<OrderNonDet> & \<NonDet> &  \<Det>\\ \hline
         \<Det> & \<Det> &  \<Det>\\ \hline
     \end{tabular}
+\caption{Polymorphic resolution}
+\label{tab-poly-resolutions}
 \end{table}
 
 \subsection{Differentiating binding and use}\label{bindings-uses}
