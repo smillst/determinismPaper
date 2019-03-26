@@ -326,6 +326,16 @@ Annotating \<size()> as \codeid{@PolyDet("down") int size(@PolyDet List<T> list)
     \item \codeid{@NonDet int size(@NonDet List<T> list)}
 \end{itemize}
 
+\begin{table}[]
+    \begin{tabular}{|l|l|l|}
+        \hline
+        \textbf{\<PolyDet>} & \textbf{\<PolyDet$\uparrow$>} & \textbf{\<PolyDet$\downarrow$>} \\ \hline
+        \<NonDet> & \<NonDet> &  \<NonDet>\\ \hline
+        \<OrderNonDet> & \<NonDet> &  \<Det>\\ \hline
+        \<Det> & \<Det> &  \<Det>\\ \hline
+    \end{tabular}
+\end{table}
+
 \subsection{Differentiating binding and use}\label{bindings-uses}
 
 In order to provide soundness guarantees, we must ensure that a collection that is
