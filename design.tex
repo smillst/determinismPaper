@@ -364,6 +364,26 @@ Since \<@PolyDet("use")> has no effect on type instantiations, calling this meth
 will result in the method declaration being resolved as \codeid{public void add(@Det ArrayList<E> this, @Det int index, E element)}
 irrespective of the type of \<index>, thereby preventing undesired side-effects.
 
+\subsection{Discussion on defaulting rules}\label{defaulting}
+Every type system in the checker framework must define a default type annotation. This annotation will be applied
+to every location that isn't explicitly annotated. In our determinism checker, we chose \<@PolyDet> as the default for all 
+method parameters and return types including constructors.
+The rationale for this design choice was to not make our type checker too restrictive by making everything \<@Det>.  This implies that
+the checker still allows some non-determinism as long as it doesn't break any determinism specifications explicitly written by the programmer.
+
+\begin{verbatim}
+@PolyDet int foo(@PolyDet int x) { }
+void bar(@NonDet int random, @Det int value) {
+@NonDet int x = foo(random);      // No error.
+@Det int y = foo(value);          // No error.
+System.out.println(foo(random));  // Error.
+}
+\end{verbatim}
+In the example above, the method \codeid{foo} is annotated with the \<PolyDet> type qualifier which allows
+the caller method \codeid{bar} to invoke it with both \<Det> and \<NonDet> arguments. The checker flags an error 
+only when the returned value is used in a way that breaks any deterministic specification (Printing a \<NonDet> value
+breaks our determinism guarantees).
+
 \subsection{Dataflow analysis and type refinement}\label{dataflow}
 The checker framework performs automatic type inference for local types within method bodies.
 It also performs dataflow analysis and refines the types of these locals, thereby reducing the annotation burden 
@@ -384,6 +404,23 @@ void foo(@NonDet Object x, @Det Object y) {
 }
 \end{verbatim}
 the checker reports a warning at the second assignment statement of \codeid{foo}. Type refinement only applies to locals. Refining non-locals can result in side effects making the analysis unsound.
+
+With the above rules, the checker framework will automatically annotate a local collection with type \<@NonDet> and its
+type arguments will get the type \<@Det>. For example, a locally declared \codeid{List} of \codeid{Strings} will be automatically annotated
+as \codeid{@NonDet List<@Det String>}. Recall from~\ref{collection-rules} that the determinism checker does not allow this type on
+any collection. While this is still sound, it will result in the determinism checker reporting a lot of errors because every locally declared 
+collection gets annotated with this invalid type. To avoid this situation, we make an exception to the defaulting rules for local collections
+and annotate their type parameters also with \<@NonDet>. So a local list of Strings gets the default annotation of \codeid{@NonDet List<@NonDet String>}. While this defaulting eliminates the possibility of automatically annotating locals collections with an invalid
+type, it would could in a high number of false positives. In the following code snippet,
+\begin{verbatim}
+void test(@Det List<@Det String> argList) {
+List<String> localList = argList;
+}    
+\end{verbatim}
+the checker would report an error at the assignment statement since the inferred type for \codeid{localList} is 
+\codeid{@NonDet List<@NonDet> String} and since collections types are invariant.
+We therefore recommend that programmers explicitly annotate
+all local variables that are collections to reduce false positives. The same reasoning and recommendation applies to arrays.
 
 The determinism checker has additional type refinement rule for the sorting methods as shown in Figure~\ref{fig-sorting}. 
 
@@ -406,20 +443,6 @@ The checker type refines a receiver of type \codeid{@OrderNonDet List} to a \cod
 type argument of this \codeid{List} have the type annotation \codeid{@Det} (Rule LIST SORT in Figure~\ref{fig-sorting}). Similar rules apply for \codeid{Arrays.sort()} and \codeid{Collections.sort()}.
 As per these rules, if \codeid{sort()} is called on a receiver of type \codeid{@OrderNonDet List<@Det Set<@Det String>>}, it will
 be type refined to \codeid{@Det List<@Det Set<@Det String>>}. However a receiver of type \codeid{@OrderNonDet List<@OrderNonDet Set<@Det String>>} will not be type refined.
-
-\subsection{Discussion on defaulting rules}\label{defaulting}
-In our determinism checker, we chose \<@PolyDet> as the default for all method parameters and return types including constructors.
-The rationale for this design choice was to not make our type checker too restrictive by making everything \<@Det>.  This implies that
-the checker still allows some non-determinism as long as it doesn't break any determinism specifications explicitly written by the programmer.
-
-\begin{itemize}
-    \item Example of a method with params and return types annotated as \<@PolyDet>.
-    This method called from 2 places - one harmless(@NonDet instantiations but no printing), and another that call with \<@NonDet> args and prints the return type.
-    \item Exception to this defaulting is the construction of HashSets and HashMaps because they can't be \<@Det>.
-    We explicitly annotate the return type on constructors as
-        \<@OrderNonDet> and disallow constructing \<@Det HashSet> or \<@Det
-        HashMap>.
-\end{itemize}
 
 %\subsection{CLIMB-to-top and collection, array locals}\label{climb-rules}
 %
@@ -496,6 +519,13 @@ the checker still allows some non-determinism as long as it doesn't break any de
     \item We circumvent this by hardcoding rules to make it precise. (Describe the rule here)
     \item It was probably a bad design choice to make HashMap a subclass of Map (talk about how
     every method is overriden). Similarly for HashSet.
+\end{itemize}
+
+\begin{itemize}
+    \item Exception to this defaulting is the construction of HashSets and HashMaps because they can't be \<@Det>.
+    We explicitly annotate the return type on constructors as
+    \<@OrderNonDet> and disallow constructing \<@Det HashSet> or \<@Det
+    HashMap>.
 \end{itemize}
 
 \subsection{Annotating more classes/providing more specifications}\label{annotating-jdk}
