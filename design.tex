@@ -542,11 +542,6 @@ In the JDK, \<LinkedHashSet> is implemented as a subclass of \<HashMap>.
 \todo{Talk about this design choice. Josh Blochs book: "If the code surrounding the first declaration depended on LinkedHashSet's ordering policy,
     then it would be incorrect to substitute HashSet for LinkedHashSet in the declaration, because HashSet makes no guarantee concerning iteration order."} 
 
-\begin{itemize}
-    \item Problem with \<Map.get()> : Annotating as \<@PolyDet> is imprecise.
-    \item We circumvent this by hardcoding rules to make it precise. (Describe the rule here)
-\end{itemize}
-
 \subsection{Determinism checker specific rules for precision}\label{precision}
 
 \begin{itemize}
@@ -554,8 +549,10 @@ In the JDK, \<LinkedHashSet> is implemented as a subclass of \<HashMap>.
     \item Example1: \codeid{@OrderNonDet Set<@Det List>.equals(@OrderNonDet Set<@Det List>)} is deterministic
     \item Example2: \codeid{@OrderNonDet Set<@OrderNonDet List>.equals(@OrderNonDet Set<@OrderNonDet List>)} is not deterministic.
     \item Explain the rules under which we make Set equality deterministic.
+    \item Problem with \<Map.get()> : Annotating as \<@PolyDet> is imprecise.
+    \item We circumvent this by hardcoding rules to make it precise. (Describe the rule here)
     \item We annotate System.getProperty as \<@NonDet> because the results could vary across machines.
-    \item Exceptions: line.Sepaator, file.Separator. and path.Separator.
+    \item Exceptions: line.Separator, file.Separator. and path.Separator.
     \item discuss type on Exceptions and unsoundness due to this.
 \end{itemize}
 
