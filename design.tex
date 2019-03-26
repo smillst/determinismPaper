@@ -372,11 +372,12 @@ The rationale for this design choice was to not make our type checker too restri
 the checker still allows some non-determinism as long as it doesn't break any determinism specifications explicitly written by the programmer.
 
 \begin{verbatim}
-@PolyDet int foo(@PolyDet int x) { }
+@PolyDet int foo(@PolyDet int x) { ... }
+
 void bar(@NonDet int random, @Det int value) {
-@NonDet int x = foo(random);      // No error.
-@Det int y = foo(value);          // No error.
-System.out.println(foo(random));  // Error.
+    @NonDet int x = foo(random);      // No error.
+    @Det int y = foo(value);          // No error.
+    System.out.println(foo(random));  // Error.
 }
 \end{verbatim}
 In the example above, the method \codeid{foo} is annotated with the \<PolyDet> type qualifier which allows
@@ -406,15 +407,15 @@ void foo(@NonDet Object x, @Det Object y) {
 the checker reports a warning at the second assignment statement of \codeid{foo}. Type refinement only applies to locals. Refining non-locals can result in side effects making the analysis unsound.
 
 With the above rules, the checker framework will automatically annotate a local collection with type \<@NonDet> and its
-type arguments will get the type \<@Det>. For example, a locally declared \codeid{List} of \codeid{Strings} will be automatically annotated
+type arguments will get the type qualifier \<@Det>. For example, a locally declared \codeid{List} of \codeid{Strings} will be automatically annotated
 as \codeid{@NonDet List<@Det String>}. Recall from~\ref{collection-rules} that the determinism checker does not allow this type on
 any collection. While this is still sound, it will result in the determinism checker reporting a lot of errors because every locally declared 
 collection gets annotated with this invalid type. To avoid this situation, we make an exception to the defaulting rules for local collections
 and annotate their type parameters also with \<@NonDet>. So a local list of Strings gets the default annotation of \codeid{@NonDet List<@NonDet String>}. While this defaulting eliminates the possibility of automatically annotating locals collections with an invalid
-type, it would could in a high number of false positives. In the following code snippet,
+type, it could result in a high number of false positives. In the following code snippet,
 \begin{verbatim}
 void test(@Det List<@Det String> argList) {
-List<String> localList = argList;
+    List<String> localList = argList;
 }    
 \end{verbatim}
 the checker would report an error at the assignment statement since the inferred type for \codeid{localList} is 
@@ -422,8 +423,7 @@ the checker would report an error at the assignment statement since the inferred
 We therefore recommend that programmers explicitly annotate
 all local variables that are collections to reduce false positives. The same reasoning and recommendation applies to arrays.
 
-The determinism checker has additional type refinement rule for the sorting methods as shown in Figure~\ref{fig-sorting}. 
-
+The determinism checker has additional type refinement rules for the sorting methods as shown in Figure~\ref{fig-sorting}. 
 \begin{figure}
     $\infer[\sc{\mathit{LIST \  SORT}}]{\Gamma \vdash x : \mathit{Det \ List}\langle\mathit{Det} \ \beta\rangle}{\Gamma \vdash x : \mathit{OrderNonDet \ List}\langle\mathit{Det} \ \beta\rangle & \mathit{x.sort()}}$
     
@@ -438,7 +438,6 @@ The determinism checker has additional type refinement rule for the sorting meth
     \caption{Sorting type refinement rules}
     \label{fig-sorting}
 \end{figure}
-
 The checker type refines a receiver of type \codeid{@OrderNonDet List} to a \codeid{@Det List} if all the
 type argument of this \codeid{List} have the type annotation \codeid{@Det} (Rule LIST SORT in Figure~\ref{fig-sorting}). Similar rules apply for \codeid{Arrays.sort()} and \codeid{Collections.sort()}.
 As per these rules, if \codeid{sort()} is called on a receiver of type \codeid{@OrderNonDet List<@Det Set<@Det String>>}, it will
