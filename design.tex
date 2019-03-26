@@ -326,7 +326,7 @@ Annotating \<size()> as \codeid{@PolyDet("down") int size(@PolyDet List<T> list)
 \end{itemize}
 
 \begin{figure}
-    $\infer[\sc{\mathit{POLY RESOLUTION}}]{\pi_r \ \beta_r method(\overline{\pi_i \ \beta_i})\{\ \}}{\forall K \in \{\mathit{NonDet, OrderNonDet, Det\}} : K \ \beta_r method(\overline{K \ \beta_i})\{\ \} & \pi_r, \pi_i \in \{\mathit{PolyDet}, \mathit{PolyDet}\uparrow, \mathit{PolyDet}\downarrow\}}$
+    $\infer[\sc{\mathit{POLY RESOLUTION}}]{\pi_r \ \beta_r method(\overline{\pi_i \ \beta_i})\{\ \}}{\forall K \in \{\mathit{NonDet, OrderNonDet, Det\}} : K \ \beta_r method(\overline{K \ \beta_i})\{\ \} & \pi_r, \pi_i \in \{\mathit{PolyDet}, \mathit{PolyDet}\uparrow, \mathit{PolyDet}\downarrow    \}}$
 \end{figure}
 
 \begin{table}[]
@@ -385,12 +385,26 @@ void foo(@NonDet Object x, @Det Object y) {
 \end{verbatim}
 the checker reports a warning at the second assignment statement of \codeid{foo}. Type refinement only applies to locals. Refining non-locals can result in side effects making the analysis unsound.
 
-The determinism checker has additional type refinement rule for the sorting methods in collections. 
+The determinism checker has additional type refinement rule for the sorting methods as shown in Figure~\ref{fig-sorting}. 
+
+\begin{figure}
+    $\infer[\sc{\mathit{LIST \  SORT}}]{\Gamma \vdash x : \mathit{Det \ List}\langle\mathit{Det} \ \beta\rangle}{\Gamma \vdash x : \mathit{OrderNonDet \ List}\langle\mathit{Det} \ \beta\rangle & \mathit{x.sort()}}$
+    
+    \bigskip
+    
+    $\infer[\sc{\mathit{COLLECTIONS \  SORT}}]{\Gamma \vdash x : \mathit{Det \ List}\langle\mathit{Det} \ \beta\rangle}{\Gamma \vdash x : \mathit{OrderNonDet \ List}\langle\mathit{Det} \ \beta\rangle & \mathit{Collections.sort.sort(x)}}$
+    
+    \bigskip
+    
+    $\infer[\sc{\mathit{ARRAYS \  SORT}}]{\Gamma \vdash x : \mathit{Det \ \beta \ Det[]} }{\Gamma \vdash x : \mathit{Det \ \beta \ OrderNonDet[]} & \mathit{Arrays.sort( \ x)}}$
+    
+    \caption{Sorting type refinement rules}
+    \label{fig-sorting}
+\end{figure}
 
 The checker type refines a receiver of type \codeid{@OrderNonDet List} to a \codeid{@Det List} if all the
-type argument of this \codeid{List} have the type annotation \codeid{@Det}. Similar rules apply for \codeid{Arrays.sort()} and
-\codeid{Collections.sort()}.
-Under this if \codeid{sort()} is called on a receiver of type \codeid{@OrderNonDet List<@Det Set<@Det String>>}, it will
+type argument of this \codeid{List} have the type annotation \codeid{@Det} (Rule LIST SORT in Figure~\ref{fig-sorting}). Similar rules apply for \codeid{Arrays.sort()} and \codeid{Collections.sort()}.
+As per these rules, if \codeid{sort()} is called on a receiver of type \codeid{@OrderNonDet List<@Det Set<@Det String>>}, it will
 be type refined to \codeid{@Det List<@Det Set<@Det String>>}. However a receiver of type \codeid{@OrderNonDet List<@OrderNonDet Set<@Det String>>} will not be type refined.
 
 \subsection{Discussion on defaulting rules}\label{defaulting}
