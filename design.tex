@@ -500,26 +500,51 @@ be type refined to \codeid{Det List<Det Set<Det String>>}. However a receiver of
 %all local variables that are collections to reduce false positives. The same reasoning and recommendation applies to arrays.
 
 \subsection{Maps discussion}\label{maps}
+A \<Map> is a set of mappings from keys to values. A \<Map> is deterministic if its \<entrySet> is deterministic.
+In other words, iterating over this \<entrySet> is guaranteed to produce the same values in the exact same order across executions.
+The \<Map> interface in Java doesn't define an \<iterator()> interface. Therefore it's sound to equate the determinism of the \<Set>
+returned by \<entrySet()> to the determinism of the \<Map>. Interestingly, we found that every implementation of the \<Map> 
+interface had the following property: if the \<Set> returned by \<entrySet()> has a determinism type $\kappa$, then
+the \<Set>s returned by \<keySet()> and \<values()> also have the exact same determinism type $\kappa$.
 
+We noticed the following properties with respect to determinism regarding the most widely used \<Map> implementations:
 \begin{itemize}
-    \item A map is deterministic iff the \<entrySet()> is
-          deterministic; equivalently, iff the \<keySet()> and \<values()>
-          are both deterministic
-    \item the iteration order of a keyset is the same as the iteration order of entrySet and Values.
-    \item \<HashMap> - can be \<@OrderNonDet> or \<@NonDet>.
-    \item \<LinkedHashMap> - can be \<@Det>, \<@OrderNonDet>, ot \<@NonDet>.
-    \item \<TreeMap> - can be \<@Det> or \<@NonDet>.
-    \item Problem with \<Map.get()> : Annotating as \<@PolyDet> is imprecise.
-    \item We circumvent this by hardcoding rules to make it precise. (Describe the rule here)
-    \item It was probably a bad design choice to make HashMap a subclass of Map (talk about how
-    every method is overriden). Similarly for HashSet.
+    \item \<HashMap> can never guarantee fully deterministic iteration over its entries. A \codeid{Det HashMap} does not exist.
+    \item \<LinkedHashMap> can have any of \<Det>, \<OrderNonDet>, or \<NonDet> types. Iterating over a \<LinkedHashMap> returns
+    its entries in the order of their insertion. An \<OrderNonDet LinkedHashMap> can be created by calling its constructor with a \<HashMap>.
+    \item \<TreeMap> can either be \<Det> or \<NonDet>. An \<OrderNonDet TreeMap> doesn't exist because the entries always ordered according
+    to the natural ordering of the keys. 
 \end{itemize}
 
+We prohibit the creation of a \codeid{Det HashMap} or an \codeid{OrderNonDet TreeMap} in our determinism checker.
+Figure~\ref{fig-creation-rules} formalizes these rules. Similar constraints apply to \<HashSet>s and \<TreeSet>s which are
+also expressed by the last two rules of Figure~\ref{fig-creation-rules}.
+
+\begin{figure}
+    $\infer[\sc{\mathit{HASHMAP \ CREATION}}]{\mathit{new \ \kappa\ HashMap()}}{\kappa = \mathit{OrderDet/NonDet}}$
+    
+    \bigskip
+    
+    $\infer[\sc{\mathit{TREEMAP \ CREATION}}]{\mathit{new \ \kappa\ TreeMap()}}{\kappa = \mathit{Det/NonDet}}$
+    
+    \bigskip
+    
+    $\infer[\sc{\mathit{HASHSET \ CREATION}}]{\mathit{new \ \kappa\ HashSet()}}{\kappa = \mathit{OrderDet/NonDet}}$
+    
+    \bigskip
+    
+    $\infer[\sc{\mathit{TREESET \ CREATION}}]{\mathit{new \ \kappa\ TreeSet()}}{\kappa = \mathit{Det/NonDet}}$
+    \caption{\<Map> and \<Set> creation rules}
+    \label{fig-creation-rules}
+\end{figure}
+
+In the JDK, \<LinkedHashSet> is implemented as a subclass of \<HashMap>.
+\todo{Talk about this design choice. Josh Blochs book: "If the code surrounding the first declaration depended on LinkedHashSet's ordering policy,
+    then it would be incorrect to substitute HashSet for LinkedHashSet in the declaration, because HashSet makes no guarantee concerning iteration order."} 
+
 \begin{itemize}
-    \item Exception to this defaulting is the construction of HashSets and HashMaps because they can't be \<@Det>.
-    We explicitly annotate the return type on constructors as
-    \<@OrderNonDet> and disallow constructing \<@Det HashSet> or \<@Det
-    HashMap>.
+    \item Problem with \<Map.get()> : Annotating as \<@PolyDet> is imprecise.
+    \item We circumvent this by hardcoding rules to make it precise. (Describe the rule here)
 \end{itemize}
 
 \subsection{Determinism checker specific rules for precision}\label{precision}
