@@ -1,0 +1,17 @@
+\newcommand{\wellformed}[1]{\vdash : #1}
+
+\newcommand{\Det}{\text{\<Det>}\xspace}
+\newcommand{\OrderNonDet}{\text{\<OrderNonDet>}\xspace}
+\newcommand{\NonDet}{\text{\<NonDet>}\xspace}
+\newcommand{\Ond}{\OrderNonDet}
+
+
+% \|name| or \mathid{name} denotes identifiers and slots in formulas
+\def\|#1|{\mathid{#1}}
+\newcommand{\mathid}[1]{\ensuremath{\mathit{#1}}}
+% \<name> or \codeid{name} denotes computer code identifiers
+\def\<#1>{\codeid{#1}}
+\protected\def\codeid#1{\ifmmode{\mbox{\sf{#1}}}\else{\sf #1}\fi}
+\protected\def\codeid#1{\ifmmode{\mbox{\ttfamily{#1}}}\else{\ttfamily #1}\fi}
+\protected\def\codeid#1{\ifmmode{\mbox{\smaller\ttfamily{#1}}}\else{\smaller\ttfamily #1}\fi}
+

@@ -64,26 +64,56 @@
 %\todo{Need some background around here about what a type qualifier is,
 %  how it is represented in Java, and how to read a type \<@Q BaseType>.}
 
-A \textit{type} serves as an abstraction for the set of acceptable values for any expression.
-A \textit{type qualifier} on a \textit{type} adds additional constraints on the values represented by that \textit{type}.
-A compile time type checker can verify the correctness of this \textit{type} with its dataflow analysis and subtyping rules.
-In Java, a type qualifier is written as an annotation. The type \<Integer> represents positive and negative integers besides zero.
-A program analysis developer could design a type system that differentiates positive integers from the negative ones with type qualifiers
-\<@Positive> and \<@Negative>.  The type \<@Positive Integer> now represents only positive values and the dataflow analysis ensures that
-any negative integer value flowing into this type is reported as an error.
+In a type system,
+a \textit{type} stands for a set of values.  It abstracts or restricts the
+set of possbile run-time values that an expression may evaluate to.
+A programming language provides \emph{basetypes}, such as \<int>.
+A \textit{type qualifier} on a \textit{type} adds additional constraints;
+that is, it reduces the size of the set of values.
+A type checker can verify the correctness of this \textit{type} with its dataflow analysis and subtyping rules.
+In Java, a type qualifier is written as a type annotation with a leading \<@>, as in
+\<@Positive int>.
 
 \begin{figure}
-    $\infer[\sc{\mathit{SUBTYPING}}]{\Gamma \vdash x : \tau_2}{\Gamma \vdash x : \tau_1 & \tau_1 \sqsubseteq \tau_2}$
+    \bigskip
+    
+    $\infer{\tau_1 \sqsubseteq \tau_3}{\tau_1 \sqsubseteq \tau_2 \quad \tau_2 \sqsubseteq \tau_3}
+    \quad\quad
+    \infer[\textsc{subtyping}]{\Gamma \vdash x : \tau_2}{\Gamma \vdash x : \tau_1 & \tau_1 \sqsubseteq \tau_2}$
+    
+    \bigskip
+
+    $\infer{\kappa_1 \beta \sqsubseteq \kappa_2 \beta}{\kappa_1 \sqsubseteq \kappa_2}
+    \quad\quad
+    \infer{\kappa \beta_1 \sqsubseteq \kappa \beta_2}{\beta_1 \sqsubseteq \beta_2}$
+    
+    \bigskip
+
+    $\infer{\Det \sqsubseteq \OrderNonDet}{}
+    \quad\quad
+    \infer{\OrderNonDet \sqsubseteq \NonDet}{}$
     
     \bigskip
     
-    $\infer[\sc{\mathit{METHOD \ CALLS}}]{\mathit{method}(\overline{a_i}) : \tau_r}{\tau_r \  \mathit{method}(\overline{\tau_i \  p_i}) & \overline{a_i : \tau_i}}$
+    $\infer[\textsc{method call}]{\mathit{method}(\overline{a_i}) : \tau_r}{\tau_r \  \mathit{method}(\overline{\tau_i \  p_i}) & \overline{a_i : \tau_i}}$
     
     \caption{Type checking rules}
     \label{typecheck-rules}
 \end{figure}
 
+
 \subsection{Determinism type hierarchy}\label{type-hierarchy}
+
+\begin{wrapfigure}{R}{0.3\textwidth}
+    \begin{center}
+        \includegraphics[scale=0.5]{determinism}
+    \end{center}
+    \caption{Determinism type qualifier hierarchy}
+    \label{fig-determinism-hierarchy}
+\todo{Drop the at-signs (@).  The text is weirdly small for the box.
+  Probably just redraw this.}
+\end{wrapfigure}
+
 The core of the determinism type system is the following type qualifiers (see Figure~\ref{fig-determinism-hierarchy}):
 %\todo{introduce just @Det and @NonDet first, and then @OrderNonDet after polymorphism.}
 \begin{itemize}
@@ -95,15 +125,17 @@ The core of the determinism type system is the following type qualifiers (see Fi
     order.
 \end{itemize}
 
-In this type system, \<Det> is a subtype of \<NonDet> denoted as \codeid{Det $\sqsubseteq$ NonDet}.
+\subsection{Handling order nondeterminism}
+In addition to the type qualifiers described in~\ref{type-hierarchy}, the determinism checker 
+defines the type qualifier \<OrderNonDet>. This qualifier represents
+a collection or an array that will have the same elements in every execution, but in a
+possibly different order.  \<OrderNonDet> may only be written on
+collections and arrays.
+A collection is any subtype of \<java.util.Collection>,
+\<java.util.Iterator>, or \<java.util.Map>, including user-defined types. The relationship
+of \<OrderNonDet> with respect the the other two type qualifiers is \codeid{Det $\sqsubseteq$ OrderNonDet $\sqsubseteq$ NonDet} as shown in Figure~\ref{fig-determinism-hierarchy}.
 
-\begin{figure}
-    \begin{center}
-        \includegraphics[scale=0.5]{determinism}
-    \end{center}
-    \caption{Determinism type hierarchy}
-    \label{fig-determinism-hierarchy}
-\end{figure}
+
 
 In Figure~\ref{code-determinism}, we present some of the JDK methods that we have annotated with our determinism types and give examples of
 client code that would produce errors at compile time.
@@ -155,56 +187,34 @@ checker framework resolves the method declaration as \codeid{NonDet int foo(NonD
 causing the return type to have the type annotation \<NonDet>.
 
 
-\subsection{Handling order nondeterminism}
-In addition to the type qualifiers described in~\ref{type-hierarchy}, the determinism checker 
-defines the type qualifier \<OrderNonDet>. This qualifier represents
-a collection or an array that will have the same elements in every execution, but in a
-possibly different order.  \<OrderNonDet> may only be written on
-collections and arrays.
-A collection is any subtype of \<java.util.Collection>,
-\<java.util.Iterator>, or \<java.util.Map>, including user-defined types. The relationship
-of \<OrderNonDet> with respect the the other two type qualifiers is \codeid{Det $\sqsubseteq$ OrderNonDet $\sqsubseteq$ NonDet} as shown in Figure~\ref{fig-determinism-hierarchy}.
-
 \subsection{Additional typing rules for collection elements}\label{collection-rules}
 
-%\todo{It is very important to express the whole section as formal type
-%  jugdments, or we will get laughed
-%  out of the room as amateurs, during the program committee meeting.  Also,
-%  the formalism will help make the ideas precise.
-%
-%  Type well-formedness rules:\todo{format nicely in \LaTeX}
-%
-%  antecedent: $\Gamma : \kappa_e <: \kappa_c$
-%
-%  consequent: $\Gamma : \kappa_c \ \codeid{List}\langle\kappa_e\ 
-%  \codeid{Object}\rangle$
-%  }
 \begin{figure}
-    $\infer[\sc{\mathit{ANY\ TYPE}}]{\vdash : \kappa \  \beta}{\kappa : \mathit{Det / NonDet}}$
+    $\infer[\textsc{any type}]{\wellformed{\kappa \  \beta}}{\kappa : \mathit{Det / NonDet}}$
     
     \bigskip
     
-    $\infer[\sc{\mathit{ORDERNONDET \ COLLECTION}}]{\vdash : \kappa_c \  \beta_c \langle\kappa_e \ \beta_e\rangle}{\kappa_c : \mathit{OrderNonDet/Det} & \kappa_e \sqsubseteq \kappa_c & \beta_c \sqsubseteq \mathit{Collection/Iterator}}$
+    $\infer[\textsc{ordernondet collection}]{\wellformed{\kappa_c \  \beta_c \langle\kappa_e \ \beta_e\rangle}}{\kappa_c : \mathit{OrderNonDet/Det} & \kappa_e \sqsubseteq \kappa_c & \beta_c \sqsubseteq \mathit{Collection/Iterator}}$
     
     \bigskip
     
-    $\infer[\sc{\mathit{NONDET \ COLLECTION}}]{\vdash : \mathit{NonDet} \ \beta_c\langle\mathit{NonDet} \ \beta_e\rangle}{\beta_c \sqsubseteq \mathit{Collection/Iterator}}$
+    $\infer[\textsc{nondet collection}]{\wellformed{\mathit{NonDet} \ \beta_c\langle\mathit{NonDet} \ \beta_e\rangle}}{\beta_c \sqsubseteq \mathit{Collection/Iterator}}$
     
     \bigskip
     
-     $\infer[\sc{\mathit{ORDERNONDET \ ARRAY}}]{\vdash : \kappa_e \ \beta_e \ \  \kappa_a []}{\kappa_a : \mathit{OrderNonDet/Det} & \kappa_e \sqsubseteq \kappa_a }$
+     $\infer[\textsc{ordernondet array}]{\wellformed{\kappa_e \ \beta_e \ \  \kappa_a []}}{\kappa_a : \mathit{OrderNonDet/Det} & \kappa_e \sqsubseteq \kappa_a }$
     
     \bigskip
     
-    $\infer[\sc{\mathit{NONDET \ ARRAY}}]{\vdash : \mathit{NonDet} \ \beta_e \ \  \mathit{NonDet} []}{}$
+    $\infer[\textsc{nondet array}]{\wellformed{\mathit{NonDet} \ \beta_e \ \  \mathit{NonDet} []}}{}$
     
     \bigskip
     
-    $\infer[\sc{\mathit{ORDERNONDET \ MAP}}]{\vdash : \kappa_m \  \beta_m \langle\kappa_k \ \beta_k, \kappa_v \ \beta_v\rangle}{\kappa_m: \mathit{OrderNonDet/Det} & \kappa_k \sqsubseteq \kappa_m & \kappa_v \sqsubseteq \kappa_m & \beta_m \sqsubseteq \mathit{Map}}$
+    $\infer[\textsc{ordernondet map}]{\wellformed{\kappa_m \  \beta_m \langle\kappa_k \ \beta_k, \kappa_v \ \beta_v\rangle}}{\kappa_m: \mathit{OrderNonDet/Det} & \kappa_k \sqsubseteq \kappa_m & \kappa_v \sqsubseteq \kappa_m & \beta_m \sqsubseteq \mathit{Map}}$
     
     \bigskip
     
-    $\infer[\sc{\mathit{NONDET \ MAP}}]{\vdash : \mathit{NonDet} \ \beta_m\langle\mathit{NonDet} \ \beta_k, \mathit{NonDet} \ \beta_v\rangle}{\beta_m \sqsubseteq \mathit{Map}}$
+    $\infer[\textsc{nondet map}]{\wellformed{\mathit{NonDet} \ \beta_m\langle\mathit{NonDet} \ \beta_k, \mathit{NonDet} \ \beta_v\rangle}}{\beta_m \sqsubseteq \mathit{Map}}$
     
     \caption{Type well formedness}
     \label{type-validity}
@@ -212,11 +222,11 @@ of \<OrderNonDet> with respect the the other two type qualifiers is \codeid{Det 
 
 Figure~\ref{type-validity} shows the type validity rules of our type system. A type $\tau$ is represented as $\kappa \ \beta$
 where $\kappa$ is a type qualifier from the determinism type hierarchy and $\beta$ is a Java type.
-As stated in the rule $\sc{\mathit{ANY\ TYPE}}$, the types \<Det> and \<NonDet> can be written on any Java type.
+As stated in the rule $\textsc{any type}$, the types \<Det> and \<NonDet> can be written on any Java type.
 The (determinism) type of a Collection or Iterator must be a supertype or equal to
-the type of the type parameter (Rule $\sc{\mathit{ORDERNONDET \ COLLECTION}}$) (see Figure~\ref{fig-determinism-collections}).
+the type of the type parameter (Rule $\textsc{ordernondet collection}$) (see Figure~\ref{fig-determinism-collections}).
 If the Collection is \<NonDet>, then the type parameter may not be
-\<Det> or \<OrderNonDet> (Rule $\sc{\mathit{NONDET \ COLLECTION}}$ in Figure~\ref{type-validity}). Although such types could exist, they are
+\<Det> or \<OrderNonDet> (Rule $\textsc{nondet collection}$ in Figure~\ref{type-validity}). Although such types could exist, they are
 disallowed to prevent the following bug:
 
 \begin{verbatim}
@@ -252,7 +262,7 @@ These types are invalid:
 Similarly, the (determinism) type of an array must be a supertype or equal to
 the type of the component type (see Figure~\ref{fig-determinism-collections}).
 As with collections, \codeid{NonDet} arrays of \codeid{Det} or \codeid{OrderNonDet}
-elements are not allowed (Rules $\sc{\mathit{ORDERNONDET \ ARRAY}}$ and $\sc{\mathit{NONDET \ ARRAY}}$ in Figure~\ref{type-validity}).
+elements are not allowed (Rules $\textsc{ordernondet array}$ and $\textsc{nondet array}$ in Figure~\ref{type-validity}).
 
 \begin{figure}
     \centering
@@ -301,7 +311,7 @@ and \<PolyDet$\downarrow$>.
 
 % Not true: We allow Poly(up) and down at every location where Poly is allowed.
 %Valid locations for \codeid{@PolyDet("up")} and  \codeid{@PolyDet("down")}:
-%$\infer{\vdash : \kappa \  \beta}{isParam(\beta) / isReturn(\beta) & \kappa : @PolyDet("up") / @PolyDet("down")}$
+%$\infer{\wellformed{\kappa \  \beta}}{isParam(\beta) / isReturn(\beta) & \kappa : @PolyDet("up") / @PolyDet("down")}$
 %
 %Resolution of \<@PolyDet("up")>:\todo{typesetting}
 %
@@ -331,7 +341,7 @@ Annotating \<size()> as \codeid{PolyDet$\downarrow$ int size(PolyDet List<T> lis
 \end{itemize}
 
 \begin{figure}
-    $\infer[\sc{\mathit{POLY RESOLUTION}}]{\pi_r \ \beta_r method(\overline{\pi_i \ \beta_i})\{\ \}}{\forall K \in \{\mathit{NonDet, OrderNonDet, Det\}} : K \ \beta_r method(\overline{K \ \beta_i})\{\ \} & \pi_r, \pi_i \in \{\mathit{PolyDet}, \mathit{PolyDet}\uparrow, \mathit{PolyDet}\downarrow    \}}$
+    $\infer[\textsc{poly resolution}]{\pi_r \ \beta_r method(\overline{\pi_i \ \beta_i})\{\ \}}{\forall K \in \{\mathit{NonDet, OrderNonDet, Det\}} : K \ \beta_r method(\overline{K \ \beta_i})\{\ \} & \pi_r, \pi_i \in \{\mathit{PolyDet}, \mathit{PolyDet}\uparrow, \mathit{PolyDet}\downarrow    \}}$
     \caption{Polymorphic resolution rule}
     \label{fig-poly-resolution}
 \end{figure}
@@ -432,15 +442,15 @@ all local variables that are collections to reduce false positives. The same rea
 
 The determinism checker has additional type refinement rules for the sorting methods as shown in Figure~\ref{fig-sorting}. 
 \begin{figure}
-    $\infer[\sc{\mathit{LIST \  SORT}}]{\Gamma \vdash x : \mathit{Det \ List}\langle\mathit{Det} \ \beta\rangle}{\Gamma \vdash x : \mathit{OrderNonDet \ List}\langle\mathit{Det} \ \beta\rangle & \mathit{x.sort()}}$
+    $\infer[\textsc{list sort}]{\Gamma \vdash x : \mathit{Det \ List}\langle\mathit{Det} \ \beta\rangle}{\Gamma \vdash x : \mathit{OrderNonDet \ List}\langle\mathit{Det} \ \beta\rangle & \mathit{x.sort()}}$
     
     \bigskip
     
-    $\infer[\sc{\mathit{COLLECTIONS \  SORT}}]{\Gamma \vdash x : \mathit{Det \ List}\langle\mathit{Det} \ \beta\rangle}{\Gamma \vdash x : \mathit{OrderNonDet \ List}\langle\mathit{Det} \ \beta\rangle & \mathit{Collections.sort.sort(x)}}$
+    $\infer[\textsc{collections sort}]{\Gamma \vdash x : \mathit{Det \ List}\langle\mathit{Det} \ \beta\rangle}{\Gamma \vdash x : \mathit{OrderNonDet \ List}\langle\mathit{Det} \ \beta\rangle & \mathit{Collections.sort.sort(x)}}$
     
     \bigskip
     
-    $\infer[\sc{\mathit{ARRAYS \  SORT}}]{\Gamma \vdash x : \mathit{Det \ \beta \ Det[]} }{\Gamma \vdash x : \mathit{Det \ \beta \ OrderNonDet[]} & \mathit{Arrays.sort( \ x)}}$
+    $\infer[\textsc{arrays sort}]{\Gamma \vdash x : \mathit{Det \ \beta \ Det[]} }{\Gamma \vdash x : \mathit{Det \ \beta \ OrderNonDet[]} & \mathit{Arrays.sort( \ x)}}$
     
     \caption{Sorting type refinement rules}
     \label{fig-sorting}
@@ -521,19 +531,19 @@ Figure~\ref{fig-creation-rules} formalizes these rules. Similar constraints appl
 also expressed by the last two rules of Figure~\ref{fig-creation-rules}.
 
 \begin{figure}
-    $\infer[\sc{\mathit{HASHMAP \ CREATION}}]{\mathit{new \ \kappa\ HashMap()}}{\kappa = \mathit{OrderDet/NonDet}}$
+    $\infer[\textsc{hashmap creation}]{\mathit{new \ \kappa\ HashMap()}}{\kappa = \mathit{OrderDet/NonDet}}$
     
     \bigskip
     
-    $\infer[\sc{\mathit{TREEMAP \ CREATION}}]{\mathit{new \ \kappa\ TreeMap()}}{\kappa = \mathit{Det/NonDet}}$
+    $\infer[\textsc{treemap creation}]{\mathit{new \ \kappa\ TreeMap()}}{\kappa = \mathit{Det/NonDet}}$
     
     \bigskip
     
-    $\infer[\sc{\mathit{HASHSET \ CREATION}}]{\mathit{new \ \kappa\ HashSet()}}{\kappa = \mathit{OrderDet/NonDet}}$
+    $\infer[\textsc{hashset creation}]{\mathit{new \ \kappa\ HashSet()}}{\kappa = \mathit{OrderDet/NonDet}}$
     
     \bigskip
     
-    $\infer[\sc{\mathit{TREESET \ CREATION}}]{\mathit{new \ \kappa\ TreeSet()}}{\kappa = \mathit{Det/NonDet}}$
+    $\infer[\textsc{treeset creation}]{\mathit{new \ \kappa\ TreeSet()}}{\kappa = \mathit{Det/NonDet}}$
     \caption{\<Map> and \<Set> creation rules}
     \label{fig-creation-rules}
 \end{figure}
@@ -550,11 +560,11 @@ PolyDet$\uparrow$ boolean equals(PolyDet Set<E> this, PolyDet Object o)
 While this is sound, it is imprecise in the case of \codeid{OrderNonDet Sets}. We added the following rule shown in Figure~\ref{fig-precision-rules} to our checker to improve precision.
 \begin{figure}
     \todo{linebreak}
-    $\infer[\sc{\mathit{SET \ PRECISION}}]{\Gamma \vdash \mathit{z : Det}}{\Gamma \vdash \mathit{x} : \mathit{OrderNonDet} \ \mathit{Set}\langle \kappa_{x} \ \beta_{x}\rangle, \mathit{y} : \mathit{OrderNonDet} \ \mathit{Set}\langle \kappa_{y} \ \beta_{y}\rangle & \mathit{z = x.equals(y)} & \langle \kappa_{x} \ \beta_{x}\rangle \nsqsubseteq \langle \mathit{OrderNonDet \ List} \rangle & \langle \kappa_{y} \ \beta_{y}\rangle \nsqsubseteq \langle \mathit{OrderNonDet \ List} \rangle }$
+    $\infer[\textsc{set precision}]{\Gamma \vdash \mathit{z : Det}}{\Gamma \vdash \mathit{x} : \mathit{OrderNonDet} \ \mathit{Set}\langle \kappa_{x} \ \beta_{x}\rangle, \mathit{y} : \mathit{OrderNonDet} \ \mathit{Set}\langle \kappa_{y} \ \beta_{y}\rangle & \mathit{z = x.equals(y)} & \langle \kappa_{x} \ \beta_{x}\rangle \nsqsubseteq \langle \mathit{OrderNonDet \ List} \rangle & \langle \kappa_{y} \ \beta_{y}\rangle \nsqsubseteq \langle \mathit{OrderNonDet \ List} \rangle }$
     
     \bigskip
     
-    $\infer[\sc{\mathit{MAP \ PRECISION}}]{\Gamma \vdash \mathit{z : Det}}{\Gamma \vdash \mathit{x : OrderNonDet \ Map\langle Det \ \beta_k, \kappa_v\ \beta_v \rangle, y : Det \ \beta} & \mathit{z = x.get(y)}}$
+    $\infer[\textsc{map precision}]{\Gamma \vdash \mathit{z : Det}}{\Gamma \vdash \mathit{x : OrderNonDet \ Map\langle Det \ \beta_k, \kappa_v\ \beta_v \rangle, y : Det \ \beta} & \mathit{z = x.get(y)}}$
     
     \caption{Improving precision}
     \label{fig-precision-rules}
