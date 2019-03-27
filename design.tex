@@ -95,14 +95,14 @@ In Java, a type qualifier is written as a type annotation with a leading \<@>, a
     
     \bigskip
     
-    $\infer[\textsc{method call}]{\mathit{method}(\overline{a_i}) : \tau_r}{\tau_r \  \mathit{method}(\overline{\tau_i \  p_i}) & \overline{a_i : \tau_i}}$
+    $\infer[\textsc{method call}]{\|method|(\overline{a_i}) : \tau_r}{\tau_r \  \|method|(\overline{\tau_i \  p_i}) & \overline{a_i : \tau_i}}$
     
     \caption{Type checking rules}
     \label{typecheck-rules}
 \end{figure}
 
 
-\subsection{Determinism type hierarchy}\label{type-hierarchy}
+\subsection{Determinism types}\label{type-hierarchy}
 
 \begin{wrapfigure}{R}{0.3\textwidth}
     \begin{center}
@@ -126,7 +126,7 @@ The core of the determinism type system is the following type qualifiers (see Fi
 \end{itemize}
 
 \subsection{Handling order nondeterminism}
-In addition to the type qualifiers described in~\ref{type-hierarchy}, the determinism checker 
+In addition to the type qualifiers described in~\ref{type-hierarchy}, \theDeterminismChecker 
 defines the type qualifier \<OrderNonDet>. This qualifier represents
 a collection or an array that will have the same elements in every execution, but in a
 possibly different order.  \<OrderNonDet> may only be written on
@@ -159,62 +159,43 @@ client code that would produce errors at compile time.
         }
     }
     \end{verbatim}
-    \caption{Example: Errors detected by determinism checker}
+    \caption{Example: Errors detected by \theDeterminismChecker.}
+\todo{Use real examples of bugs from case studies, throughout.  Artificial
+  examples are less compelling (and lead the reader to wonder whether no
+  real example exist).  Put the first example of an error in a figure in
+  Section 1, to help with motivating the problem.}
     \label{code-determinism}
 \end{figure}
-
-\subsection{Polymorphism}\label{polymorphism}
-
-The underlying checker-framework on which we build our determinism checker has support for
-polymorphic annotations. When a user writes a polymorphic annotation on a method signature or a type parameter,
-it indicates that it could resolve to any type in the type system depending on how it is used.
-In the determinism checker, we define a polymorphic annotation \<PolyDet>.
-One of the most common locations for a polymorphic annotation is at a method signature.
-Consider the following method declaration annotated with polymorphic annotations:
-\begin{verbatim}
-PolyDet int foo(PolyDet String param1, PolyDet boolean param2) { }
-\end{verbatim}
-There are two valid instantiations for this declaration:
-\begin{enumerate}
-    \item NonDet int foo(NonDet String param1, NonDet boolean param2) { }
-    \item Det int foo(Det String param1, Det boolean param2) { }
-\end{enumerate}
-This indicates that method \<foo> can be called with arguments having any of the \codeid{Det or NonDet} type annotations.
-%   (\<@OrderNonDet> is not allowed because it is invalid on primitive types).
- \<PolyDet> resolves to the least upper bound of
-the actual types on arguments. For instance, if this method is called as \codeid{foo(Det String arg1, NonDet boolean arg2)}, the 
-checker framework resolves the method declaration as \codeid{NonDet int foo(NonDet String param1, NonDet boolean param2)}
-causing the return type to have the type annotation \<NonDet>.
 
 
 \subsection{Additional typing rules for collection elements}\label{collection-rules}
 
 \begin{figure}
-    $\infer[\textsc{any type}]{\wellformed{\kappa \  \beta}}{\kappa : \mathit{Det / NonDet}}$
+    $\infer[\textsc{any type}]{\wellformed{\kappa \  \beta}}{\kappa : \|Det / NonDet|}$
     
     \bigskip
     
-    $\infer[\textsc{ordernondet collection}]{\wellformed{\kappa_c \  \beta_c \langle\kappa_e \ \beta_e\rangle}}{\kappa_c : \mathit{OrderNonDet/Det} & \kappa_e \sqsubseteq \kappa_c & \beta_c \sqsubseteq \mathit{Collection/Iterator}}$
+    $\infer[\textsc{ordernondet collection}]{\wellformed{\kappa_c \  \beta_c \langle\kappa_e \ \beta_e\rangle}}{\kappa_c : \|OrderNonDet/Det| & \kappa_e \sqsubseteq \kappa_c & \beta_c \sqsubseteq \|Collection/Iterator|}$
     
     \bigskip
     
-    $\infer[\textsc{nondet collection}]{\wellformed{\mathit{NonDet} \ \beta_c\langle\mathit{NonDet} \ \beta_e\rangle}}{\beta_c \sqsubseteq \mathit{Collection/Iterator}}$
+    $\infer[\textsc{nondet collection}]{\wellformed{\|NonDet| \ \beta_c\langle\|NonDet| \ \beta_e\rangle}}{\beta_c \sqsubseteq \|Collection/Iterator|}$
     
     \bigskip
     
-     $\infer[\textsc{ordernondet array}]{\wellformed{\kappa_e \ \beta_e \ \  \kappa_a []}}{\kappa_a : \mathit{OrderNonDet/Det} & \kappa_e \sqsubseteq \kappa_a }$
+     $\infer[\textsc{ordernondet array}]{\wellformed{\kappa_e \ \beta_e \ \  \kappa_a []}}{\kappa_a : \|OrderNonDet/Det| & \kappa_e \sqsubseteq \kappa_a }$
     
     \bigskip
     
-    $\infer[\textsc{nondet array}]{\wellformed{\mathit{NonDet} \ \beta_e \ \  \mathit{NonDet} []}}{}$
+    $\infer[\textsc{nondet array}]{\wellformed{\|NonDet| \ \beta_e \ \  \|NonDet| []}}{}$
     
     \bigskip
     
-    $\infer[\textsc{ordernondet map}]{\wellformed{\kappa_m \  \beta_m \langle\kappa_k \ \beta_k, \kappa_v \ \beta_v\rangle}}{\kappa_m: \mathit{OrderNonDet/Det} & \kappa_k \sqsubseteq \kappa_m & \kappa_v \sqsubseteq \kappa_m & \beta_m \sqsubseteq \mathit{Map}}$
+    $\infer[\textsc{ordernondet map}]{\wellformed{\kappa_m \  \beta_m \langle\kappa_k \ \beta_k, \kappa_v \ \beta_v\rangle}}{\kappa_m: \|OrderNonDet/Det| & \kappa_k \sqsubseteq \kappa_m & \kappa_v \sqsubseteq \kappa_m & \beta_m \sqsubseteq \|Map|}$
     
     \bigskip
     
-    $\infer[\textsc{nondet map}]{\wellformed{\mathit{NonDet} \ \beta_m\langle\mathit{NonDet} \ \beta_k, \mathit{NonDet} \ \beta_v\rangle}}{\beta_m \sqsubseteq \mathit{Map}}$
+    $\infer[\textsc{nondet map}]{\wellformed{\|NonDet| \ \beta_m\langle\|NonDet| \ \beta_k, \|NonDet| \ \beta_v\rangle}}{\beta_m \sqsubseteq \|Map|}$
     
     \caption{Type well formedness}
     \label{type-validity}
@@ -300,13 +281,57 @@ of the user defined Collection type (\codeid{OrderNonDet}).
 User defined types that are not a subtype of Collection or Iterator
 may not be annotated as \codeid{OrderNonDet}.
 
-\subsection{Polymorphism extensions}\label{polymorphism-extensions}
+\subsection{Polymorphism}\label{polymorphism}
 
-Recall that the determinism checker does not permit \<OrderNonDet> on a type that isn't a \<Collection>, \<Iterator>, or an array.
-As a consequence, resolution of polymorphic type annotations at method signatures could have undesirable effects.
+\TheDeterminismChecker supports three types of polymorphism:  type
+polymorphism, basetype polymorphism, and qualifier polymorphism.
+Type polymorphism is handled by Java's generics mechanism, which
+\theDeterminismChecker fully supports, including class and method generics,
+inference, etc.
+Basetype polymorphism is enabled by writing a type qualifier on a use of a
+type variable.
+Java does not provide a syntax that can be used for qualifier polymorphism,
+so we use a special type qualifier name, \<@PolyDet>.
+A method \<m> with signature $\forall \kappa . \kappa \<int> \times \<Det boolean> \rightarrow
+\kappa \<String>$ would be written in our dialect of Java as
+\begin{Verbatim}
+@PolyDet String m(@PolyDet int, @Det boolean)
+\end{Verbatim}
+
+Each use of \<@PolyDet> stands for a use of the qualifier variable
+$\kappa$, and there is no need to declare the qualifier variable $\kappa$.
+
+
+
+The underlying checker-framework on which we build \theDeterminismChecker has support for
+polymorphic qualifiers. When a user writes a polymorphic qualifier on a method signature or a type parameter,
+it indicates that it could resolve to any type in the type system depending on how it is used.
+In \theDeterminismChecker, we define a polymorphic qualifier \<PolyDet>.
+One of the most common locations for a polymorphic qualifier is at a method signature.
+Consider the following method declaration annotated with polymorphic qualifiers:
+\begin{verbatim}
+PolyDet int foo(PolyDet String param1, PolyDet boolean param2) { }
+\end{verbatim}
+\todo{It has the standard meaning.  There are two ways to interpret this.}
+There are two valid instantiations for this declaration:
+\begin{enumerate}
+    \item @NonDet int foo(@NonDet String param1, @NonDet boolean param2) { }
+    \item @Det int foo(@Det String param1, @Det boolean param2) { }
+\end{enumerate}
+This indicates that method \<foo> can be called with arguments having any of the \codeid{Det or NonDet} type qualifiers.
+%   (\<@OrderNonDet> is not allowed because it is invalid on primitive types).
+ \<PolyDet> resolves to the least upper bound of
+the actual types on arguments. For instance, if this method is called as \codeid{foo(@Det String arg1, @NonDet boolean arg2)}, the 
+checker framework resolves the method declaration as \codeid{@NonDet int foo(@NonDet String param1, @NonDet boolean param2)}
+causing the return type to have the type qualifier \<NonDet>.
+
+\subsection{Polymorphism rules for collections}\label{polymorphism-up-down}
+
+Recall that \theDeterminismChecker does not permit \<OrderNonDet> on a type that isn't a \<Collection>, \<Iterator>, or an array.
+As a consequence, resolution of polymorphic type qualifiers at method signatures could have undesirable effects.
 Suppose a method declaration is annotated as \codeid{PolyDet int size(PolyDet List<T> list)}. Invoking this method
 with an argument of type \codeid{OrderNonDet List<Det String>} will result in \<PolyDet> getting resolved to \<OrderNonDet> which is invalid
-on the return type \<int>. We circumvent this scenario by introducing two variants to the \<PolyDet> annotation, \<PolyDet$\uparrow$>
+on the return type \<int>. We circumvent this scenario by introducing two variants to the \<PolyDet> qualifier, \<PolyDet$\uparrow$>
 and \<PolyDet$\downarrow$>. 
 
 % Not true: We allow Poly(up) and down at every location where Poly is allowed.
@@ -335,13 +360,13 @@ in its signature then the instantiation of \<PolyDet> at that location gets repl
 
 Annotating \<size()> as \codeid{PolyDet$\downarrow$ int size(PolyDet List<T> list)} will only allow the following type resolutions:
 \begin{itemize}
-    \item \codeid{Det int size(Det List<T> list)}
-    \item \codeid{Det int size(OrderNonDet List<T> list)}
-    \item \codeid{NonDet int size(NonDet List<T> list)}
+    \item \codeid{@Det int size(@Det List<T> list)}
+    \item \codeid{@Det int size(@OrderNonDet List<T> list)}
+    \item \codeid{@NonDet int size(@NonDet List<T> list)}
 \end{itemize}
 
 \begin{figure}
-    $\infer[\textsc{poly resolution}]{\pi_r \ \beta_r method(\overline{\pi_i \ \beta_i})\{\ \}}{\forall K \in \{\mathit{NonDet, OrderNonDet, Det\}} : K \ \beta_r method(\overline{K \ \beta_i})\{\ \} & \pi_r, \pi_i \in \{\mathit{PolyDet}, \mathit{PolyDet}\uparrow, \mathit{PolyDet}\downarrow    \}}$
+    $\infer[\textsc{poly resolution}]{\pi_r \ \beta_r method(\overline{\pi_i \ \beta_i})\{\ \}}{\forall K \in \{\|NonDet, OrderNonDet, Det|\} : K \ \beta_r method(\overline{K \ \beta_i})\{\ \} & \pi_r, \pi_i \in \{\|PolyDet|, \|PolyDet|\uparrow, \|PolyDet|\downarrow    \}}$
     \caption{Polymorphic resolution rule}
     \label{fig-poly-resolution}
 \end{figure}
@@ -358,10 +383,10 @@ Annotating \<size()> as \codeid{PolyDet$\downarrow$ int size(PolyDet List<T> lis
 \label{tab-poly-resolutions}
 \end{table}
 
-\subsection{Differentiating binding and use}\label{bindings-uses}
+\subsubsection{Differentiating binding and use}\label{bindings-uses}
 
 In order to provide soundness guarantees, we must ensure that a collection that is
-declared as \<Det> is not side-effected in non-deterministic ways. Consider the following annotation 
+declared as \<Det> is not side-effected in non-deterministic ways. Consider the following qualifier 
 on the List add method: \codeid{public void add(PolyDet ArrayList<E> this, PolyDet int index, E element)}.
 Suppose a client calls this method as follows:
 \begin{verbatim}
@@ -370,7 +395,7 @@ Suppose a client calls this method as follows:
 @Det String str;
 list.add(random, str);
 \end{verbatim}
-This will result in the instantion \codeid{public void add(NonDet ArrayList<E> this, NonDet int index, E element)} and
+This will result in the instantion \codeid{public void add(@NonDet ArrayList<E> this, @NonDet int index, E element)} and
 the method invocation will type check. This is problematic because even though \<list> was declared to be \<Det>,
 the type checker allows the addition of an element at a \<NonDet> location violating our determinism guarantees.
 We prevent this behavior by introducing another variant of \<PolyDet>, \<PolyDet("use")> that does not affect
@@ -378,15 +403,15 @@ type instantiations. This is especially useful in preventing methods from non-de
 of a deterministic receiver. To have this effect, the library method \<ArrayList.add> is annotated as:
 \codeid{public void add(PolyDet ArrayList<E> this, PolyDet("use") int index, E element)}.
 Since \<PolyDet("use")> has no effect on type instantiations, calling this method on a \<Det List>
-will result in the method declaration being resolved as \codeid{public void add(Det ArrayList<E> this, Det int index, E element)}
+will result in the method declaration being resolved as \codeid{public void add(@Det ArrayList<E> this, @Det int index, E element)}
 irrespective of the type of \<index>, thereby preventing undesired side-effects.
 
 \subsection{Discussion on defaulting rules}\label{defaulting}
-Every type system in the checker framework must define a default type annotation. This annotation will be applied
-to every location that isn't explicitly annotated. In our determinism checker, we chose \<PolyDet> as the default for all 
+Every type system in the Checker Framework must define a default type qualifier. This qualifier will be applied
+to every location that isn't explicitly annotated. In \theDeterminismChecker, we chose \<PolyDet> as the default for all 
 method parameters and return types including constructors.
 The rationale for this design choice was to not make our type checker too restrictive by making everything \<Det>.  This implies that
-the checker still allows some non-determinism as long as it doesn't break any determinism specifications explicitly written by the programmer.
+\theDeterminismChecker still allows some non-determinism as long as it doesn't break any determinism specifications explicitly written by the programmer.
 
 \begin{verbatim}
 @PolyDet int foo(@PolyDet int x) { ... }
@@ -398,13 +423,13 @@ void bar(@NonDet int random, @Det int value) {
 }
 \end{verbatim}
 In the example above, the method \codeid{foo} is annotated with the \<PolyDet> type qualifier which allows
-the caller method \codeid{bar} to invoke it with both \<Det> and \<NonDet> arguments. The checker flags an error 
+the caller method \codeid{bar} to invoke it with both \<Det> and \<NonDet> arguments. \TheDeterminismChecker flags an error 
 only when the returned value is used in a way that breaks any deterministic specification (Printing a \<NonDet> value
 breaks our determinism guarantees).
 
 \subsection{Dataflow analysis and type refinement}\label{dataflow}
 The checker framework performs automatic type inference for local types within method bodies.
-It also performs dataflow analysis and refines the types of these locals, thereby reducing the annotation burden 
+It also performs dataflow analysis and refines the types of these locals, thereby reducing the qualifier burden 
 on the programmer. Consider the example below:
 \begin{verbatim}
 void foo(@Det int x) {
@@ -421,49 +446,49 @@ void foo(@NonDet Object x, @Det Object y) {
     @Det Object z = x;    // Error.
 }
 \end{verbatim}
-the checker reports a warning at the second assignment statement of \codeid{foo}. Type refinement only applies to locals. Refining non-locals can result in side effects making the analysis unsound.
+\theDeterminismChecker reports a warning at the second assignment statement of \codeid{foo}. Type refinement only applies to locals. Refining non-locals can result in side effects making the analysis unsound.
 
 With the above rules, the checker framework will automatically annotate a local collection with type \<NonDet> and its
 type arguments will get the type qualifier \<Det>. For example, a locally declared \codeid{List} of \codeid{Strings} will be automatically annotated
-as \codeid{NonDet List<Det String>}. Recall from~\ref{collection-rules} that the determinism checker does not allow this type on
-any collection. While this is still sound, it will result in the determinism checker reporting a lot of errors because every locally declared 
+as \codeid{NonDet List<Det String>}. Recall from~\ref{collection-rules} that \theDeterminismChecker does not allow this type on
+any collection. While this is still sound, it will result in \theDeterminismChecker reporting a lot of errors because every locally declared 
 collection gets annotated with this invalid type. To avoid this situation, we make an exception to the defaulting rules for local collections
-and annotate their type parameters also with \<NonDet>. So a local list of Strings gets the default annotation of \codeid{NonDet List<NonDet String>}. While this defaulting eliminates the possibility of automatically annotating locals collections with an invalid
+and annotate their type parameters also with \<NonDet>. So a local list of Strings gets the default qualifier of \codeid{NonDet List<NonDet String>}. While this defaulting eliminates the possibility of automatically annotating locals collections with an invalid
 type, it could result in a high number of false positives. In the following code snippet,
 \begin{verbatim}
 void test(@Det List<@Det String> argList) {
     List<String> localList = argList;
 }    
 \end{verbatim}
-the checker would report an error at the assignment statement since the inferred type for \codeid{localList} is 
+\theDeterminismChecker would report an error at the assignment statement since the inferred type for \codeid{localList} is 
 \codeid{NonDet List<NonDet> String} and since collections types are invariant.
 We therefore recommend that programmers explicitly annotate
 all local variables that are collections to reduce false positives. The same reasoning and recommendation applies to arrays.
 
-The determinism checker has additional type refinement rules for the sorting methods as shown in Figure~\ref{fig-sorting}. 
+\TheDeterminismChecker has additional type refinement rules for the sorting methods as shown in Figure~\ref{fig-sorting}. 
 \begin{figure}
-    $\infer[\textsc{list sort}]{\Gamma \vdash x : \mathit{Det \ List}\langle\mathit{Det} \ \beta\rangle}{\Gamma \vdash x : \mathit{OrderNonDet \ List}\langle\mathit{Det} \ \beta\rangle & \mathit{x.sort()}}$
+    $\infer[\textsc{list sort}]{\Gamma \vdash x : \|Det \ List|\langle\|Det| \ \beta\rangle}{\Gamma \vdash x : \|OrderNonDet \ List|\langle\|Det| \ \beta\rangle & \|x.sort()|}$
     
     \bigskip
     
-    $\infer[\textsc{collections sort}]{\Gamma \vdash x : \mathit{Det \ List}\langle\mathit{Det} \ \beta\rangle}{\Gamma \vdash x : \mathit{OrderNonDet \ List}\langle\mathit{Det} \ \beta\rangle & \mathit{Collections.sort.sort(x)}}$
+    $\infer[\textsc{collections sort}]{\Gamma \vdash x : \|Det \ List|\langle\|Det| \ \beta\rangle}{\Gamma \vdash x : \|OrderNonDet \ List|\langle\|Det| \ \beta\rangle & \|Collections.sort.sort(x)|}$
     
     \bigskip
     
-    $\infer[\textsc{arrays sort}]{\Gamma \vdash x : \mathit{Det \ \beta \ Det[]} }{\Gamma \vdash x : \mathit{Det \ \beta \ OrderNonDet[]} & \mathit{Arrays.sort( \ x)}}$
+    $\infer[\textsc{arrays sort}]{\Gamma \vdash x : \|Det \ \beta \ Det[]| }{\Gamma \vdash x : \|Det \ \beta \ OrderNonDet[]| & \|Arrays.sort( \ x)|}$
     
     \caption{Sorting type refinement rules}
     \label{fig-sorting}
 \end{figure}
-The checker type refines a receiver of type \codeid{OrderNonDet List} to a \codeid{Det List} if all the
-type argument of this \codeid{List} have the type annotation \codeid{Det} (Rule LIST SORT in Figure~\ref{fig-sorting}). Similar rules apply for \codeid{Arrays.sort()} and \codeid{Collections.sort()}.
+\TheDeterminismChecker type refines a receiver of type \codeid{OrderNonDet List} to a \codeid{Det List} if all the
+type argument of this \codeid{List} have the type qualifier \codeid{Det} (Rule LIST SORT in Figure~\ref{fig-sorting}). Similar rules apply for \codeid{Arrays.sort()} and \codeid{Collections.sort()}.
 As per these rules, if \codeid{sort()} is called on a receiver of type \codeid{OrderNonDet List<Det Set<Det String>>}, it will
 be type refined to \codeid{Det List<Det Set<Det String>>}. However a receiver of type \codeid{OrderNonDet List<OrderNonDet Set<Det String>>} will not be type refined.
 
 %\subsection{CLIMB-to-top and collection, array locals}\label{climb-rules}
 %
-%Every type system in the checker framework must define a default type annotation. This annotation will be applied
-%to every location that isn't explicitly annotated. In our determinism checker, we chose \codeid{@Det} as the default annotation.
+%Every type system in the checker framework must define a default type qualifier. This qualifier will be applied
+%to every location that isn't explicitly annotated. In our determinism checker, we chose \codeid{@Det} as the default qualifier.
 %The reason for this design choice is that we expect the program to be 
 %deterministic unless specified by programmer or the program calls nondeterministic library methods that we have annotated 
 %(Random, Collections, etc).
@@ -474,7 +499,7 @@ be type refined to \codeid{Det List<Det Set<Det String>>}. However a receiver of
 %\begin{itemize}
 %    \item Local variables are defaulted to top because type refinement is applied to local variables. If a local variable starts as the 
 %    \textit{top} type, then the Checker Framework refines it to the best (most specific) possible type based on assignments to it. As a 
-%    result, a programmer rarely writes an explicit annotation on any of those locations.
+%    result, a programmer rarely writes an explicit qualifier on any of those locations.
 %    Variables defaulted to top include \textit{local variables}, resource variables in the \textit{try-with-resources} construct, variables 
 %    in \textit{for} statements, and \textit{catch} arguments (known as exception parameters in the Java Language Specification). 
 %    \textit{Exception parameters} need to have the \textit{top} type because exceptions of arbitrary qualified types can be thrown 
@@ -494,17 +519,17 @@ be type refined to \codeid{Det List<Det Set<Det String>>}. However a receiver of
 %\end{itemize}
 %With the above rules, the checker framework will automatically annotate a local collection with type \<@NonDet> and its
 %type arguments will get the type \<@Det>. For example, a locally declared \codeid{List} of \codeid{Strings} will be automatically annotated
-%as \codeid{@NonDet List<@Det String>}. Recall from~\ref{collection-rules} that the determinism checker does not allow this type on
-%any collection. While this is still sound, it will result in the determinism checker reporting a lot of errors because every locally declared 
+%as \codeid{@NonDet List<@Det String>}. Recall from~\ref{collection-rules} that \theDeterminismChecker does not allow this type on
+%any collection. While this is still sound, it will result in \theDeterminismChecker reporting a lot of errors because every locally declared 
 %collection gets annotated with this invalid type. To avoid this situation, we make an exception to the defaulting rules for local collections
-%and annotate their type parameters also with \<@NonDet>. So a local list of Strings gets the default annotation of \codeid{@NonDet List<@NonDet String>}. While this defaulting eliminates the possibility of automatically annotating locals collections with an invalid
+%and annotate their type parameters also with \<@NonDet>. So a local list of Strings gets the default qualifier of \codeid{@NonDet List<@NonDet String>}. While this defaulting eliminates the possibility of automatically annotating locals collections with an invalid
 %type, it would could in a high number of false positives. In the following code snippet,
 %\begin{verbatim}
 %void test(@Det List<@Det String> argList) {
 %List<String> localList = argList;
 %}    
 %\end{verbatim}
-%the checker would report an error at the assignment statement since the inferred type for \codeid{localList} is 
+%\theDeterminismChecker would report an error at the assignment statement since the inferred type for \codeid{localList} is 
 %\codeid{@NonDet List<@NonDet> String} and since collections types are invariant.
 %We therefore recommend that programmers explicitly annotate
 %all local variables that are collections to reduce false positives. The same reasoning and recommendation applies to arrays.
@@ -531,19 +556,19 @@ Figure~\ref{fig-creation-rules} formalizes these rules. Similar constraints appl
 also expressed by the last two rules of Figure~\ref{fig-creation-rules}.
 
 \begin{figure}
-    $\infer[\textsc{hashmap creation}]{\mathit{new \ \kappa\ HashMap()}}{\kappa = \mathit{OrderDet/NonDet}}$
+    $\infer[\textsc{hashmap creation}]{\|new \ \kappa\ HashMap()|}{\kappa = \|OrderDet/NonDet|}$
     
     \bigskip
     
-    $\infer[\textsc{treemap creation}]{\mathit{new \ \kappa\ TreeMap()}}{\kappa = \mathit{Det/NonDet}}$
+    $\infer[\textsc{treemap creation}]{\|new \ \kappa\ TreeMap()|}{\kappa = \|Det/NonDet|}$
     
     \bigskip
     
-    $\infer[\textsc{hashset creation}]{\mathit{new \ \kappa\ HashSet()}}{\kappa = \mathit{OrderDet/NonDet}}$
+    $\infer[\textsc{hashset creation}]{\|new \ \kappa\ HashSet()|}{\kappa = \|OrderDet/NonDet|}$
     
     \bigskip
     
-    $\infer[\textsc{treeset creation}]{\mathit{new \ \kappa\ TreeSet()}}{\kappa = \mathit{Det/NonDet}}$
+    $\infer[\textsc{treeset creation}]{\|new \ \kappa\ TreeSet()|}{\kappa = \|Det/NonDet|}$
     \caption{\<Map> and \<Set> creation rules}
     \label{fig-creation-rules}
 \end{figure}
@@ -560,11 +585,11 @@ PolyDet$\uparrow$ boolean equals(PolyDet Set<E> this, PolyDet Object o)
 While this is sound, it is imprecise in the case of \codeid{OrderNonDet Sets}. We added the following rule shown in Figure~\ref{fig-precision-rules} to our checker to improve precision.
 \begin{figure}
     \todo{linebreak}
-    $\infer[\textsc{set precision}]{\Gamma \vdash \mathit{z : Det}}{\Gamma \vdash \mathit{x} : \mathit{OrderNonDet} \ \mathit{Set}\langle \kappa_{x} \ \beta_{x}\rangle, \mathit{y} : \mathit{OrderNonDet} \ \mathit{Set}\langle \kappa_{y} \ \beta_{y}\rangle & \mathit{z = x.equals(y)} & \langle \kappa_{x} \ \beta_{x}\rangle \nsqsubseteq \langle \mathit{OrderNonDet \ List} \rangle & \langle \kappa_{y} \ \beta_{y}\rangle \nsqsubseteq \langle \mathit{OrderNonDet \ List} \rangle }$
+    $\infer[\textsc{set precision}]{\Gamma \vdash \|z : Det|}{\Gamma \vdash \|x| : \|OrderNonDet| \ \|Set|\langle \kappa_{x} \ \beta_{x}\rangle, \|y| : \|OrderNonDet| \ \|Set|\langle \kappa_{y} \ \beta_{y}\rangle & \|z = x.equals(y)| & \langle \kappa_{x} \ \beta_{x}\rangle \nsqsubseteq \langle \|OrderNonDet \ List| \rangle & \langle \kappa_{y} \ \beta_{y}\rangle \nsqsubseteq \langle \|OrderNonDet \ List| \rangle }$
     
     \bigskip
     
-    $\infer[\textsc{map precision}]{\Gamma \vdash \mathit{z : Det}}{\Gamma \vdash \mathit{x : OrderNonDet \ Map\langle Det \ \beta_k, \kappa_v\ \beta_v \rangle, y : Det \ \beta} & \mathit{z = x.get(y)}}$
+    $\infer[\textsc{map precision}]{\Gamma \vdash \|z : Det|}{\Gamma \vdash \|x : OrderNonDet \ Map\langle Det \ \beta_k, \kappa_v\ \beta_v \rangle, y : Det \ \beta| & \|z = x.get(y)|}$
     
     \caption{Improving precision}
     \label{fig-precision-rules}
@@ -575,17 +600,17 @@ is sound but imprecise. This rule is careful enough to not annotate the return t
 receiver or the argument happens to be an \codeid{OrderNonDet List} (An order nondeterminstic list does not provide any guarantee on the
 equality as it is dependent on the iteration order). 
 
-Similarly, the \codeid{get()} method in the \<Map> class is annotated with polymorphic annotations and the rule $\sc{\mathit{MAP \ PRECISION}}$ in Figure~\ref{fig-precision-rules} improves precision for \<OrderNonDet> receivers.
+Similarly, the \codeid{get()} method in the \<Map> class is annotated with polymorphic qualifiers and the rule $\sc{\|MAP \ PRECISION|}$ in Figure~\ref{fig-precision-rules} improves precision for \<OrderNonDet> receivers.
 
 \codeid{System.getProperty()} returns a \<NonDet> type since we can't provide any determinism guarantees for
 executions across machines. However, we make exceptions when the argument to this method is one of 
 \codeid{"line.separator", "path.separator", or "file.separator"} as they return OS dependent values which are guaranteed to be deterministic on that OS.
 
-\subsection{Extending the determinism checker}\label{extending-det-checker}
+\subsection{Extending \theDeterminismChecker}\label{extending-det-checker}
 We have primarily focused on collections and annotated the corresponding classes in the JDK.
-These annotations provide machine verifiable specifications of determinism properties.
+These qualifiers provide machine verifiable specifications of determinism properties.
 Another source of nondeterminism that we haven't analyzed closely is the File system methods.
 A program analysis developer interested in verifying determinism guarantees with respect to 
 the File system can easily do so by annotating the parameter and return types of those methods in the JDK.
-Alternatively, a user can write these annotations in a \textit{stub} file and supply it to the type checker. A \textit{stub}
-only needs to contain method declarations along with their annotations.
+Alternatively, a user can write these qualifiers in a \textit{stub} file and supply it to the type checker. A \textit{stub}
+only needs to contain method declarations along with their qualifiers.
