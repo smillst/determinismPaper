@@ -1,28 +1,43 @@
-P1 :
-[ERROR] /Users/rashmi/caseStudies/nondex/reflectasm/src/com/esotericsoftware/reflectasm/FieldAccess.java:[102,87] [assignment.type.incompatible] incompatible types in assignment.
-[ERROR]   found   : @Det Field @OrderNonDet []
-[ERROR]   required: @Det Field @Det []
-
-P2:
-
-		if (object instanceof Map) {
-    emitter.emit(new MappingStartEvent(anchor, tag, !showTag, false));
-    @Det Set<@Det Object> items = ((Map)object).entrySet();
-    @Det Iterator<@Det Object> itemIterator = items.iterator();
-    while (itemIterator.hasNext()) {
-        Object item = itemIterator.next();
-        Entry entry = (Entry)item;
-        writeValue(entry.getKey(), null, null, null);
-        if (isRoot && !config.writeConfig.writeRootElementTags) elementType = entry.getValue().getClass();
-        writeValue(entry.getValue(), elementType, null, null);
-    }
-    //			for (@Det Object item : ((Map)object).entrySet()) {
-        //				Entry entry = (Entry)item;
-        //				writeValue(entry.getKey(), null, null, null);
-        //				if (isRoot && !config.writeConfig.writeRootElementTags) elementType = entry.getValue().getClass();
-        //				writeValue(entry.getValue(), elementType, null, null);
-        //			}
-    emitter.emit(Event.MAPPING_END);
-    return;
-}
-
+\section{Evaluation}
+\subsection{NONDEX case study}
+\begin{table}[]
+    \begin{tabular}{|l|l|l|l|l|l|}
+        \hline
+        Benchmark & Recall? & Error message source & # annotations & Type of annotation added & Comments \\ \hline
+        P1 &  &  &  &  &  \\
+        P2 &  &  &  &  &  \\
+        P3 &  &  &  &  &  \\ 
+        P4 &  &  &  &  &  \\ 
+        P5 &  &  &  &  &  \\ 
+        P5 &  &  &  &  &  \\ 
+        P6 &  &  &  &  &  \\ 
+        P6 &  &  &  &  &  \\
+        P7 &  &  &  &  &  \\ 
+        P7 &  &  &  &  &  \\
+        P7 &  &  &  &  &  \\
+        P7 &  &  &  &  &  \\
+        P7 &  &  &  &  &  \\
+        P8 &  &  &  &  &  \\
+        P8 &  &  &  &  &  \\
+        P8 &  &  &  &  &  \\
+        P9 &  &  &  &  &  \\
+        P10 &  &  &  &  &  \\
+        P10 &  &  &  &  &  \\
+        P11 &  &  &  &  &  \\
+        P12 &  &  &  &  &  \\
+        P13 &  &  &  &  &  \\
+        P14 &  &  &  &  &  \\
+        P15 &  &  &  &  &  \\
+        P15 &  &  &  &  &  \\
+        P16 &  &  &  &  &  \\
+        P17 &  &  &  &  &  \\
+        P18 &  &  &  &  &  \\
+        P19 &  &  &  &  &  \\
+        P19 &  &  &  &  &  \\
+        P19 &  &  &  &  &  \\
+        P20 &  &  &  &  &  \\
+        P20 &  &  &  &  &  \\
+        P21 &  &  &  &  &  \\
+        P21 &  &  &  &  &  \\ \hline
+    \end{tabular}
+\end{table}
