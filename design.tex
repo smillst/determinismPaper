@@ -543,7 +543,7 @@ In the JDK, \<LinkedHashSet> is implemented as a subclass of \<HashMap>.
     then it would be incorrect to substitute HashSet for LinkedHashSet in the declaration, because HashSet makes no guarantee concerning iteration order."} 
 
 \subsection{Determinism checker specific rules for precision}\label{precision}
-We annotated the \codieid{equals()} method of the \<Set> class in the JDK as
+We annotated the \codeid{equals()} method of the \<Set> class in the JDK as
 \begin{verbatim}
 PolyDet$\uparrow$ boolean equals(PolyDet Set<E> this, PolyDet Object o)
 \end{verbatim}
