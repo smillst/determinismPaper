@@ -543,14 +543,29 @@ In the JDK, \<LinkedHashSet> is implemented as a subclass of \<HashMap>.
     then it would be incorrect to substitute HashSet for LinkedHashSet in the declaration, because HashSet makes no guarantee concerning iteration order."} 
 
 \subsection{Determinism checker specific rules for precision}\label{precision}
+We annotated the \codieid{equals()} method of the \<Set> class in the JDK as
+\begin{verbatim}
+PolyDet$\uparrow$ boolean equals(PolyDet Set<E> this, PolyDet Object o)
+\end{verbatim}
+While this is sound, it is imprecise in the case of \codeid{OrderNonDet Sets}. We added the following rule shown in Figure~\ref{fig-precision-rules} to our checker to improve precision:
+
+\begin{figure}
+    \todo{linebreak}
+    $\infer{\Gamma \vdash \mathit{z : Det}}{\Gamma \vdash \mathit{x} : \mathit{OrderNonDet} \ \mathit{Set}\langle \kappa_{x} \ \beta_{x}\rangle, \mathit{y} : \mathit{OrderNonDet} \ \mathit{Set}\langle \kappa_{y} \ \beta_{y}\rangle & \mathit{z = x.equals(y)} & \langle \kappa_{x} \ \beta_{x}\rangle \nsqsubseteq \langle \mathit{OrderNonDet \ List} \rangle & \langle \kappa_{y} \ \beta_{y}\rangle \nsqsubseteq \langle \mathit{OrderNonDet \ List} \rangle }$
+    
+    \caption{Improving precision}
+    \label{fig-precision-rules}
+\end{figure}
+According to this rule, if the \<Set> receiver has type \codeid{@OrderNonDet Set<@Det List} and the argument to the \codeid{equals()} method is
+also of the same type, the return type gets the qualifier \<Det>. Without this precision rule, the return type would have resolved to \<NonDet> which
+is sound but imprecise. This rule is careful enough to not annotate the return type of \<equals()> as \<Det> if a type argument to either the
+receiver or the argument happens to be an \codeid{OrderNonDet List} (An order nondeterminstic list does not provide any guarantee on the
+equality as it is dependent on the iteration order). 
 
 \begin{itemize}
-    \item \<Set.equals()> is annotated as \<@Poly("up")>. This is sound but imprecise.
-    \item Example1: \codeid{@OrderNonDet Set<@Det List>.equals(@OrderNonDet Set<@Det List>)} is deterministic
-    \item Example2: \codeid{@OrderNonDet Set<@OrderNonDet List>.equals(@OrderNonDet Set<@OrderNonDet List>)} is not deterministic.
-    \item Explain the rules under which we make Set equality deterministic.
     \item Problem with \<Map.get()> : Annotating as \<@PolyDet> is imprecise.
     \item We circumvent this by hardcoding rules to make it precise. (Describe the rule here)
+    
     \item We annotate System.getProperty as \<@NonDet> because the results could vary across machines.
     \item Exceptions: line.Separator, file.Separator. and path.Separator.
     \item discuss type on Exceptions and unsoundness due to this.
