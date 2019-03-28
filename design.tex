@@ -93,7 +93,7 @@ rules and dataflow analysis.
     
     \caption{A sampling of standard type checking rules.  Most standard rules are omitted
     for brevity.  $\sqsubseteq$ is overloaded for classes and types.}
-    \label{typecheck-rules}
+    \label{typecheck-rules-standard}
 \end{figure}
 
 \begin{figure}
@@ -151,8 +151,10 @@ paper uses the term ``collection'' and the type \<Collection> to represent
 all these types.
 
 A map is a dictionary or associative array, such as a hash table.
-Our type system largely treats a map as a collection of key--value pairs.  Like any
-collection, a map may be \<Det>, \<OrderNonDet>, or \<NonDet>.
+Our type system largely treats a map as a collection of key--value pairs.  Like a
+collection, a map may be \<Det>, \<OrderNonDet>, or \<NonDet>.  (In Java,
+\<HashMap> cannot be deterministic, but \<TreeMap> and \<LinkedHashMap>
+can.\todo{forward reference?})
 
 
 In Figure~\ref{code-determinism}, we present some of the JDK methods that we have annotated with our determinism types and give examples of
@@ -186,7 +188,7 @@ client code that would produce errors at compile time.
 \end{figure}
 
 
-\subsection{Additional typing rules for collection elements}\label{collection-rules}
+\subsection{Collection types}\label{collection-rules}
 
 \todo{Note that the \textsc{ordernondet} versions also handle \<Det>,
   because $\<Det> \sqsubseteq \<OrderNonDet>$.}
@@ -250,11 +252,15 @@ Figure~\ref{type-validity} shows the type validity\todo{The caption says
   ``type well formedness''.  Choose one term and use it consistently
   throughout.}
 rules of our type system. A type $\tau$ is represented as $\kappa \ \beta$
-where $\kappa$ is a type qualifier from the determinism type hierarchy and $\beta$ is a Java type.
-As stated in the rule $\textsc{any type}$, the types \<Det> and \<NonDet> can be written on any Java type.
-The (determinism) type of a collection must be a supertype or equal to
-its element type (Rule $\textsc{ordernondet collection}$) (see Figure~\ref{fig-determinism-collections}).
-If the Collection is \<NonDet>, then the type parameter may not be
+where $\kappa$ is a type qualifier (that is, \<NonDet>, \<OrderNonDet>, or
+\<Det>) and $\beta$ is a Java basetype.
+As stated in the rule $\textsc{any type}$, the types \<Det> and \<NonDet>
+can be written on any Java basetype.\todo{As noted in figure caption, that's
+  not true, in some contexts such as a type argument.}
+
+The determinism type qualifier on a collection must be a supertype or equal to
+its element type qualifier (Rule $\textsc{ordernondet collection}$ in Figure~\ref{fig-determinism-collections}).
+If the Collection is \<NonDet>, then the type argument may not be
 \<Det> or \<OrderNonDet> (Rule $\textsc{nondet collection}$ in Figure~\ref{type-validity}). Although such types could exist, they are
 disallowed to prevent the following bug:
 
@@ -271,24 +277,45 @@ public static void f(@Det List<@Det String> list, @NonDet int index, @Det String
 The possibility of mutation allows us to add to the \<Det List> at a
 \<NonDet> index, which is unsound.
 
-%\todo{Fewer examples, less variation.  Use \<List> and \<String>.}
+\todo{Some notes:}
+Typical type for \<get> is \\
+$\forall \tau . \<List>\angles{\tau} \times \<int> \rightarrow \tau$ \\
+but we need to change that.  If either argument is \<OrderNonDet> or \<NonDet>, then the
+result is \<NonDet>.
+If both arguments are \<Det>, the result is $\tau$ as usual.
+\todo{In that case, we know that $\tau = \<Det> \beta$.}
 
-Some examples of valid types are:\todo{double-check}
-\begin{itemize}
-    \item \codeid{NonDet\ \ \ \ \ \ List<NonDet\ \ \ \ \ \ Integer>}
-    \item \codeid{OrderNonDet List<OrderNonDet Set<...>\relax >}
-    \item \codeid{OrderNonDet List<Det Integer>}
-    \item \codeid{Det\ \ \ \ \ \ \ \ \ List<Det\ \ \ \ \ \ \ \ \ Integer>}
-\end{itemize}
 
+
+\smallskip
+\noindent
+\begin{minipage}{.48\textwidth}
+Some examples of valid types are:
+% Using "~" instead of "\ " does not work within \codeid :-(
+\begin{smaller}
+\begin{Verbatim}
+@NonDet      List<@NonDet      Integer>
+@OrderNonDet List<@OrderNonDet Set<...>>
+@OrderNonDet List<@Det         Integer>
+@Det         List<@Det         Integer>
+
+\end{Verbatim}
+\end{smaller}
+\end{minipage}
+\hfill
+\begin{minipage}{.46\textwidth}
 These types are invalid:
-\begin{itemize}
-    \item \codeid{NonDet\ \ \ \ \ \ List<OrderNonDet Integer>}
-    \item \codeid{NonDet\ \ \ \ \ \ List<Det\ \ \ \ \ \ \ \ \ Integer>}
-    \item \codeid{OrderNonDet List<NonDet\ \ \ \ \ \ Integer>}
-    \item \codeid{Det\ \ \ \ \ \ \ \ \ List<NonDet\ \ \ \ \ \ Set<...>\relax >}
-    \item \codeid{Det\ \ \ \ \ \ \ \ \ List<OrderNonDet Set<...>\relax >}
-\end{itemize}
+\begin{smaller}
+\begin{Verbatim}
+@NonDet      List<@OrderNonDet Set<...>>
+@NonDet      List<@Det         Integer>
+@OrderNonDet List<@NonDet      Integer>
+@Det         List<@NonDet      Integer>
+@Det         List<@OrderNonDet Set<...>>
+\end{Verbatim}
+\end{smaller}
+\end{minipage}
+\smallskip
 
 \begin{figure}
     \centering
