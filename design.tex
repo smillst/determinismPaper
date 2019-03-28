@@ -176,11 +176,16 @@ where $\kappa$ is a type qualifier (that is, \<NonDet>, \<OrderNonDet>, or
   because $\<Det> \sqsubseteq \<OrderNonDet>$.}
 
 \begin{figure}
-    $\infer[\rulename{any type}]{\wellformed{\kappa \  \beta}}{\kappa : \|Det / NonDet|}$
+    $\infer[\rulename{noncollection}]
+    {\wellformed{\kappa \  \beta}}
+    {\kappa \in \{ \<Det>, \<NonDet> \} & \beta \not\sqsubseteq \<Collection> & \beta \not\sqsubseteq \<Map>}$
     
     \bigskip
     
-    $\infer[\rulename{ordernondet collection}]{\wellformed{\kappa_c \  \beta_c \angles{\kappa_e \ \beta_e}}}{\kappa_c : \|OrderNonDet/Det| & \kappa_e \sqsubseteq \kappa_c & \beta_c \sqsubseteq \<Collection>}$
+    $\infer[\rulename{ordernondet collection}]
+    {\wellformed{\kappa_c \  \beta_c \angles{\kappa_e \ \beta_e}}}
+    {\kappa_c \sqsubseteq \|OrderNonDet| & \kappa_e \sqsubseteq \kappa_c &
+      \beta_c \sqsubseteq \<Collection> & \wellformed{\kappa_e \ \beta_e}}$
     
     \bigskip
     
@@ -188,7 +193,7 @@ where $\kappa$ is a type qualifier (that is, \<NonDet>, \<OrderNonDet>, or
     
     \bigskip
     
-%      $\infer[\rulename{ordernondet array}]{\wellformed{\kappa_e \ \beta_e \ \  \kappa_a []}}{\kappa_a : \|OrderNonDet/Det| & \kappa_e \sqsubseteq \kappa_a }$
+%      $\infer[\rulename{ordernondet array}]{\wellformed{\kappa_e \ \beta_e \ \  \kappa_a []}}{\kappa_a \sqsubseteq \|OrderNonDet| & \kappa_e \sqsubseteq \kappa_a }$
 %     
 %     \bigskip
 %     
@@ -196,18 +201,27 @@ where $\kappa$ is a type qualifier (that is, \<NonDet>, \<OrderNonDet>, or
 %     
 %     \bigskip
     
-    $\infer[\rulename{ordernondet map}]{\wellformed{\kappa_m \  \beta_m \angles{\kappa_k \ \beta_k, \kappa_v \ \beta_v}}}{\kappa_m: \|OrderNonDet/Det| & \kappa_k \sqsubseteq \kappa_m & \kappa_v \sqsubseteq \kappa_m & \beta_m \sqsubseteq \<Map>}$
+    $\infer[\rulename{ordernondet map}]
+    {\wellformed{\kappa_m \  \beta_m \angles{\kappa_k \ \beta_k, \kappa_v \ \beta_v}}}
+    {\kappa_m \sqsubseteq \|OrderNonDet|
+      & \kappa_k \sqsubseteq \kappa_m
+      & \kappa_v \sqsubseteq \kappa_m
+      & \beta_m \sqsubseteq \<Map>
+      & \wellformed{\kappa_k \ \beta_k}
+      & \wellformed{\kappa_v \ \beta_v}
+    }$
     
     \bigskip
     
     $\infer[\rulename{nondet map}]{\wellformed{\|NonDet| \ \beta_m\angles{\|NonDet| \ \beta_k, \|NonDet| \ \beta_v}}}{\beta_m \sqsubseteq \<Map>}$
     
     \caption{Type well formedness}
-\todo{The \rulename{any type} rule is not correct, because not every type is
+\todo{The \rulename{noncollection} rule is not correct, because not every type is
   well-formed.  It needs an antecedent stating that $\beta$ is not a
   collection or map.}
 
-\todo{The collection rules do not permit nested collections; similarly, the
+\todo{\todo{I think this will be OK, by redefining $\beta$.}
+  The collection rules do not permit nested collections; similarly, the
   (currently commented out) array rules did not permit any two-dimensional
   array to be well-formed.  There is a bigger issue here.
   Consider the ``nondet collection'' rule.  $\beta_c$ is a class (we need
@@ -220,13 +234,6 @@ where $\kappa$ is a type qualifier (that is, \<NonDet>, \<OrderNonDet>, or
   Otherwise, these rules permit construction of $\<Map>\angles{\tau'}$
   where $\tau'$ is itself not well-defined.}
 
-\todo{``$\kappa : \|Det / NonDet|$'' should be ``$\kappa = \|Det /
-  NonDet|$'' or (better)
-  ``$\kappa \in \{\|Det|, \|NonDet|\}$''.
-  You could also express $\kappa_c : \|OrderNonDet/Det|$ as just
-  $\kappa_c \sqsubseteq \|OrderNonDet|$ since $\|Det| \sqsubseteq \|OrderNonDet|$.
-}
-
   \label{type-validity}
 \end{figure}
 
@@ -234,19 +241,18 @@ where $\kappa$ is a type qualifier (that is, \<NonDet>, \<OrderNonDet>, or
   ``type well formedness''.  Choose one term and use it consistently
   throughout.}
 rules of \ourTypeSystem. 
-As stated in the rule \rulename{any type}, the types \<Det> and \<NonDet>
-can be written on any Java basetype.\todo{As noted in figure caption, that's
-  not true, in some contexts such as a type argument.}
+As stated in the rule \rulename{noncollection}, the types \<Det> and \<NonDet>
+can be written on any non-collection Java basetype.
 
 \begin{figure}
     \centering
     \begin{tabular}{|l|l|l|l|l|}
         \cline{3-5}
-        \multicolumn{2}{c|}{~}  &  \multicolumn{3}{c|}{element type} \\ \cline{3-5}
+        \multicolumn{2}{c|}{~}  &  \multicolumn{3}{c|}{Element type} \\ \cline{3-5}
         \multicolumn{2}{c|}{~}  & NonDet     & OrderNonDet & Det \\ \hline
-        & NonDet      &   valid    &  invalid    & invalid  \\ \cline{2-5}
-        Collection    & OrderNonDet &   invalid  &  valid      & valid  \\ \cline{2-5}
-        & Det         &   invalid  &  invalid    & valid      \\ \hline
+                        & NonDet      &  valid     &  invalid    & invalid  \\ \cline{2-5}
+        Collection type & OrderNonDet &  invalid   &  valid      & valid    \\ \cline{2-5}
+                        & Det         &  invalid   &  invalid    & valid    \\ \hline
     \end{tabular}
     \caption{Valid Collection declarations.  The Collection's type qualifier
         must be a supertype or equal to the element type.}
@@ -332,7 +338,7 @@ A collection or map annotated as \<OrderNonDet> has the following properties:
 
 \OurTypeSystem supports three types of polymorphism:  type
 polymorphism, basetype polymorphism, and qualifier polymorphism.
-\todo{Give an example for each.}
+These apply to both classes and methods.
 \begin{itemize}
 \item
 In \theDeterminismCheckerImplementation,
@@ -387,10 +393,10 @@ Consider the following declaration of addition:
 \end{verbatim}
 \todo{It has the standard meaning.  There are two ways to interpret this.}
 There are two valid instantiations for this declaration:
-\begin{enumerate}
-    \item @NonDet int plus(@NonDet int a, @NonDet int b) { return a+b; }
-    \item @Det int plus(@Det int a, @Det int b) { return a+b; }
-\end{enumerate}
+\begin{Verbatim}
+  @NonDet int plus(@NonDet int a, @NonDet int b) { return a+b; }
+  @Det int plus(@Det int a, @Det int b) { return a+b; }
+\end{Verbatim}
 This indicates that method \<foo> can be called with arguments having any of the \codeid{Det or NonDet} type qualifiers.
 %   (\<@OrderNonDet> is not allowed because it is invalid on primitive types).
  \<PolyDet> resolves to the least upper bound of
@@ -430,7 +436,7 @@ The modifiers $\uparrow$ and $\downarrow$ are indicative of the subtyping relati
 in the determinism type hierarchy.
 
 \Cref{fig-poly-resolution} presents the rule for type checking of methods annotated with \<PolyDet> or its variants.
-A polymorphic method type checks if every instantiation of \<PolyDet> type checks. If this method has \<PolyDet>$\uparrow$ or \<PolyDet>$\downarrow$
+A polymorphic method type checks if every instantiation of \<PolyDet> type checks. If this method has \PolyDetUp\ or \PolyDetDown\
 in its signature then the instantiation of \<PolyDet> at that location gets replaced by the appropriate type as shown in \cref{tab-poly-resolutions}.
 
 Annotating \<size()> as \codeid{PolyDet$\downarrow$ int size(PolyDet List<T> list)} will only allow the following type resolutions:
@@ -441,7 +447,7 @@ Annotating \<size()> as \codeid{PolyDet$\downarrow$ int size(PolyDet List<T> lis
 \end{itemize}
 
 \begin{figure}
-    $\infer[\rulename{poly resolution}]{\pi_r \ \beta_r\ \<m>(\overline{\pi_i \ \beta_i})\{\ \}}{\forall \kappa \in \{\|NonDet, OrderNonDet, Det|\} : \kappa \ \beta_r\ \<m>(\overline{K \ \beta_i})\{\ \} & \pi_r, \pi_i \in \{\|PolyDet|, \|PolyDet|\uparrow, \|PolyDet|\downarrow    \}}$
+    $\infer[\rulename{poly resolution}]{\pi_r \ \beta_r\ \<m>(\overline{\pi_i \ \beta_i})\{\ \}}{\forall \kappa \in \{\|NonDet, OrderNonDet, Det|\} : \kappa \ \beta_r\ \<m>(\overline{K \ \beta_i})\{\ \} & \pi_r, \pi_i \in \{\|PolyDet|, \PolyDetUp, \PolyDetDown    \}}$
     \caption{Polymorphic resolution rule}
     \todo{I'm not sure what this is doing.  What code does it reject?}
     \todo{This suggests that \PolyDetUp is a qualifier, rather than
@@ -486,32 +492,6 @@ Since \<PolyDet("use")> has no effect on type instantiations, calling this metho
 will result in the method declaration being resolved as \codeid{public void add(@Det ArrayList<E> this, @Det int index, E element)}
 irrespective of the type of \<index>, thereby preventing undesired side-effects.
 
-\subsection{Discussion on defaulting rules}\label{defaulting}
-
-\TheDeterminismChecker applies a default qualifier at each unannotated type
-use (except uses of type variables, which already stand for a type that was
-defaulted at the instantiation site).
-This does not change the expressivity of the type system; it merely makes
-the system more convenient to use.
-
-In \theDeterminismChecker, we chose \<PolyDet> as the default for all 
-method parameters and return types including constructors.
-The rationale for this design choice was to not make \theDeterminismChecker too restrictive by making everything \<Det>.  This implies that
-\theDeterminismChecker still allows some non-determinism as long as it doesn't break any determinism specifications explicitly written by the programmer.
-
-\begin{verbatim}
-@PolyDet int foo(@PolyDet int x) { ... }
-
-void bar(@NonDet int random, @Det int value) {
-    @NonDet int x = foo(random);      // No error.
-    @Det int y = foo(value);          // No error.
-    System.out.println(foo(random));  // Error.
-}
-\end{verbatim}
-In the example above, the method \codeid{foo} is annotated with the \<PolyDet> type qualifier which allows
-the caller method \codeid{bar} to invoke it with both \<Det> and \<NonDet> arguments. \TheDeterminismChecker flags an error 
-only when the returned value is used in a way that breaks any deterministic specification (Printing a \<NonDet> value
-breaks our determinism guarantees).
 
 \subsection{Dataflow analysis and type refinement}\label{dataflow}
 \TheDeterminismChecker performs automatic type inference for local types within method bodies.
@@ -644,19 +624,19 @@ We prohibit the creation of a \codeid{Det HashMap} or an \codeid{OrderNonDet Tre
 also expressed by the last two rules of \cref{fig-creation-rules}.
 
 \begin{figure}
-    $\infer[\rulename{hashmap creation}]{\|new \ \kappa\ HashMap()|}{\kappa = \|OrderDet/NonDet|}$
+    $\infer[\rulename{hashmap creation}]{\|new \ \kappa\ HashMap()|}{\kappa \in \{ \<OrderNonDet>, \<NonDet> \}}$
     
     \bigskip
     
-    $\infer[\rulename{treemap creation}]{\|new \ \kappa\ TreeMap()|}{\kappa = \|Det/NonDet|}$
+    $\infer[\rulename{treemap creation}]{\|new \ \kappa\ TreeMap()|}{\kappa \in \{ \<Det>, \<NonDet> \}}$
     
     \bigskip
     
-    $\infer[\rulename{hashset creation}]{\|new \ \kappa\ HashSet()|}{\kappa = \|OrderDet/NonDet|}$
+    $\infer[\rulename{hashset creation}]{\|new \ \kappa\ HashSet()|}{\kappa \in \{ \<OrderNonDet>, \<NonDet> \}}$
     
     \bigskip
     
-    $\infer[\rulename{treeset creation}]{\|new \ \kappa\ TreeSet()|}{\kappa = \|Det/NonDet|}$
+    $\infer[\rulename{treeset creation}]{\|new \ \kappa\ TreeSet()|}{\kappa \in \{ \<Det>, \<NonDet> \}}$
     \caption{\<Map> and \<Set> creation rules}
     \label{fig-creation-rules}
 \end{figure}
@@ -668,7 +648,7 @@ In the JDK, \<LinkedHashSet> is implemented as a subclass of \<HashMap>.
 \subsection{Determinism checker specific rules for precision}\label{precision}
 We annotated the \codeid{equals()} method of the \<Set> class in the JDK as
 \begin{verbatim}
-PolyDet$\uparrow$ boolean equals(PolyDet Set<E> this, PolyDet Object o)
+PolyDet("down") boolean equals(PolyDet Set<E> this, PolyDet Object o)
 \end{verbatim}
 While this is sound, it is imprecise in the case of \codeid{OrderNonDet Sets}. We added the following rule shown in \cref{fig-precision-rules} to our checker to improve precision.
 \begin{figure}
@@ -688,13 +668,13 @@ is sound but imprecise. This rule is careful enough to not annotate the return t
 receiver or the argument happens to be an \codeid{OrderNonDet List} (An order nondeterministic list does not provide any guarantee on the
 equality as it is dependent on the iteration order). 
 
-Similarly, the \codeid{get()} method in the \<Map> class is annotated with polymorphic qualifiers and the rule $\sc{\|MAP \ PRECISION|}$ in \cref{fig-precision-rules} improves precision for \<OrderNonDet> receivers.
+Similarly, the \codeid{get()} method in the \<Map> class is annotated with polymorphic qualifiers and the rule \rulename{map precision}\ in \cref{fig-precision-rules} improves precision for \<OrderNonDet> receivers.
 
 \codeid{System.getProperty()} returns a \<NonDet> type since we can't provide any determinism guarantees for
 executions across machines. However, we make exceptions when the argument to this method is one of 
 \codeid{"line.separator", "path.separator", or "file.separator"} as they return OS dependent values which are guaranteed to be deterministic on that OS.
 
-\subsection{Extending \theDeterminismChecker}\label{extending-det-checker}
+\subsection{Extending \ourTypeSystem}\label{extending-det-checker}
 We have primarily focused on collections and annotated the corresponding classes in the JDK.
 These qualifiers provide machine verifiable specifications of determinism properties.
 Another source of nondeterminism that we haven't analyzed closely is the File system methods.

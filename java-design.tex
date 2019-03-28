@@ -47,3 +47,74 @@ client code that would produce errors at compile time.
   Section 1, to help with motivating the problem.}
     \label{code-determinism}
 \end{figure}
+
+
+\begin{itemize}
+\item
+In \theDeterminismCheckerImplementation,
+type polymorphism is handled by Java's generics mechanism, which
+\theDeterminismChecker fully supports, including class and method generics,
+inference, etc.
+Given the Java declaration
+\begin{Verbatim}
+<T> T identity(T arg) { return arg; }
+\end{Verbatim}
+the type of \<identity(arg)> is the same as the type of
+\<arg>, and a programmer can write a type such as \codeid{List<@NonDet
+  Integer>} (but see below for details about collections).
+\item
+Basetype polymorphism is enabled by writing a type qualifier on a use of a
+type variable, which overrides the type qualifier at the instantiation
+site.
+For example, a \<choose> operation on sets could be defined in Java as
+\begin{Verbatim}
+class ChooseableSet<T> implements Set<T> {
+  // return an arbitrary element from the set
+  @NonDet T choose();
+}
+\end{Verbatim}
+\item
+Java does not provide a syntax that can be used for qualifier polymorphism,
+so we use a special type qualifier name, \<@PolyDet>.
+A qualifier-polymorphic method \<m> with signature $\forall \kappa . \kappa\ \<int> \times \<Det boolean> \rightarrow
+\kappa\ \<String>$ would be written in our dialect of Java as
+\begin{Verbatim}
+@PolyDet String m(@PolyDet int, @Det boolean)
+\end{Verbatim}
+Each use of \<@PolyDet> stands for a use of the qualifier variable
+$\kappa$, and there is no need to declare the qualifier variable $\kappa$.
+\TheDeterminismChecker currently supports
+qualifier
+polymorphism on methods but not on classes.
+Therefore, \<@PolyDet> may be written in methods (signatures and bodies)
+but not on fields.
+\end{itemize}
+
+
+\subsection{Defaulting rules}\label{defaulting}
+
+\TheDeterminismChecker applies a default qualifier at each unannotated type
+use (except uses of type variables, which already stand for a type that was
+defaulted at the instantiation site).
+This does not change the expressivity of the type system; it merely makes
+the system more convenient to use.
+
+In \theDeterminismChecker, we chose \<PolyDet> as the default for all 
+method parameters and return types including constructors.
+The rationale for this design choice was to not make \theDeterminismChecker too restrictive by making everything \<Det>.  This implies that
+\theDeterminismChecker still allows some non-determinism as long as it doesn't break any determinism specifications explicitly written by the programmer.
+
+\begin{verbatim}
+@PolyDet int foo(@PolyDet int x) { ... }
+
+void bar(@NonDet int random, @Det int value) {
+    @NonDet int x = foo(random);      // No error.
+    @Det int y = foo(value);          // No error.
+    System.out.println(foo(random));  // Error.
+}
+\end{verbatim}
+In the example above, the method \codeid{foo} is annotated with the \<PolyDet> type qualifier which allows
+the caller method \codeid{bar} to invoke it with both \<Det> and \<NonDet> arguments. \TheDeterminismChecker flags an error 
+only when the returned value is used in a way that breaks any deterministic specification (Printing a \<NonDet> value
+breaks our determinism guarantees).
+
