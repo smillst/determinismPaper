@@ -183,13 +183,13 @@ client code that would produce errors at compile time.
     
     \bigskip
     
-     $\infer[\textsc{ordernondet array}]{\wellformed{\kappa_e \ \beta_e \ \  \kappa_a []}}{\kappa_a : \|OrderNonDet/Det| & \kappa_e \sqsubseteq \kappa_a }$
+%     $\infer[\textsc{ordernondet array}]{\wellformed{\kappa_e \ \beta_e \ \  \kappa_a []}}{\kappa_a : \|OrderNonDet/Det| & \kappa_e \sqsubseteq \kappa_a }$
+%    
+%    \bigskip
     
-    \bigskip
-    
-    $\infer[\textsc{nondet array}]{\wellformed{\|NonDet| \ \beta_e \ \  \|NonDet| []}}{}$
-    
-    \bigskip
+%    $\infer[\textsc{nondet array}]{\wellformed{\|NonDet| \ \beta_e \ \  \|NonDet| []}}{}$
+%    
+%    \bigskip
     
     $\infer[\textsc{ordernondet map}]{\wellformed{\kappa_m \  \beta_m \langle\kappa_k \ \beta_k, \kappa_v \ \beta_v\rangle}}{\kappa_m: \|OrderNonDet/Det| & \kappa_k \sqsubseteq \kappa_m & \kappa_v \sqsubseteq \kappa_m & \beta_m \sqsubseteq \|Map|}$
     
@@ -473,9 +473,9 @@ all local variables that are collections to reduce false positives. The same rea
     
     $\infer[\textsc{collections sort}]{\Gamma \vdash x : \|Det \ List|\langle\|Det| \ \beta\rangle}{\Gamma \vdash x : \|OrderNonDet \ List|\langle\|Det| \ \beta\rangle & \|Collections.sort.sort(x)|}$
     
-    \bigskip
-    
-    $\infer[\textsc{arrays sort}]{\Gamma \vdash x : \|Det \ \beta \ Det[]| }{\Gamma \vdash x : \|Det \ \beta \ OrderNonDet[]| & \|Arrays.sort( \ x)|}$
+%    \bigskip
+%    
+%    $\infer[\textsc{arrays sort}]{\Gamma \vdash x : \|Det \ \beta \ Det[]| }{\Gamma \vdash x : \|Det \ \beta \ OrderNonDet[]| & \|Arrays.sort( \ x)|}$
     
     \caption{Sorting type refinement rules}
     \label{fig-sorting}
