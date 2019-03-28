@@ -458,7 +458,7 @@ in the determinism type hierarchy.
 
 \Cref{fig-poly-resolution} presents the rule for type checking of methods annotated with \<PolyDet> or its variants.
 A polymorphic method type checks if every instantiation of \<PolyDet> type checks. If this method has \<PolyDet>$\uparrow$ or \<PolyDet>$\downarrow$
-in its signature then the instantiation of \<PolyDet> at that location gets replaced by the appropriate type as shown in Table~\ref{tab-poly-resolutions}.
+in its signature then the instantiation of \<PolyDet> at that location gets replaced by the appropriate type as shown in \cref{tab-poly-resolutions}.
 
 Annotating \<size()> as \codeid{PolyDet$\downarrow$ int size(PolyDet List<T> list)} will only allow the following type resolutions:
 \begin{itemize}
@@ -563,7 +563,7 @@ void foo(@NonDet Object x, @Det Object y) {
 
 With the above rules, \theDeterminismChecker will automatically annotate a local collection with type \<NonDet> and its
 type arguments will get the type qualifier \<Det>. For example, a locally declared \codeid{List} of \codeid{Strings} will be automatically annotated
-as \codeid{NonDet List<Det String>}. Recall from~\ref{collection-rules} that \theDeterminismChecker does not allow this type on
+as \codeid{NonDet List<Det String>}. Recall from~\cref{collection-rules} that \theDeterminismChecker does not allow this type on
 any collection. While this is still sound, it will result in \theDeterminismChecker reporting a lot of errors because every locally declared 
 collection gets annotated with this invalid type. To avoid this situation, we make an exception to the defaulting rules for local collections
 and annotate their type parameters also with \<NonDet>. So a local list of Strings gets the default qualifier of \codeid{NonDet List<NonDet String>}. While this defaulting eliminates the possibility of automatically annotating locals collections with an invalid
@@ -634,7 +634,7 @@ be type refined to \codeid{Det List<Det Set<Det String>>}. However a receiver of
 %\end{itemize}
 %With the above rules, the checker framework will automatically annotate a local collection with type \<@NonDet> and its
 %type arguments will get the type \<@Det>. For example, a locally declared \codeid{List} of \codeid{Strings} will be automatically annotated
-%as \codeid{@NonDet List<@Det String>}. Recall from~\ref{collection-rules} that \theDeterminismChecker does not allow this type on
+%as \codeid{@NonDet List<@Det String>}. Recall from~\cref{collection-rules} that \theDeterminismChecker does not allow this type on
 %any collection. While this is still sound, it will result in \theDeterminismChecker reporting a lot of errors because every locally declared 
 %collection gets annotated with this invalid type. To avoid this situation, we make an exception to the defaulting rules for local collections
 %and annotate their type parameters also with \<@NonDet>. So a local list of Strings gets the default qualifier of \codeid{@NonDet List<@NonDet String>}. While this defaulting eliminates the possibility of automatically annotating locals collections with an invalid
