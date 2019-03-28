@@ -344,23 +344,35 @@ A collection or map annotated as \<OrderNonDet> has the following properties:
 
 \subsection{Polymorphism}\label{polymorphism}
 
-\TheDeterminismChecker supports three types of polymorphism:  type
+Our type system supports three types of polymorphism:  type
 polymorphism, basetype polymorphism, and qualifier polymorphism.
+\todo{Give an example for each.}
+\begin{itemize}
+\item
+In \theDeterminismCheckerimplementation,
 Type polymorphism is handled by Java's generics mechanism, which
 \theDeterminismChecker fully supports, including class and method generics,
 inference, etc.
+\item
 Basetype polymorphism is enabled by writing a type qualifier on a use of a
 type variable.
+\item
 Java does not provide a syntax that can be used for qualifier polymorphism,
 so we use a special type qualifier name, \<@PolyDet>.
-A method \<m> with signature $\forall \kappa . \kappa \<int> \times \<Det boolean> \rightarrow
+A qualifier-polymorphic method \<m> with signature $\forall \kappa . \kappa \<int> \times \<Det boolean> \rightarrow
 \kappa \<String>$ would be written in our dialect of Java as
 \begin{Verbatim}
 @PolyDet String m(@PolyDet int, @Det boolean)
 \end{Verbatim}
-
 Each use of \<@PolyDet> stands for a use of the qualifier variable
 $\kappa$, and there is no need to declare the qualifier variable $\kappa$.
+\TheDeterminismChecker currently supports
+qualifier
+polymorphism on methods but not on classes.
+Therefore, \<@PolyDet> may be written in methods (signatures and bodies)
+but not on fields.
+\end{itemize}
+
 
 
 
