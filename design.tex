@@ -66,7 +66,7 @@
 
 In a type system,
 a \textit{type} stands for a set of values.  It abstracts or restricts the
-set of possbile run-time values that an expression may evaluate to.
+set of possible run-time values that an expression may evaluate to.
 A programming language provides \emph{basetypes}, such as \<int>.
 A \textit{type qualifier} on a \textit{type} adds additional constraints;
 that is, it reduces the size of the set of values.
@@ -119,22 +119,25 @@ The core of the determinism type system is the following type qualifiers (see Fi
 \begin{itemize}
     \item \<NonDet> indicates
     that the expression might have different values in two different executions.
+    \item \<OrderNonDet> indicates that the expression is a collection or
+      map (dictionary or associative array) that
+      will have the same elements in every execution, but in a possibly different order.
     \item \<Det> indicates that
     the expression evaluates to the same value (with respect to \<.equals()>) in all
     executions; for a collection, iteration also yields the values in the same
     order.
 \end{itemize}
 
-\subsection{Handling order nondeterminism}
-In addition to the type qualifiers described in~\ref{type-hierarchy}, \theDeterminismChecker 
-defines the type qualifier \<OrderNonDet>. This qualifier represents
-a collection or an array that will have the same elements in every execution, but in a
-possibly different order.  \<OrderNonDet> may only be written on
-collections and arrays.
-A collection is any subtype of \<java.util.Collection>,
-\<java.util.Iterator>, or \<java.util.Map>, including user-defined types. The relationship
-of \<OrderNonDet> with respect the the other two type qualifiers is \codeid{Det $\sqsubseteq$ OrderNonDet $\sqsubseteq$ NonDet} as shown in Figure~\ref{fig-determinism-hierarchy}.
+\<OrderNonDet> may only be written on collections and maps.  Our implementation
+handles array types, and any class (including user-defined classes) that
+implements the \<Iterable> or \<Iterator> interfaces; this includes all
+Java collections such as \<List>s and \<Set>s.  For simplicity, and because
+the semantics and rules are similar even though the syntax varies, this
+paper uses the term ``collection'' and the type \<Collection> to represent
+all these types.
 
+Our type system largely treats a map as a collection of key--value pairs.  Like any
+collection, a map may be \<Det>, \<OrderNonDet>, or \<NonDet>.
 
 
 In Figure~\ref{code-determinism}, we present some of the JDK methods that we have annotated with our determinism types and give examples of
@@ -170,42 +173,72 @@ client code that would produce errors at compile time.
 
 \subsection{Additional typing rules for collection elements}\label{collection-rules}
 
+\todo{Note that the \textsc{ordernondet} versions also handle \<Det>,
+  because $\<Det> \sqsubseteq \<OrderNonDet>$.}
+
 \begin{figure}
     $\infer[\textsc{any type}]{\wellformed{\kappa \  \beta}}{\kappa : \|Det / NonDet|}$
     
     \bigskip
     
-    $\infer[\textsc{ordernondet collection}]{\wellformed{\kappa_c \  \beta_c \langle\kappa_e \ \beta_e\rangle}}{\kappa_c : \|OrderNonDet/Det| & \kappa_e \sqsubseteq \kappa_c & \beta_c \sqsubseteq \|Collection/Iterator|}$
+    $\infer[\textsc{ordernondet collection}]{\wellformed{\kappa_c \  \beta_c \langle\kappa_e \ \beta_e\rangle}}{\kappa_c : \|OrderNonDet/Det| & \kappa_e \sqsubseteq \kappa_c & \beta_c \sqsubseteq \<Collection>}$
     
     \bigskip
     
-    $\infer[\textsc{nondet collection}]{\wellformed{\|NonDet| \ \beta_c\langle\|NonDet| \ \beta_e\rangle}}{\beta_c \sqsubseteq \|Collection/Iterator|}$
+    $\infer[\textsc{nondet collection}]{\wellformed{\|NonDet| \ \beta_c\langle\|NonDet| \ \beta_e\rangle}}{\beta_c \sqsubseteq \<Collection>}$
     
     \bigskip
     
-     $\infer[\textsc{ordernondet array}]{\wellformed{\kappa_e \ \beta_e \ \  \kappa_a []}}{\kappa_a : \|OrderNonDet/Det| & \kappa_e \sqsubseteq \kappa_a }$
+%      $\infer[\textsc{ordernondet array}]{\wellformed{\kappa_e \ \beta_e \ \  \kappa_a []}}{\kappa_a : \|OrderNonDet/Det| & \kappa_e \sqsubseteq \kappa_a }$
+%     
+%     \bigskip
+%     
+%     $\infer[\textsc{nondet array}]{\wellformed{\|NonDet| \ \beta_e \ \  \|NonDet| []}}{}$
+%     
+%     \bigskip
+    
+    $\infer[\textsc{ordernondet map}]{\wellformed{\kappa_m \  \beta_m \langle\kappa_k \ \beta_k, \kappa_v \ \beta_v\rangle}}{\kappa_m: \|OrderNonDet/Det| & \kappa_k \sqsubseteq \kappa_m & \kappa_v \sqsubseteq \kappa_m & \beta_m \sqsubseteq \<Map>}$
     
     \bigskip
     
-    $\infer[\textsc{nondet array}]{\wellformed{\|NonDet| \ \beta_e \ \  \|NonDet| []}}{}$
-    
-    \bigskip
-    
-    $\infer[\textsc{ordernondet map}]{\wellformed{\kappa_m \  \beta_m \langle\kappa_k \ \beta_k, \kappa_v \ \beta_v\rangle}}{\kappa_m: \|OrderNonDet/Det| & \kappa_k \sqsubseteq \kappa_m & \kappa_v \sqsubseteq \kappa_m & \beta_m \sqsubseteq \|Map|}$
-    
-    \bigskip
-    
-    $\infer[\textsc{nondet map}]{\wellformed{\|NonDet| \ \beta_m\langle\|NonDet| \ \beta_k, \|NonDet| \ \beta_v\rangle}}{\beta_m \sqsubseteq \|Map|}$
+    $\infer[\textsc{nondet map}]{\wellformed{\|NonDet| \ \beta_m\langle\|NonDet| \ \beta_k, \|NonDet| \ \beta_v\rangle}}{\beta_m \sqsubseteq \<Map>}$
     
     \caption{Type well formedness}
-    \label{type-validity}
+\todo{The \textsc{any type} rule is not correct, because not every type is
+  well-formed.  It needs an antecedent stating that $\beta$ is not a
+  collection or map.}
+
+\todo{The collection rules do not permit nested collections; similarly, the
+  (currently commented out) array rules did not permit any two-dimensional
+  array to be well-formed.  There is a bigger issue here.
+  Consider the ``nondet collection'' rule.  $\beta_c$ is a class (we need
+  to use a different symbol for it, probably $c$), but $\beta_e$ should be
+  a full type, which might contain type qualifiers within it.  (Actually,
+  $\|NonDet|\ \beta_e$ is a type, not $\beta_e$ itself.)  So, there should
+  be an antecedent stating that $\|NonDet| \beta_e$ is well-formed, and
+  for the ``ordernondet collection'' rule stating that $\kappa_e \beta_e$
+  is well-formed.  Likewise, antecedents are needed for the map rules.
+  Otherwise, these rules permit construction of $\<Map>\langle\tau'\rangle$
+  where $\tau'$ is itself not well-defined.}
+
+\todo{``$\kappa : \|Det / NonDet|$'' should be ``$\kappa = \|Det /
+  NonDet|$'' or (better)
+  ``$\kappa \in \{\|Det|, \|NonDet|\}$''.
+  You could also express $\kappa_c : \|OrderNonDet/Det|$ as just
+  $\kappa_c \sqsubseteq \|OrderNonDet|$ since $\|Det| \sqsubseteq \|OrderNonDet|$.
+}
+
+  \label{type-validity}
 \end{figure}
 
-Figure~\ref{type-validity} shows the type validity rules of our type system. A type $\tau$ is represented as $\kappa \ \beta$
+Figure~\ref{type-validity} shows the type validity\todo{The caption says
+  ``type well formedness''.  Choose one term and use it consistently
+  throughout.}
+rules of our type system. A type $\tau$ is represented as $\kappa \ \beta$
 where $\kappa$ is a type qualifier from the determinism type hierarchy and $\beta$ is a Java type.
 As stated in the rule $\textsc{any type}$, the types \<Det> and \<NonDet> can be written on any Java type.
-The (determinism) type of a Collection or Iterator must be a supertype or equal to
-the type of the type parameter (Rule $\textsc{ordernondet collection}$) (see Figure~\ref{fig-determinism-collections}).
+The (determinism) type of a collection must be a supertype or equal to
+its element type (Rule $\textsc{ordernondet collection}$) (see Figure~\ref{fig-determinism-collections}).
 If the Collection is \<NonDet>, then the type parameter may not be
 \<Det> or \<OrderNonDet> (Rule $\textsc{nondet collection}$ in Figure~\ref{type-validity}). Although such types could exist, they are
 disallowed to prevent the following bug:
@@ -225,61 +258,47 @@ The possibility of mutation allows us to add to the \<Det List> at a
 
 %\todo{Fewer examples, less variation.  Use \<List> and \<String>.}
 
-Some examples of valid types are:
+Some examples of valid types are:\todo{double-check}
 \begin{itemize}
     \item \codeid{NonDet\ \ \ \ \ \ List<NonDet\ \ \ \ \ \ Integer>}
+    \item \codeid{OrderNonDet List<OrderNonDet Set<...>\relax >}
+    \item \codeid{OrderNonDet List<Det Integer>}
     \item \codeid{Det\ \ \ \ \ \ \ \ \ List<Det\ \ \ \ \ \ \ \ \ Integer>}
-    \item \codeid{OrderNonDet List <OrderNonDet Set<...>\relax >}
-    \item \codeid{OrderNonDet List <Det String>}
 \end{itemize}
 
 These types are invalid:
 \begin{itemize}
-    \item \codeid{OrderNonDet Set <NonDet\ \ \ \ \ \ Integer>}
+    \item \codeid{NonDet\ \ \ \ \ \ List<OrderNonDet Integer>}
     \item \codeid{NonDet\ \ \ \ \ \ List<Det\ \ \ \ \ \ \ \ \ Integer>}
+    \item \codeid{OrderNonDet List<NonDet\ \ \ \ \ \ Integer>}
+    \item \codeid{Det\ \ \ \ \ \ \ \ \ List<NonDet\ \ \ \ \ \ Set<...>\relax >}
     \item \codeid{Det\ \ \ \ \ \ \ \ \ List<OrderNonDet Set<...>\relax >}
 \end{itemize}
-
-Similarly, the (determinism) type of an array must be a supertype or equal to
-the type of the component type (see Figure~\ref{fig-determinism-collections}).
-As with collections, \codeid{NonDet} arrays of \codeid{Det} or \codeid{OrderNonDet}
-elements are not allowed (Rules $\textsc{ordernondet array}$ and $\textsc{nondet array}$ in Figure~\ref{type-validity}).
 
 \begin{figure}
     \centering
     \begin{tabular}{|l|l|l|l|l|}
         \cline{3-5}
-        \multicolumn{2}{c|}{~}  &  \multicolumn{3}{c|}{Type Argument (or array component type)} \\ \cline{3-5}
+        \multicolumn{2}{c|}{~}  &  \multicolumn{3}{c|}{element type} \\ \cline{3-5}
         \multicolumn{2}{c|}{~}  & NonDet     & OrderNonDet & Det \\ \hline
         & NonDet      &   valid    &  invalid    & invalid  \\ \cline{2-5}
-        Collection (or array)   & OrderNonDet &   invalid  &  valid      & valid  \\ \cline{2-5}
+        Collection    & OrderNonDet &   invalid  &  valid      & valid  \\ \cline{2-5}
         & Det         &   invalid  &  invalid    & valid      \\ \hline
     \end{tabular}
-    \caption{Valid Collection (and array) declarations.  The Collection's (or array's) type qualifier
-        must be a supertype or equal to the type argument (or array component type).}
+    \caption{Valid Collection declarations.  The Collection's type qualifier
+        must be a supertype or equal to the element type.}
     \label{fig-determinism-collections}
 \end{figure}
 
-A collection (\<List, Set, or a Map>) annotated as \<OrderNonDet> has the following properties:
+A collection or map annotated as \<OrderNonDet> has the following properties:
+\todo{Write these as type rules.}
 \begin{enumerate}
     \item The individual elements extracted by iterating over the collection get the type \<NonDet>.
-    \item Accessing properties sich as \<size()> or querying if the collection \<isEmpty()> will return types
+    \item Accessing properties such as \<size()> or querying if the collection \<isEmpty()> will return types
     that are annotated as \<Det> as they do not depend on the iteration order. 
 \end{enumerate}
 
-A user defined type may be annotated as \<OrderNonDet> if and only if it
-is a subtype of Collection or Iterator.
-For example, if a user defines a type as
-\begin{verbatim}
-public class TestUserCollection<E> extends ArrayList<E> {...}
-\end{verbatim}
-Writing \codeid{OrderNonDet TestUserCollection<Det Integer>} is valid.\\
-Writing \codeid{OrderNonDet TestUserCollection<NonDet Integer>} is invalid
-because the type of the type parameter (\codeid{NonDet}) is not a subtype
-of the user defined Collection type (\codeid{OrderNonDet}).
 
-User defined types that are not a subtype of Collection or Iterator
-may not be annotated as \codeid{OrderNonDet}.
 
 \subsection{Polymorphism}\label{polymorphism}
 
@@ -327,7 +346,10 @@ causing the return type to have the type qualifier \<NonDet>.
 
 \subsection{Polymorphism rules for collections}\label{polymorphism-up-down}
 
-Recall that \theDeterminismChecker does not permit \<OrderNonDet> on a type that isn't a \<Collection>, \<Iterator>, or an array.
+Some types are invalid and must not be permitted (during polymorphic instantiation).
+
+Recall that \theDeterminismChecker does not permit \<OrderNonDet> on a type
+that isn't a collection.
 As a consequence, resolution of polymorphic type qualifiers at method signatures could have undesirable effects.
 Suppose a method declaration is annotated as \codeid{PolyDet int size(PolyDet List<T> list)}. Invoking this method
 with an argument of type \codeid{OrderNonDet List<Det String>} will result in \<PolyDet> getting resolved to \<OrderNonDet> which is invalid
@@ -366,7 +388,7 @@ Annotating \<size()> as \codeid{PolyDet$\downarrow$ int size(PolyDet List<T> lis
 \end{itemize}
 
 \begin{figure}
-    $\infer[\textsc{poly resolution}]{\pi_r \ \beta_r method(\overline{\pi_i \ \beta_i})\{\ \}}{\forall K \in \{\|NonDet, OrderNonDet, Det|\} : K \ \beta_r method(\overline{K \ \beta_i})\{\ \} & \pi_r, \pi_i \in \{\|PolyDet|, \|PolyDet|\uparrow, \|PolyDet|\downarrow    \}}$
+    $\infer[\textsc{poly resolution}]{\pi_r \ \beta_r\ \<m>(\overline{\pi_i \ \beta_i})\{\ \}}{\forall \kappa \in \{\|NonDet, OrderNonDet, Det|\} : \kappa \ \beta_r\ \<m>(\overline{K \ \beta_i})\{\ \} & \pi_r, \pi_i \in \{\|PolyDet|, \|PolyDet|\uparrow, \|PolyDet|\downarrow    \}}$
     \caption{Polymorphic resolution rule}
     \label{fig-poly-resolution}
 \end{figure}
@@ -380,6 +402,7 @@ Annotating \<size()> as \codeid{PolyDet$\downarrow$ int size(PolyDet List<T> lis
         \<Det> & \<Det> &  \<Det>\\ \hline
     \end{tabular}
 \caption{Polymorphic resolution}
+\todo{Write this as a rule rather than a table.}
 \label{tab-poly-resolutions}
 \end{table}
 
@@ -395,7 +418,7 @@ Suppose a client calls this method as follows:
 @Det String str;
 list.add(random, str);
 \end{verbatim}
-This will result in the instantion \codeid{public void add(@NonDet ArrayList<E> this, @NonDet int index, E element)} and
+This will result in the instantiation \codeid{public void add(@NonDet ArrayList<E> this, @NonDet int index, E element)} and
 the method invocation will type check. This is problematic because even though \<list> was declared to be \<Det>,
 the type checker allows the addition of an element at a \<NonDet> location violating our determinism guarantees.
 We prevent this behavior by introducing another variant of \<PolyDet>, \<PolyDet("use")> that does not affect
@@ -463,25 +486,27 @@ void test(@Det List<@Det String> argList) {
 \theDeterminismChecker would report an error at the assignment statement since the inferred type for \codeid{localList} is 
 \codeid{NonDet List<NonDet> String} and since collections types are invariant.
 We therefore recommend that programmers explicitly annotate
-all local variables that are collections to reduce false positives. The same reasoning and recommendation applies to arrays.
+all local variables that are collections to reduce false positives.
 
-\TheDeterminismChecker has additional type refinement rules for the sorting methods as shown in Figure~\ref{fig-sorting}. 
+\TheDeterminismChecker has additional type refinement rules for the sorting
+methods such as \<List.sort>, \<Collections.sort>, and \<Arrays.sort>:
+ as shown in Figure~\ref{fig-sorting}. 
 \begin{figure}
-    $\infer[\textsc{list sort}]{\Gamma \vdash x : \|Det \ List|\langle\|Det| \ \beta\rangle}{\Gamma \vdash x : \|OrderNonDet \ List|\langle\|Det| \ \beta\rangle & \|x.sort()|}$
+%     $\infer[\textsc{list sort}]{\Gamma \vdash x : \|Det \ List|\langle\|Det| \ \beta\rangle}{\Gamma \vdash x : \|OrderNonDet \ List|\langle\|Det| \ \beta\rangle & \|x.sort()|}$
+%     
+%     \bigskip
     
-    \bigskip
+    $\infer[\textsc{sort}]{\Gamma \vdash x : \|Det \ List|\langle\|Det| \ \beta\rangle}{\Gamma \vdash x : \|OrderNonDet \ List|\langle\|Det| \ \beta\rangle & \|Collections.sort(x)|}$
     
-    $\infer[\textsc{collections sort}]{\Gamma \vdash x : \|Det \ List|\langle\|Det| \ \beta\rangle}{\Gamma \vdash x : \|OrderNonDet \ List|\langle\|Det| \ \beta\rangle & \|Collections.sort.sort(x)|}$
-    
-    \bigskip
-    
-    $\infer[\textsc{arrays sort}]{\Gamma \vdash x : \|Det \ \beta \ Det[]| }{\Gamma \vdash x : \|Det \ \beta \ OrderNonDet[]| & \|Arrays.sort( \ x)|}$
+%     \bigskip
+%     
+%     $\infer[\textsc{arrays sort}]{\Gamma \vdash x : \|Det \ \beta \ Det[]| }{\Gamma \vdash x : \|Det \ \beta \ OrderNonDet[]| & \|Arrays.sort( \ x)|}$
     
     \caption{Sorting type refinement rules}
     \label{fig-sorting}
 \end{figure}
 \TheDeterminismChecker type refines a receiver of type \codeid{OrderNonDet List} to a \codeid{Det List} if all the
-type argument of this \codeid{List} have the type qualifier \codeid{Det} (Rule LIST SORT in Figure~\ref{fig-sorting}). Similar rules apply for \codeid{Arrays.sort()} and \codeid{Collections.sort()}.
+type argument of this \codeid{List} have the type qualifier \codeid{Det} (Rule LIST SORT in Figure~\ref{fig-sorting}).
 As per these rules, if \codeid{sort()} is called on a receiver of type \codeid{OrderNonDet List<Det Set<Det String>>}, it will
 be type refined to \codeid{Det List<Det Set<Det String>>}. However a receiver of type \codeid{OrderNonDet List<OrderNonDet Set<Det String>>} will not be type refined.
 
@@ -574,7 +599,7 @@ also expressed by the last two rules of Figure~\ref{fig-creation-rules}.
 \end{figure}
 
 In the JDK, \<LinkedHashSet> is implemented as a subclass of \<HashMap>.
-\todo{Talk about this design choice. Josh Blochs book: "If the code surrounding the first declaration depended on LinkedHashSet's ordering policy,
+\todo{Talk about this design choice. Josh Bloch's book: "If the code surrounding the first declaration depended on LinkedHashSet's ordering policy,
     then it would be incorrect to substitute HashSet for LinkedHashSet in the declaration, because HashSet makes no guarantee concerning iteration order."} 
 
 \subsection{Determinism checker specific rules for precision}\label{precision}
@@ -584,7 +609,7 @@ PolyDet$\uparrow$ boolean equals(PolyDet Set<E> this, PolyDet Object o)
 \end{verbatim}
 While this is sound, it is imprecise in the case of \codeid{OrderNonDet Sets}. We added the following rule shown in Figure~\ref{fig-precision-rules} to our checker to improve precision.
 \begin{figure}
-    \todo{linebreak}
+    \todo{add line break}
     $\infer[\textsc{set precision}]{\Gamma \vdash \|z : Det|}{\Gamma \vdash \|x| : \|OrderNonDet| \ \|Set|\langle \kappa_{x} \ \beta_{x}\rangle, \|y| : \|OrderNonDet| \ \|Set|\langle \kappa_{y} \ \beta_{y}\rangle & \|z = x.equals(y)| & \langle \kappa_{x} \ \beta_{x}\rangle \nsqsubseteq \langle \|OrderNonDet \ List| \rangle & \langle \kappa_{y} \ \beta_{y}\rangle \nsqsubseteq \langle \|OrderNonDet \ List| \rangle }$
     
     \bigskip
@@ -597,7 +622,7 @@ While this is sound, it is imprecise in the case of \codeid{OrderNonDet Sets}. W
 According to this rule, if the \<Set> receiver has type \codeid{@OrderNonDet Set<@Det List} and the argument to the \codeid{equals()} method is
 also of the same type, the return type gets the qualifier \<Det>. Without this precision rule, the return type would have resolved to \<NonDet> which
 is sound but imprecise. This rule is careful enough to not annotate the return type of \<equals()> as \<Det> if a type argument to either the
-receiver or the argument happens to be an \codeid{OrderNonDet List} (An order nondeterminstic list does not provide any guarantee on the
+receiver or the argument happens to be an \codeid{OrderNonDet List} (An order nondeterministic list does not provide any guarantee on the
 equality as it is dependent on the iteration order). 
 
 Similarly, the \codeid{get()} method in the \<Map> class is annotated with polymorphic qualifiers and the rule $\sc{\|MAP \ PRECISION|}$ in Figure~\ref{fig-precision-rules} improves precision for \<OrderNonDet> receivers.
@@ -614,3 +639,7 @@ A program analysis developer interested in verifying determinism guarantees with
 the File system can easily do so by annotating the parameter and return types of those methods in the JDK.
 Alternatively, a user can write these qualifiers in a \textit{stub} file and supply it to the type checker. A \textit{stub}
 only needs to contain method declarations along with their qualifiers.
+
+% LocalWords:  basetypes NonDet OrderNonDet Det Iterable formedness param1
+% LocalWords:  PolyDet boolean param2 arg1 arg2 localList entrySet keySet
+% LocalWords:  LinkedHashMap TreeMap HashSet LinkedHashSet LinkedHashSet's
