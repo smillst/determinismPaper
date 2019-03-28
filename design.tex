@@ -92,15 +92,15 @@ A type checker verifies the types written in a program.
 
     $\infer{\tau_1 \sqsubseteq \tau_3}{\tau_1 \sqsubseteq \tau_2 \quad \tau_2 \sqsubseteq \tau_3}
     \quad\quad
-    \infer[\textsc{subtyping}]{\Gamma \vdash x : \tau_2}{\Gamma \vdash x : \tau_1 & \tau_1 \sqsubseteq \tau_2}$
+    \infer[\rulename{subtyping}]{\Gamma \vdash x : \tau_2}{\Gamma \vdash x : \tau_1 & \tau_1 \sqsubseteq \tau_2}$
     
     \bigskip
     
-    $\infer[\textsc{method call}]{\|method|(\overline{a_i}) : \tau_r}{\tau_r \  \|method|(\overline{\tau_i \  p_i}) & \overline{a_i : \tau_i}}$
+    $\infer[\rulename{method call}]{\|method|(\overline{a_i}) : \tau_r}{\tau_r \  \|method|(\overline{\tau_i \  p_i}) & \overline{a_i : \tau_i}}$
     
     \bigskip
     
-    $\infer[\textsc{invariant type arg}]{C_1\angles{\overline{\tau_i}}
+    $\infer[\rulename{invariant type arg}]{C_1\angles{\overline{\tau_i}}
       \sqsubseteq C_2\angles{\overline{\tau_i}}}{C_1 \sqsubseteq C_2}$
     
     \caption{A sampling of standard typing rules.  We omit other standard rules,
@@ -136,8 +136,9 @@ A type checker verifies the types written in a program.
     \end{center}
     \caption{Determinism type qualifier hierarchy}
     \label{fig:determinism-hierarchy}
-\todo{Drop the at-signs (@).  The text is weirdly small for the box.
-  Probably just redraw this.}
+\todo{Drop the at-signs (@).}
+\todo{The text is weirdly small for the box.
+  Probably redraw this.}
 \end{wrapfigure}
 
 The core of the determinism type system is the following type qualifiers:
@@ -158,49 +159,51 @@ The core of the determinism type system is the following type qualifiers:
 \<OrderNonDet> may only be written on collections and maps.
 
 A map is a dictionary or associative array, such as a hash table.
-Our type system largely treats a map as a collection of key--value pairs.
+\OurTypeSystem largely treats a map as a collection of key--value pairs.
 
 Both collections and map may be \<Det>, \<OrderNonDet>, or \<NonDet>, and
 the element types can be specified independently of the collection type,
 including qualifiers.
 
-
+\todo{A type $\tau$ is represented as $\kappa \ \beta$
+where $\kappa$ is a type qualifier (that is, \<NonDet>, \<OrderNonDet>, or
+\<Det>) and $\beta$ is a Java basetype.}
 
 
 \subsection{Collection types}\label{collection-rules}
 
-\todo{Note that the \textsc{ordernondet} versions also handle \<Det>,
+\todo{Note that the \rulename{ordernondet} versions also handle \<Det>,
   because $\<Det> \sqsubseteq \<OrderNonDet>$.}
 
 \begin{figure}
-    $\infer[\textsc{any type}]{\wellformed{\kappa \  \beta}}{\kappa : \|Det / NonDet|}$
+    $\infer[\rulename{any type}]{\wellformed{\kappa \  \beta}}{\kappa : \|Det / NonDet|}$
     
     \bigskip
     
-    $\infer[\textsc{ordernondet collection}]{\wellformed{\kappa_c \  \beta_c \angles{\kappa_e \ \beta_e}}}{\kappa_c : \|OrderNonDet/Det| & \kappa_e \sqsubseteq \kappa_c & \beta_c \sqsubseteq \<Collection>}$
+    $\infer[\rulename{ordernondet collection}]{\wellformed{\kappa_c \  \beta_c \angles{\kappa_e \ \beta_e}}}{\kappa_c : \|OrderNonDet/Det| & \kappa_e \sqsubseteq \kappa_c & \beta_c \sqsubseteq \<Collection>}$
     
     \bigskip
     
-    $\infer[\textsc{nondet collection}]{\wellformed{\|NonDet| \ \beta_c\angles{\|NonDet| \ \beta_e}}}{\beta_c \sqsubseteq \<Collection>}$
+    $\infer[\rulename{nondet collection}]{\wellformed{\|NonDet| \ \beta_c\angles{\|NonDet| \ \beta_e}}}{\beta_c \sqsubseteq \<Collection>}$
     
     \bigskip
     
-%      $\infer[\textsc{ordernondet array}]{\wellformed{\kappa_e \ \beta_e \ \  \kappa_a []}}{\kappa_a : \|OrderNonDet/Det| & \kappa_e \sqsubseteq \kappa_a }$
+%      $\infer[\rulename{ordernondet array}]{\wellformed{\kappa_e \ \beta_e \ \  \kappa_a []}}{\kappa_a : \|OrderNonDet/Det| & \kappa_e \sqsubseteq \kappa_a }$
 %     
 %     \bigskip
 %     
-%     $\infer[\textsc{nondet array}]{\wellformed{\|NonDet| \ \beta_e \ \  \|NonDet| []}}{}$
+%     $\infer[\rulename{nondet array}]{\wellformed{\|NonDet| \ \beta_e \ \  \|NonDet| []}}{}$
 %     
 %     \bigskip
     
-    $\infer[\textsc{ordernondet map}]{\wellformed{\kappa_m \  \beta_m \angles{\kappa_k \ \beta_k, \kappa_v \ \beta_v}}}{\kappa_m: \|OrderNonDet/Det| & \kappa_k \sqsubseteq \kappa_m & \kappa_v \sqsubseteq \kappa_m & \beta_m \sqsubseteq \<Map>}$
+    $\infer[\rulename{ordernondet map}]{\wellformed{\kappa_m \  \beta_m \angles{\kappa_k \ \beta_k, \kappa_v \ \beta_v}}}{\kappa_m: \|OrderNonDet/Det| & \kappa_k \sqsubseteq \kappa_m & \kappa_v \sqsubseteq \kappa_m & \beta_m \sqsubseteq \<Map>}$
     
     \bigskip
     
-    $\infer[\textsc{nondet map}]{\wellformed{\|NonDet| \ \beta_m\angles{\|NonDet| \ \beta_k, \|NonDet| \ \beta_v}}}{\beta_m \sqsubseteq \<Map>}$
+    $\infer[\rulename{nondet map}]{\wellformed{\|NonDet| \ \beta_m\angles{\|NonDet| \ \beta_k, \|NonDet| \ \beta_v}}}{\beta_m \sqsubseteq \<Map>}$
     
     \caption{Type well formedness}
-\todo{The \textsc{any type} rule is not correct, because not every type is
+\todo{The \rulename{any type} rule is not correct, because not every type is
   well-formed.  It needs an antecedent stating that $\beta$ is not a
   collection or map.}
 
@@ -230,17 +233,64 @@ including qualifiers.
 \Cref{type-validity} shows the type validity\todo{The caption says
   ``type well formedness''.  Choose one term and use it consistently
   throughout.}
-rules of our type system. A type $\tau$ is represented as $\kappa \ \beta$
-where $\kappa$ is a type qualifier (that is, \<NonDet>, \<OrderNonDet>, or
-\<Det>) and $\beta$ is a Java basetype.
-As stated in the rule $\textsc{any type}$, the types \<Det> and \<NonDet>
+rules of \ourTypeSystem. 
+As stated in the rule \rulename{any type}, the types \<Det> and \<NonDet>
 can be written on any Java basetype.\todo{As noted in figure caption, that's
   not true, in some contexts such as a type argument.}
 
-The determinism type qualifier on a collection must be a supertype or equal to
-its element type qualifier (Rule $\textsc{ordernondet collection}$ in \cref{fig-determinism-collections}).
-If the Collection is \<NonDet>, then the type argument may not be
-\<Det> or \<OrderNonDet> (Rule $\textsc{nondet collection}$ in \cref{type-validity}). Although such types could exist, they are
+\begin{figure}
+    \centering
+    \begin{tabular}{|l|l|l|l|l|}
+        \cline{3-5}
+        \multicolumn{2}{c|}{~}  &  \multicolumn{3}{c|}{element type} \\ \cline{3-5}
+        \multicolumn{2}{c|}{~}  & NonDet     & OrderNonDet & Det \\ \hline
+        & NonDet      &   valid    &  invalid    & invalid  \\ \cline{2-5}
+        Collection    & OrderNonDet &   invalid  &  valid      & valid  \\ \cline{2-5}
+        & Det         &   invalid  &  invalid    & valid      \\ \hline
+    \end{tabular}
+    \caption{Valid Collection declarations.  The Collection's type qualifier
+        must be a supertype or equal to the element type.}
+    \label{fig:determinism-collections}
+\end{figure}
+
+The element type of a \<NonDet> collection must be \<NonDet>.
+Otherwise, the type qualifier on a collection's element must be a subtype or equal to
+the collection's type qualifier (\rulename{collection}\ rules of
+\cref{type-validity}).
+\Cref{fig:determinism-collections} restates its restrictions, and here are examples.
+
+\smallskip
+\noindent
+\begin{minipage}{.48\textwidth}
+Some examples of valid types are:
+% Using "~" instead of "\ " does not work within \codeid :-(
+\begin{smaller}
+\begin{Verbatim}[commandchars=\\\{\}]
+NonDet      \lptype{List}{NonDet      Integer}
+OrderNonDet \lptype{List}{OrderNonDet \lptype{Set}{...}}
+OrderNonDet \lptype{List}{Det         Integer}
+Det         \lptype{List}{Det         Integer}
+
+\end{Verbatim}
+\end{smaller}
+\end{minipage}
+\hfill
+\begin{minipage}{.46\textwidth}
+These types are invalid:
+\begin{smaller}
+\begin{Verbatim}[commandchars=\\\{\}]
+NonDet      \lptype{List}{OrderNonDet \lptype{Set}{...}}
+NonDet      \lptype{List}{Det         Integer}
+OrderNonDet \lptype{List}{NonDet      Integer}
+Det         \lptype{List}{NonDet      Integer}
+Det         \lptype{List}{OrderNonDet \lptype{Set}{...}}
+\end{Verbatim}
+\end{smaller}
+\end{minipage}
+\smallskip
+
+
+ Although such types could exist, they are
 disallowed to prevent the following bug:
 
 \begin{verbatim}
@@ -266,50 +316,7 @@ If both arguments are \<Det>, the result is $\tau$ as usual.
 
 
 
-\smallskip
-\noindent
-\begin{minipage}{.48\textwidth}
-Some examples of valid types are:
-% Using "~" instead of "\ " does not work within \codeid :-(
-\begin{smaller}
-\begin{Verbatim}
-@NonDet      List<@NonDet      Integer>
-@OrderNonDet List<@OrderNonDet Set<...>>
-@OrderNonDet List<@Det         Integer>
-@Det         List<@Det         Integer>
 
-\end{Verbatim}
-\end{smaller}
-\end{minipage}
-\hfill
-\begin{minipage}{.46\textwidth}
-These types are invalid:
-\begin{smaller}
-\begin{Verbatim}
-@NonDet      List<@OrderNonDet Set<...>>
-@NonDet      List<@Det         Integer>
-@OrderNonDet List<@NonDet      Integer>
-@Det         List<@NonDet      Integer>
-@Det         List<@OrderNonDet Set<...>>
-\end{Verbatim}
-\end{smaller}
-\end{minipage}
-\smallskip
-
-\begin{figure}
-    \centering
-    \begin{tabular}{|l|l|l|l|l|}
-        \cline{3-5}
-        \multicolumn{2}{c|}{~}  &  \multicolumn{3}{c|}{element type} \\ \cline{3-5}
-        \multicolumn{2}{c|}{~}  & NonDet     & OrderNonDet & Det \\ \hline
-        & NonDet      &   valid    &  invalid    & invalid  \\ \cline{2-5}
-        Collection    & OrderNonDet &   invalid  &  valid      & valid  \\ \cline{2-5}
-        & Det         &   invalid  &  invalid    & valid      \\ \hline
-    \end{tabular}
-    \caption{Valid Collection declarations.  The Collection's type qualifier
-        must be a supertype or equal to the element type.}
-    \label{fig-determinism-collections}
-\end{figure}
 
 A collection or map annotated as \<OrderNonDet> has the following properties:
 \todo{Write these as type rules.}
@@ -323,7 +330,7 @@ A collection or map annotated as \<OrderNonDet> has the following properties:
 
 \subsection{Polymorphism}\label{polymorphism}
 
-Our type system supports three types of polymorphism:  type
+\OurTypeSystem supports three types of polymorphism:  type
 polymorphism, basetype polymorphism, and qualifier polymorphism.
 \todo{Give an example for each.}
 \begin{itemize}
@@ -434,7 +441,7 @@ Annotating \<size()> as \codeid{PolyDet$\downarrow$ int size(PolyDet List<T> lis
 \end{itemize}
 
 \begin{figure}
-    $\infer[\textsc{poly resolution}]{\pi_r \ \beta_r\ \<m>(\overline{\pi_i \ \beta_i})\{\ \}}{\forall \kappa \in \{\|NonDet, OrderNonDet, Det|\} : \kappa \ \beta_r\ \<m>(\overline{K \ \beta_i})\{\ \} & \pi_r, \pi_i \in \{\|PolyDet|, \|PolyDet|\uparrow, \|PolyDet|\downarrow    \}}$
+    $\infer[\rulename{poly resolution}]{\pi_r \ \beta_r\ \<m>(\overline{\pi_i \ \beta_i})\{\ \}}{\forall \kappa \in \{\|NonDet, OrderNonDet, Det|\} : \kappa \ \beta_r\ \<m>(\overline{K \ \beta_i})\{\ \} & \pi_r, \pi_i \in \{\|PolyDet|, \|PolyDet|\uparrow, \|PolyDet|\downarrow    \}}$
     \caption{Polymorphic resolution rule}
     \todo{I'm not sure what this is doing.  What code does it reject?}
     \todo{This suggests that \PolyDetUp is a qualifier, rather than
@@ -489,7 +496,7 @@ the system more convenient to use.
 
 In \theDeterminismChecker, we chose \<PolyDet> as the default for all 
 method parameters and return types including constructors.
-The rationale for this design choice was to not make our type checker too restrictive by making everything \<Det>.  This implies that
+The rationale for this design choice was to not make \theDeterminismChecker too restrictive by making everything \<Det>.  This implies that
 \theDeterminismChecker still allows some non-determinism as long as it doesn't break any determinism specifications explicitly written by the programmer.
 
 \begin{verbatim}
@@ -548,15 +555,15 @@ all local variables that are collections to reduce false positives.
 methods such as \<List.sort>, \<Collections.sort>, and \<Arrays.sort>:
  as shown in \cref{fig-sorting}.
 \begin{figure}
-%     $\infer[\textsc{list sort}]{\Gamma \vdash x : \|Det \ List|\angles{\|Det| \ \beta}}{\Gamma \vdash x : \|OrderNonDet \ List|\angles{\|Det| \ \beta} & \|x.sort()|}$
+%     $\infer[\rulename{list sort}]{\Gamma \vdash x : \|Det \ List|\angles{\|Det| \ \beta}}{\Gamma \vdash x : \|OrderNonDet \ List|\angles{\|Det| \ \beta} & \|x.sort()|}$
 %     
 %     \bigskip
     
-    $\infer[\textsc{sort}]{\Gamma \vdash x : \|Det \ List|\angles{\|Det| \ \beta}}{\Gamma \vdash x : \|OrderNonDet \ List|\angles{\|Det| \ \beta} & \|Collections.sort(x)|}$
+    $\infer[\rulename{sort}]{\Gamma \vdash x : \|Det \ List|\angles{\|Det| \ \beta}}{\Gamma \vdash x : \|OrderNonDet \ List|\angles{\|Det| \ \beta} & \|Collections.sort(x)|}$
     
 %     \bigskip
 %     
-%     $\infer[\textsc{arrays sort}]{\Gamma \vdash x : \|Det \ \beta \ Det[]| }{\Gamma \vdash x : \|Det \ \beta \ OrderNonDet[]| & \|Arrays.sort( \ x)|}$
+%     $\infer[\rulename{arrays sort}]{\Gamma \vdash x : \|Det \ \beta \ Det[]| }{\Gamma \vdash x : \|Det \ \beta \ OrderNonDet[]| & \|Arrays.sort( \ x)|}$
     
     \caption{Sorting type refinement rules}
     \label{fig-sorting}
@@ -637,19 +644,19 @@ We prohibit the creation of a \codeid{Det HashMap} or an \codeid{OrderNonDet Tre
 also expressed by the last two rules of \cref{fig-creation-rules}.
 
 \begin{figure}
-    $\infer[\textsc{hashmap creation}]{\|new \ \kappa\ HashMap()|}{\kappa = \|OrderDet/NonDet|}$
+    $\infer[\rulename{hashmap creation}]{\|new \ \kappa\ HashMap()|}{\kappa = \|OrderDet/NonDet|}$
     
     \bigskip
     
-    $\infer[\textsc{treemap creation}]{\|new \ \kappa\ TreeMap()|}{\kappa = \|Det/NonDet|}$
+    $\infer[\rulename{treemap creation}]{\|new \ \kappa\ TreeMap()|}{\kappa = \|Det/NonDet|}$
     
     \bigskip
     
-    $\infer[\textsc{hashset creation}]{\|new \ \kappa\ HashSet()|}{\kappa = \|OrderDet/NonDet|}$
+    $\infer[\rulename{hashset creation}]{\|new \ \kappa\ HashSet()|}{\kappa = \|OrderDet/NonDet|}$
     
     \bigskip
     
-    $\infer[\textsc{treeset creation}]{\|new \ \kappa\ TreeSet()|}{\kappa = \|Det/NonDet|}$
+    $\infer[\rulename{treeset creation}]{\|new \ \kappa\ TreeSet()|}{\kappa = \|Det/NonDet|}$
     \caption{\<Map> and \<Set> creation rules}
     \label{fig-creation-rules}
 \end{figure}
@@ -666,11 +673,11 @@ PolyDet$\uparrow$ boolean equals(PolyDet Set<E> this, PolyDet Object o)
 While this is sound, it is imprecise in the case of \codeid{OrderNonDet Sets}. We added the following rule shown in \cref{fig-precision-rules} to our checker to improve precision.
 \begin{figure}
     \todo{add line break}
-    $\infer[\textsc{set precision}]{\Gamma \vdash \|z : Det|}{\Gamma \vdash \|x| : \|OrderNonDet| \ \|Set|\angles{ \kappa_{x} \ \beta_{x}}, \|y| : \|OrderNonDet| \ \|Set|\angles{ \kappa_{y} \ \beta_{y}} & \|z = x.equals(y)| & \angles{ \kappa_{x} \ \beta_{x}} \nsqsubseteq \angles{ \|OrderNonDet \ List| } & \angles{ \kappa_{y} \ \beta_{y}} \nsqsubseteq \angles{ \|OrderNonDet \ List| } }$
+    $\infer[\rulename{set precision}]{\Gamma \vdash \|z : Det|}{\Gamma \vdash \|x| : \|OrderNonDet| \ \|Set|\angles{ \kappa_{x} \ \beta_{x}}, \|y| : \|OrderNonDet| \ \|Set|\angles{ \kappa_{y} \ \beta_{y}} & \|z = x.equals(y)| & \angles{ \kappa_{x} \ \beta_{x}} \nsqsubseteq \angles{ \|OrderNonDet \ List| } & \angles{ \kappa_{y} \ \beta_{y}} \nsqsubseteq \angles{ \|OrderNonDet \ List| } }$
     
     \bigskip
     
-    $\infer[\textsc{map precision}]{\Gamma \vdash \|z : Det|}{\Gamma \vdash \|x : OrderNonDet \ Map\angles{ Det \ \beta_k, \kappa_v\ \beta_v }, y : Det \ \beta| & \|z = x.get(y)|}$
+    $\infer[\rulename{map precision}]{\Gamma \vdash \|z : Det|}{\Gamma \vdash \|x : OrderNonDet \ Map\angles{ Det \ \beta_k, \kappa_v\ \beta_v }, y : Det \ \beta| & \|z = x.get(y)|}$
     
     \caption{Improving precision}
     \label{fig-precision-rules}
