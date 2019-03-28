@@ -1,3 +1,8 @@
+%% Comment out one of these two definitions.
+% \newcommand{\todo}[1]{\relax}
+\newcommand{\todo}[1]{{\color{red}\bfseries [[#1]]}}
+
+
 % For anonymity.  Let's find better names.
 \newcommand{\ourTypeSystem}{Tendon\xspace}
 \newcommand{\OurTypeSystem}{Tendon\xspace}
@@ -29,3 +34,5 @@
 
 % Enclosed in angle brackets
 \newcommand{\angles}[1]{\langle #1\rangle}
+% A parameterized type
+\newcommand{\ptype}[2]{\<#1>\ensuremath{\langle}\<#2>\ensuremath{\rangle}}

@@ -18,7 +18,7 @@ object-oriented language.
 % In our framework, we require every type hierarchy to define a unique\<@Top> and a \<@Bottom> element. This ensures that
 % any given pair of types has a \textit{least upper bound} and a \textit{greatest lower bound}.
 % Throughout this paper, we use the notation \<@A> <: \<@B> to denote that type \<@A> is a subtype of type \<@B>.
-% As an illustration of the type hierarchy, consider the lattice of types shown in Figure~\ref{fig-example-lattice}.
+% As an illustration of the type hierarchy, consider the lattice of types shown in \cref{fig-example-lattice}.
 % \begin{figure}
 %     \begin{center}
 %         \includegraphics[scale=0.15]{lattice}
@@ -28,7 +28,7 @@ object-oriented language.
 % \end{figure}
 % In this type system, \<@C> is a subtype of \<@A> as well as \<@B> and types \<@A> and \<@B> are incomparable.
 % The type checker now performs additional type checking (similar to javac's type checking) with respect to this type hierarchy
-% and reports any violations. The snippet in Figure~\ref{code-invalid1} would result in an error at the assignment statements:
+% and reports any violations. The snippet in \cref{code-invalid1} would result in an error at the assignment statements:
 % \begin{figure}
 %     \begin{verbatim}
 %     @A int x; @B int y; @C int z;
@@ -41,7 +41,7 @@ object-oriented language.
 % 
 % %Method overriding and example
 % For method overriding, the usual rules apply for parameters and arguments i.e covariant subtyping for parameters
-% and contravariant subtyping for return types. Consider the example in Figure~\ref{code-invalid2} where method \<foo> of \<class X> is overridden
+% and contravariant subtyping for return types. Consider the example in \cref{code-invalid2} where method \<foo> of \<class X> is overridden
 % in \<class Y>.
 % \begin{figure}
 %     \begin{verbatim}
@@ -77,12 +77,15 @@ In a type system,
 a \textit{type} represents a set of values.  It abstracts or restricts the
 set of possible run-time values that an expression may evaluate to.
 A programming language provides \emph{basetypes}, such as \<int>.
-A \textit{type qualifier} on a \textit{type} adds additional constraints;
+A \textit{type qualifier} on a basetype adds additional constraints;
 that is, it reduces the size of the set of values.
-In Java, a type qualifier is written as a type annotation (which has a leading \<@>), as in
-\<@Positive int>.
-A type checker can verify the correctness of a \textit{type} via subtyping
-rules and dataflow analysis.
+An example type qualifier is \<Positive>,\todo{should all type qualifiers
+  be lowercase in this section??} and a type (which combines a qualifier
+anda basetype) is \<Positive int>.
+A polymorphic type such as \<List> can be instantiated by a type argument,
+as in \ptype{List}{Positive int}.
+
+A type checker verifies the types written in a program.
 
 \begin{figure}
     \bigskip
@@ -121,7 +124,7 @@ rules and dataflow analysis.
     
     \caption{Type checking rules.  $\sqsubseteq$ is overloaded for classes,
     basetypes, type qualifiers, and types.}
-    \label{typecheck-rules}
+    \label{fig:typecheck-rules}
 \end{figure}
 
 
@@ -132,12 +135,12 @@ rules and dataflow analysis.
         \includegraphics[scale=0.5]{determinism}
     \end{center}
     \caption{Determinism type qualifier hierarchy}
-    \label{fig-determinism-hierarchy}
+    \label{fig:determinism-hierarchy}
 \todo{Drop the at-signs (@).  The text is weirdly small for the box.
   Probably just redraw this.}
 \end{wrapfigure}
 
-The core of the determinism type system is the following type qualifiers (see Figure~\ref{fig-determinism-hierarchy}):
+The core of the determinism type system is the following type qualifiers:
 %\todo{introduce just @Det and @NonDet first, and then @OrderNonDet after polymorphism.}
 \begin{itemize}
     \item \<NonDet> indicates
@@ -150,6 +153,7 @@ The core of the determinism type system is the following type qualifiers (see Fi
     executions; for a collection, iteration also yields the values in the same
     order.
 \end{itemize}
+\Cref{fig:typecheck-rules,fig:determinism-hierarchy} show their subtyping relationship.
 
 \<OrderNonDet> may only be written on collections and maps.  Our implementation
 handles array types, and any class (including user-defined classes) that
@@ -166,7 +170,7 @@ collection, a map may be \<Det>, \<OrderNonDet>, or \<NonDet>.  (In Java,
 can.\todo{forward reference?})
 
 
-In Figure~\ref{code-determinism}, we present some of the JDK methods that we have annotated with our determinism types and give examples of
+In \cref{code-determinism}, we present some of the JDK methods that we have annotated with our determinism types and give examples of
 client code that would produce errors at compile time.
 \begin{figure}
     \begin{verbatim}
@@ -257,7 +261,7 @@ client code that would produce errors at compile time.
   \label{type-validity}
 \end{figure}
 
-Figure~\ref{type-validity} shows the type validity\todo{The caption says
+\Cref{type-validity} shows the type validity\todo{The caption says
   ``type well formedness''.  Choose one term and use it consistently
   throughout.}
 rules of our type system. A type $\tau$ is represented as $\kappa \ \beta$
@@ -268,9 +272,9 @@ can be written on any Java basetype.\todo{As noted in figure caption, that's
   not true, in some contexts such as a type argument.}
 
 The determinism type qualifier on a collection must be a supertype or equal to
-its element type qualifier (Rule $\textsc{ordernondet collection}$ in Figure~\ref{fig-determinism-collections}).
+its element type qualifier (Rule $\textsc{ordernondet collection}$ in \cref{fig-determinism-collections}).
 If the Collection is \<NonDet>, then the type argument may not be
-\<Det> or \<OrderNonDet> (Rule $\textsc{nondet collection}$ in Figure~\ref{type-validity}). Although such types could exist, they are
+\<Det> or \<OrderNonDet> (Rule $\textsc{nondet collection}$ in \cref{type-validity}). Although such types could exist, they are
 disallowed to prevent the following bug:
 
 \begin{verbatim}
@@ -452,7 +456,7 @@ The semantics of these variants are as follows:
 The modifiers $\uparrow$ and $\downarrow$ are indicative of the subtyping relationship of \<OrderNonDet> with \<NonDet> and \<Det> respectively
 in the determinism type hierarchy.
 
-Figure~\ref{fig-poly-resolution} presents the rule for type checking of methods annotated with \<PolyDet> or its variants.
+\Cref{fig-poly-resolution} presents the rule for type checking of methods annotated with \<PolyDet> or its variants.
 A polymorphic method type checks if every instantiation of \<PolyDet> type checks. If this method has \<PolyDet>$\uparrow$ or \<PolyDet>$\downarrow$
 in its signature then the instantiation of \<PolyDet> at that location gets replaced by the appropriate type as shown in Table~\ref{tab-poly-resolutions}.
 
@@ -576,7 +580,7 @@ all local variables that are collections to reduce false positives.
 
 \TheDeterminismChecker has additional type refinement rules for the sorting
 methods such as \<List.sort>, \<Collections.sort>, and \<Arrays.sort>:
- as shown in Figure~\ref{fig-sorting}. 
+ as shown in \cref{fig-sorting}.
 \begin{figure}
 %     $\infer[\textsc{list sort}]{\Gamma \vdash x : \|Det \ List|\angles{\|Det| \ \beta}}{\Gamma \vdash x : \|OrderNonDet \ List|\angles{\|Det| \ \beta} & \|x.sort()|}$
 %     
@@ -592,7 +596,7 @@ methods such as \<List.sort>, \<Collections.sort>, and \<Arrays.sort>:
     \label{fig-sorting}
 \end{figure}
 \TheDeterminismChecker type refines a receiver of type \codeid{OrderNonDet List} to a \codeid{Det List} if all the
-type argument of this \codeid{List} have the type qualifier \codeid{Det} (Rule LIST SORT in Figure~\ref{fig-sorting}).
+type argument of this \codeid{List} have the type qualifier \codeid{Det} (Rule LIST SORT in \cref{fig-sorting}).
 As per these rules, if \codeid{sort()} is called on a receiver of type \codeid{OrderNonDet List<Det Set<Det String>>}, it will
 be type refined to \codeid{Det List<Det Set<Det String>>}. However a receiver of type \codeid{OrderNonDet List<OrderNonDet Set<Det String>>} will not be type refined.
 
@@ -663,8 +667,8 @@ We noticed the following properties with respect to determinism regarding the mo
 \end{itemize}
 
 We prohibit the creation of a \codeid{Det HashMap} or an \codeid{OrderNonDet TreeMap} in our determinism checker.
-Figure~\ref{fig-creation-rules} formalizes these rules. Similar constraints apply to \<HashSet>s and \<TreeSet>s which are
-also expressed by the last two rules of Figure~\ref{fig-creation-rules}.
+\Cref{fig-creation-rules} formalizes these rules. Similar constraints apply to \<HashSet>s and \<TreeSet>s which are
+also expressed by the last two rules of \cref{fig-creation-rules}.
 
 \begin{figure}
     $\infer[\textsc{hashmap creation}]{\|new \ \kappa\ HashMap()|}{\kappa = \|OrderDet/NonDet|}$
@@ -693,7 +697,7 @@ We annotated the \codeid{equals()} method of the \<Set> class in the JDK as
 \begin{verbatim}
 PolyDet$\uparrow$ boolean equals(PolyDet Set<E> this, PolyDet Object o)
 \end{verbatim}
-While this is sound, it is imprecise in the case of \codeid{OrderNonDet Sets}. We added the following rule shown in Figure~\ref{fig-precision-rules} to our checker to improve precision.
+While this is sound, it is imprecise in the case of \codeid{OrderNonDet Sets}. We added the following rule shown in \cref{fig-precision-rules} to our checker to improve precision.
 \begin{figure}
     \todo{add line break}
     $\infer[\textsc{set precision}]{\Gamma \vdash \|z : Det|}{\Gamma \vdash \|x| : \|OrderNonDet| \ \|Set|\angles{ \kappa_{x} \ \beta_{x}}, \|y| : \|OrderNonDet| \ \|Set|\angles{ \kappa_{y} \ \beta_{y}} & \|z = x.equals(y)| & \angles{ \kappa_{x} \ \beta_{x}} \nsqsubseteq \angles{ \|OrderNonDet \ List| } & \angles{ \kappa_{y} \ \beta_{y}} \nsqsubseteq \angles{ \|OrderNonDet \ List| } }$
@@ -711,7 +715,7 @@ is sound but imprecise. This rule is careful enough to not annotate the return t
 receiver or the argument happens to be an \codeid{OrderNonDet List} (An order nondeterministic list does not provide any guarantee on the
 equality as it is dependent on the iteration order). 
 
-Similarly, the \codeid{get()} method in the \<Map> class is annotated with polymorphic qualifiers and the rule $\sc{\|MAP \ PRECISION|}$ in Figure~\ref{fig-precision-rules} improves precision for \<OrderNonDet> receivers.
+Similarly, the \codeid{get()} method in the \<Map> class is annotated with polymorphic qualifiers and the rule $\sc{\|MAP \ PRECISION|}$ in \cref{fig-precision-rules} improves precision for \<OrderNonDet> receivers.
 
 \codeid{System.getProperty()} returns a \<NonDet> type since we can't provide any determinism guarantees for
 executions across machines. However, we make exceptions when the argument to this method is one of 

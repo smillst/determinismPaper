@@ -63,9 +63,8 @@
 \usepackage{fancyvrb}
 
 \usepackage{color}
-%% Comment out one of these two definitions.
-% \newcommand{\todo}[1]{\relax}
-\newcommand{\todo}[1]{{\color{red}\bfseries [[#1]]}}
+
+\usepackage{cleveref}
 
 \input{macros.tex}
 
@@ -146,6 +145,10 @@
 %% Note: \begin{abstract}...\end{abstract} environment must come
 %% before \maketitle command
 \begin{abstract}
+\todo{The title ``Making Sequential Programs Deterministic'' is misleading
+  because our tool doesn't transform programs, though it does help
+  programmers transform programs.}
+
 \todo{Text of abstract \ldots.}
 \end{abstract}
 
@@ -185,6 +188,7 @@
 
 \input{introduction.tex}
 \input{design.tex}
+\input{java-design.tex}
 \input{experiments.tex}
 
 
