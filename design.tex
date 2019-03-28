@@ -308,7 +308,7 @@ Det         \lptype{List}{OrderNonDet \lptype{Set}{...}}
 \smallskip
 
 
- Although such types could exist, they are
+ Although \<NonDet> collections containing \<Det> or \<OrderNonDet> elements could exist, they are
 disallowed to prevent the following bug:
 
 \begin{verbatim}
@@ -344,7 +344,34 @@ A collection or map annotated as \<OrderNonDet> has the following properties:
     that are annotated as \<Det> as they do not depend on the iteration order. 
 \end{enumerate}
 
+\begin{figure}
+    $\infer[\rulename{iteration}]
+    {\Gamma \vdash \|y| : \|OrderNonDet\ Iterator|\angles{\tau}}
+    {\Gamma \vdash \|x| : \|OrderNonDet \ C\angles{\tau}|
+    & C \sqsubseteq \|Collection|
+    & \|y = C.iterator()|
+    & \wellformed{\tau}
+    }$
 
+    \bigskip
+    
+    $\infer[\rulename{next element}]
+    {\Gamma \vdash \|z| : \|NonDet \ \beta|}
+    {\Gamma \vdash \|y| : \|OrderNonDet \ Iterator\angles{\kappa \ \beta}|
+        & \|z = y.next()|
+        & \wellformed{\kappa \ \beta}
+    }$
+    \bigskip
+    
+    $\infer[\rulename{hasnext element}]
+    {\Gamma \vdash \|z| : \|Det \ \beta|}
+    {\Gamma \vdash \|y| : \|OrderNonDet \ Iterator\angles{\kappa \ \beta}|
+        & \|z = y.hasNext()|
+        & \wellformed{\kappa \ \beta}
+    }$
+\caption{\<OrderNonDet> Collection rules}
+\label{fig-ordernondet-rules}
+\end{figure}
 
 \subsection{Polymorphism}\label{polymorphism}
 
@@ -392,7 +419,6 @@ polymorphism on methods but not on classes.
 Therefore, \<@PolyDet> may be written in methods (signatures and bodies)
 but not on fields.
 \end{itemize}
-
 
 
 
