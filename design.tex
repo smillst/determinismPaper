@@ -88,7 +88,8 @@ rules and dataflow analysis.
     
     \bigskip
     
-    $\infer[\textsc{invariant type param}]{\|method|(\overline{a_i}) : \tau_r}{\tau_r \  \|method|(\overline{\tau_i \  p_i}) & \overline{a_i : \tau_i}}$
+    $\infer[\textsc{invariant type param}]{C_1\angles{\overline{\tau_i}}
+      \sqsubseteq C_2\angles{\overline{\tau_i}}}{C_1 \sqsubseteq C_2}$
     
     \caption{A sampling of standard type checking rules.  Most standard rules are omitted
     for brevity.  $\sqsubseteq$ is overloaded for classes and types.}
@@ -110,8 +111,7 @@ rules and dataflow analysis.
     
     
     \caption{Type checking rules.  $\sqsubseteq$ is overloaded for classes,
-    basetypes, type qualifiers, and types.  Most standard rules are omitted
-    for brevity.}
+    basetypes, type qualifiers, and types.}
     \label{typecheck-rules}
 \end{figure}
 
