@@ -349,18 +349,33 @@ polymorphism, basetype polymorphism, and qualifier polymorphism.
 \todo{Give an example for each.}
 \begin{itemize}
 \item
-In \theDeterminismCheckerimplementation,
-Type polymorphism is handled by Java's generics mechanism, which
+In \theDeterminismCheckerImplementation,
+type polymorphism is handled by Java's generics mechanism, which
 \theDeterminismChecker fully supports, including class and method generics,
 inference, etc.
+Given the Java declaration
+\begin{Verbatim}
+<T> T identity(T arg) { return arg; }
+\end{Verbatim}
+the type of \<identity(arg)> is the same as the type of
+\<arg>, and a programmer can write a type such as \codeid{List<@NonDet
+  Integer>} (but see below for details about collections).
 \item
 Basetype polymorphism is enabled by writing a type qualifier on a use of a
-type variable.
+type variable, which overrides the type qualifier at the instantiation
+site.
+For example, a \<choose> operation on sets could be defined in Java as
+\begin{Verbatim}
+class ChooseableSet<T> implements Set<T> {
+  // return an arbitrary element from the set
+  @NonDet T choose();
+}
+\end{Verbatim}
 \item
 Java does not provide a syntax that can be used for qualifier polymorphism,
 so we use a special type qualifier name, \<@PolyDet>.
-A qualifier-polymorphic method \<m> with signature $\forall \kappa . \kappa \<int> \times \<Det boolean> \rightarrow
-\kappa \<String>$ would be written in our dialect of Java as
+A qualifier-polymorphic method \<m> with signature $\forall \kappa . \kappa\ \<int> \times \<Det boolean> \rightarrow
+\kappa\ \<String>$ would be written in our dialect of Java as
 \begin{Verbatim}
 @PolyDet String m(@PolyDet int, @Det boolean)
 \end{Verbatim}
@@ -376,26 +391,24 @@ but not on fields.
 
 
 
-The underlying checker-framework on which we build \theDeterminismChecker has support for
-polymorphic qualifiers. When a user writes a polymorphic qualifier on a method signature or a type parameter,
-it indicates that it could resolve to any type in the type system depending on how it is used.
+When a user writes a polymorphic qualifier on a method signature or a type parameter,
+it indicates that it could resolve\todo{Should all occurrences of ``resolve'' be ``can be instantiated''} to any type in the type system depending on how it is used.
 In \theDeterminismChecker, we define a polymorphic qualifier \<PolyDet>.
 One of the most common locations for a polymorphic qualifier is at a method signature.
-Consider the following method declaration annotated with polymorphic qualifiers:
+Consider the following declaration of addition:
 \begin{verbatim}
-PolyDet int foo(PolyDet String param1, PolyDet boolean param2) { }
+@PolyDet int plus(@PolyDet int a, @PolyDet int b) { return a+b; }
 \end{verbatim}
 \todo{It has the standard meaning.  There are two ways to interpret this.}
 There are two valid instantiations for this declaration:
 \begin{enumerate}
-    \item @NonDet int foo(@NonDet String param1, @NonDet boolean param2) { }
-    \item @Det int foo(@Det String param1, @Det boolean param2) { }
+    \item @NonDet int plus(@NonDet int a, @NonDet int b) { return a+b; }
+    \item @Det int plus(@Det int a, @Det int b) { return a+b; }
 \end{enumerate}
 This indicates that method \<foo> can be called with arguments having any of the \codeid{Det or NonDet} type qualifiers.
 %   (\<@OrderNonDet> is not allowed because it is invalid on primitive types).
  \<PolyDet> resolves to the least upper bound of
-the actual types on arguments. For instance, if this method is called as \codeid{foo(@Det String arg1, @NonDet boolean arg2)}, the 
-checker framework resolves the method declaration as \codeid{@NonDet int foo(@NonDet String param1, @NonDet boolean param2)}
+the actual types on arguments. For instance, if this method is called as \codeid{foo(@Det String arg1, @NonDet boolean arg2)}, \theDeterminismChecker resolves the method declaration as \codeid{@NonDet int foo(@NonDet String param1, @NonDet boolean param2)}
 causing the return type to have the type qualifier \<NonDet>.
 
 \subsection{Polymorphism rules for collections}\label{polymorphism-up-down}
@@ -407,8 +420,8 @@ that isn't a collection.
 As a consequence, resolution of polymorphic type qualifiers at method signatures could have undesirable effects.
 Suppose a method declaration is annotated as \codeid{PolyDet int size(PolyDet List<T> list)}. Invoking this method
 with an argument of type \codeid{OrderNonDet List<Det String>} will result in \<PolyDet> getting resolved to \<OrderNonDet> which is invalid
-on the return type \<int>. We circumvent this scenario by introducing two variants to the \<PolyDet> qualifier, \<PolyDet$\uparrow$>
-and \<PolyDet$\downarrow$>. 
+on the return type \<int>. We circumvent this scenario by introducing two variants to the \<PolyDet> qualifier, \PolyDetUp
+and \PolyDetDown. 
 
 % Not true: We allow Poly(up) and down at every location where Poly is allowed.
 %Valid locations for \codeid{@PolyDet("up")} and  \codeid{@PolyDet("down")}:
@@ -424,8 +437,8 @@ and \<PolyDet$\downarrow$>.
 
 The semantics of these variants are as follows:
 \begin{itemize}
-    \item \<PolyDet$\uparrow$>: Same as \<PolyDet> except when it resolves to \<OrderNonDet>, it is replaced with \<NonDet>.
-    \item \<PolyDet$\downarrow$>: Same as \<PolyDet> except when it resolves to \<OrderNonDet>, it is replaced with \<Det>.
+    \item \PolyDetUp: Same as \<PolyDet> except when it resolves to \<OrderNonDet>, it is replaced with \<NonDet>.
+    \item \PolyDetDown: Same as \<PolyDet> except when it resolves to \<OrderNonDet>, it is replaced with \<Det>.
 \end{itemize} 
 The modifiers $\uparrow$ and $\downarrow$ are indicative of the subtyping relationship of \<OrderNonDet> with \<NonDet> and \<Det> respectively
 in the determinism type hierarchy.
@@ -444,13 +457,17 @@ Annotating \<size()> as \codeid{PolyDet$\downarrow$ int size(PolyDet List<T> lis
 \begin{figure}
     $\infer[\textsc{poly resolution}]{\pi_r \ \beta_r\ \<m>(\overline{\pi_i \ \beta_i})\{\ \}}{\forall \kappa \in \{\|NonDet, OrderNonDet, Det|\} : \kappa \ \beta_r\ \<m>(\overline{K \ \beta_i})\{\ \} & \pi_r, \pi_i \in \{\|PolyDet|, \|PolyDet|\uparrow, \|PolyDet|\downarrow    \}}$
     \caption{Polymorphic resolution rule}
+    \todo{I'm not sure what this is doing.  What code does it reject?}
+    \todo{This suggests that \PolyDetUp is a qualifier, rather than
+      $\uparrow$ being an operator on qualifiers.  We should clarify which
+      it is.}
     \label{fig-poly-resolution}
 \end{figure}
 
 \begin{table}[]
     \begin{tabular}{|l|l|l|}
         \hline
-        \textbf{\<PolyDet>} & \textbf{\<PolyDet$\uparrow$>} & \textbf{\<PolyDet$\downarrow$>} \\ \hline
+        \textbf{\<PolyDet>} & \textbf{\PolyDetUp} & \textbf{\PolyDetDown} \\ \hline
         \<NonDet> & \<NonDet> &  \<NonDet>\\ \hline
         \<OrderNonDet> & \<NonDet> &  \<Det>\\ \hline
         \<Det> & \<Det> &  \<Det>\\ \hline
@@ -484,8 +501,14 @@ will result in the method declaration being resolved as \codeid{public void add(
 irrespective of the type of \<index>, thereby preventing undesired side-effects.
 
 \subsection{Discussion on defaulting rules}\label{defaulting}
-Every type system in the Checker Framework must define a default type qualifier. This qualifier will be applied
-to every location that isn't explicitly annotated. In \theDeterminismChecker, we chose \<PolyDet> as the default for all 
+
+\TheDeterminismChecker applies a default qualifier at each unannotated type
+use (except uses of type variables, which already stand for a type that was
+defaulted at the instantiation site).
+This does not change the expressivity of the type system; it merely makes
+the system more convenient to use.
+
+In \theDeterminismChecker, we chose \<PolyDet> as the default for all 
 method parameters and return types including constructors.
 The rationale for this design choice was to not make our type checker too restrictive by making everything \<Det>.  This implies that
 \theDeterminismChecker still allows some non-determinism as long as it doesn't break any determinism specifications explicitly written by the programmer.
@@ -505,7 +528,7 @@ only when the returned value is used in a way that breaks any deterministic spec
 breaks our determinism guarantees).
 
 \subsection{Dataflow analysis and type refinement}\label{dataflow}
-The checker framework performs automatic type inference for local types within method bodies.
+\TheDeterminismChecker performs automatic type inference for local types within method bodies.
 It also performs dataflow analysis and refines the types of these locals, thereby reducing the qualifier burden 
 on the programmer. Consider the example below:
 \begin{verbatim}
@@ -525,7 +548,7 @@ void foo(@NonDet Object x, @Det Object y) {
 \end{verbatim}
 \theDeterminismChecker reports a warning at the second assignment statement of \codeid{foo}. Type refinement only applies to locals. Refining non-locals can result in side effects making the analysis unsound.
 
-With the above rules, the checker framework will automatically annotate a local collection with type \<NonDet> and its
+With the above rules, \theDeterminismChecker will automatically annotate a local collection with type \<NonDet> and its
 type arguments will get the type qualifier \<Det>. For example, a locally declared \codeid{List} of \codeid{Strings} will be automatically annotated
 as \codeid{NonDet List<Det String>}. Recall from~\ref{collection-rules} that \theDeterminismChecker does not allow this type on
 any collection. While this is still sound, it will result in \theDeterminismChecker reporting a lot of errors because every locally declared 
