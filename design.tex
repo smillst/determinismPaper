@@ -337,9 +337,10 @@ If both arguments are \<Det>, the result is $\tau$ as usual.
 
 
 A collection or map annotated as \<OrderNonDet> has the following properties:
-\todo{Write these as type rules.}
+%\todo{Write these as type rules.}
 \begin{enumerate}
-    \item The individual elements extracted by iterating over the collection get the type \<NonDet>.
+    \item The individual elements extracted by iterating over the collection get the type \<NonDet> (Rules \rulename{iteration} and \rulename{next element} in Figure~\ref{fig-ordernondet-rules}). 
+    Rule \rulename{hasnext element} states that querying if the iterator of an \<OrderNonDet Collection> \<hasNext()> will result in a \<Det boolean>.
     \item Accessing properties such as \<size()> or querying if the collection \<isEmpty()> will return types
     that are annotated as \<Det> as they do not depend on the iteration order. 
 \end{enumerate}
@@ -361,13 +362,24 @@ A collection or map annotated as \<OrderNonDet> has the following properties:
         & \|z = y.next()|
         & \wellformed{\kappa \ \beta}
     }$
+
     \bigskip
     
     $\infer[\rulename{hasnext element}]
-    {\Gamma \vdash \|z| : \|Det \ \beta|}
-    {\Gamma \vdash \|y| : \|OrderNonDet \ Iterator\angles{\kappa \ \beta}|
+    {\Gamma \vdash \|z| : \|Det \ boolean|}
+    {\Gamma \vdash \|y| : \|OrderNonDet \ Iterator\angles{\tau}|
         & \|z = y.hasNext()|
-        & \wellformed{\kappa \ \beta}
+        & \wellformed{\tau}
+    }$
+
+    \bigskip
+
+    $\infer[\rulename{size}]
+    {\Gamma \vdash \|y| : \|Det \ int|}
+    {\Gamma \vdash \|x| : \|OrderNonDet \ C\angles{\tau}|
+        & C \sqsubseteq \|Collection|
+        & \|y = x.size()|
+        & \wellformed{\tau}
     }$
 \caption{\<OrderNonDet> Collection rules}
 \label{fig-ordernondet-rules}
