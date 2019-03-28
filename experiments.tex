@@ -18,6 +18,7 @@ Discussion of results:
     \item Example for HashMap.entrySet() and show annotations.
     \item qualitative comparison: orthogonal techniques (reporting tests vs reporting source locations).
     \item From NonDex paper: "manually inspecting these failures was rather challenging"
+    \item Note: P7\_1 and P18: error in test case, so we added the same test to our microbenchmarks
 \end{itemize}
 
 \begin{table}[]
@@ -28,7 +29,7 @@ Discussion of results:
         P2 & MI &  &  &  &  \\
         P3 & Yes & DateTimeZone.java: [731,27] &  return type incompatible&  &  \\ 
         P4 & MI &  &  &  &  \\ 
-        P5 & src &  &  &  &  \\ 
+        P5 & visualee &  &  &  &  \\ 
         P5 & src &  &  &  &  \\ 
         P6 & MI &  &  &  &  \\ 
         P6 & MI &  &  &  &  \\
@@ -55,7 +56,7 @@ Discussion of results:
         P15 & MI &  &  &  &  \\
         P16 & Yes & MethodSorter.java: [56,61]  & assignment type incompatible &  &  \\
         P17 & Yes &  &  &  &  \\
-        P18 & src &  &  &  &  \\
+        P18 & slf4j &  &  &  &  \\
         P19 & MI &  &  &  &  \\
         P19 & MI &  &  &  &  \\
         P19 & MI &  &  &  &  \\
