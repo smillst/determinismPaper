@@ -77,17 +77,25 @@ rules and dataflow analysis.
 
 \begin{figure}
     \bigskip
-    
+
     $\infer{\tau_1 \sqsubseteq \tau_3}{\tau_1 \sqsubseteq \tau_2 \quad \tau_2 \sqsubseteq \tau_3}
     \quad\quad
     \infer[\textsc{subtyping}]{\Gamma \vdash x : \tau_2}{\Gamma \vdash x : \tau_1 & \tau_1 \sqsubseteq \tau_2}$
     
     \bigskip
-
-    $\infer{\kappa_1 \beta \sqsubseteq \kappa_2 \beta}{\kappa_1 \sqsubseteq \kappa_2}
-    \quad\quad
-    \infer{\kappa \beta_1 \sqsubseteq \kappa \beta_2}{\beta_1 \sqsubseteq \beta_2}$
     
+    $\infer[\textsc{method call}]{\|method|(\overline{a_i}) : \tau_r}{\tau_r \  \|method|(\overline{\tau_i \  p_i}) & \overline{a_i : \tau_i}}$
+    
+    \bigskip
+    
+    $\infer[\textsc{invariant type param}]{\|method|(\overline{a_i}) : \tau_r}{\tau_r \  \|method|(\overline{\tau_i \  p_i}) & \overline{a_i : \tau_i}}$
+    
+    \caption{A sampling of standard type checking rules.  Most standard rules are omitted
+    for brevity.  $\sqsubseteq$ is overloaded for classes and types.}
+    \label{typecheck-rules}
+\end{figure}
+
+\begin{figure}
     \bigskip
 
     $\infer{\Det \sqsubseteq \OrderNonDet}{}
@@ -95,10 +103,15 @@ rules and dataflow analysis.
     \infer{\OrderNonDet \sqsubseteq \NonDet}{}$
     
     \bigskip
+
+    $\infer{\kappa_1 \beta \sqsubseteq \kappa_2 \beta}{\kappa_1 \sqsubseteq \kappa_2}
+    \quad\quad
+    \infer{\kappa \beta_1 \sqsubseteq \kappa \beta_2}{\beta_1 \sqsubseteq \beta_2}$
     
-    $\infer[\textsc{method call}]{\|method|(\overline{a_i}) : \tau_r}{\tau_r \  \|method|(\overline{\tau_i \  p_i}) & \overline{a_i : \tau_i}}$
     
-    \caption{Type checking rules}
+    \caption{Type checking rules.  $\sqsubseteq$ is overloaded for classes,
+    basetypes, type qualifiers, and types.  Most standard rules are omitted
+    for brevity.}
     \label{typecheck-rules}
 \end{figure}
 
@@ -121,8 +134,8 @@ The core of the determinism type system is the following type qualifiers (see Fi
     \item \<NonDet> indicates
     that the expression might have different values in two different executions.
     \item \<OrderNonDet> indicates that the expression is a collection or
-      map (dictionary or associative array) that
-      will have the same elements in every execution, but in a possibly different order.
+      map that contains the same elements in every execution, but possibly
+      in a different order.
     \item \<Det> indicates that
     the expression evaluates to the same value (with respect to \<.equals()>) in all
     executions; for a collection, iteration also yields the values in the same
@@ -137,6 +150,7 @@ the semantics and rules are similar even though the syntax varies, this
 paper uses the term ``collection'' and the type \<Collection> to represent
 all these types.
 
+A map is a dictionary or associative array, such as a hash table.
 Our type system largely treats a map as a collection of key--value pairs.  Like any
 collection, a map may be \<Det>, \<OrderNonDet>, or \<NonDet>.
 
@@ -182,11 +196,11 @@ client code that would produce errors at compile time.
     
     \bigskip
     
-    $\infer[\textsc{ordernondet collection}]{\wellformed{\kappa_c \  \beta_c \langle\kappa_e \ \beta_e\rangle}}{\kappa_c : \|OrderNonDet/Det| & \kappa_e \sqsubseteq \kappa_c & \beta_c \sqsubseteq \<Collection>}$
+    $\infer[\textsc{ordernondet collection}]{\wellformed{\kappa_c \  \beta_c \angles{\kappa_e \ \beta_e}}}{\kappa_c : \|OrderNonDet/Det| & \kappa_e \sqsubseteq \kappa_c & \beta_c \sqsubseteq \<Collection>}$
     
     \bigskip
     
-    $\infer[\textsc{nondet collection}]{\wellformed{\|NonDet| \ \beta_c\langle\|NonDet| \ \beta_e\rangle}}{\beta_c \sqsubseteq \<Collection>}$
+    $\infer[\textsc{nondet collection}]{\wellformed{\|NonDet| \ \beta_c\angles{\|NonDet| \ \beta_e}}}{\beta_c \sqsubseteq \<Collection>}$
     
     \bigskip
     
@@ -198,11 +212,11 @@ client code that would produce errors at compile time.
 %     
 %     \bigskip
     
-    $\infer[\textsc{ordernondet map}]{\wellformed{\kappa_m \  \beta_m \langle\kappa_k \ \beta_k, \kappa_v \ \beta_v\rangle}}{\kappa_m: \|OrderNonDet/Det| & \kappa_k \sqsubseteq \kappa_m & \kappa_v \sqsubseteq \kappa_m & \beta_m \sqsubseteq \<Map>}$
+    $\infer[\textsc{ordernondet map}]{\wellformed{\kappa_m \  \beta_m \angles{\kappa_k \ \beta_k, \kappa_v \ \beta_v}}}{\kappa_m: \|OrderNonDet/Det| & \kappa_k \sqsubseteq \kappa_m & \kappa_v \sqsubseteq \kappa_m & \beta_m \sqsubseteq \<Map>}$
     
     \bigskip
     
-    $\infer[\textsc{nondet map}]{\wellformed{\|NonDet| \ \beta_m\langle\|NonDet| \ \beta_k, \|NonDet| \ \beta_v\rangle}}{\beta_m \sqsubseteq \<Map>}$
+    $\infer[\textsc{nondet map}]{\wellformed{\|NonDet| \ \beta_m\angles{\|NonDet| \ \beta_k, \|NonDet| \ \beta_v}}}{\beta_m \sqsubseteq \<Map>}$
     
     \caption{Type well formedness}
 \todo{The \textsc{any type} rule is not correct, because not every type is
@@ -219,7 +233,7 @@ client code that would produce errors at compile time.
   be an antecedent stating that $\|NonDet| \beta_e$ is well-formed, and
   for the ``ordernondet collection'' rule stating that $\kappa_e \beta_e$
   is well-formed.  Likewise, antecedents are needed for the map rules.
-  Otherwise, these rules permit construction of $\<Map>\langle\tau'\rangle$
+  Otherwise, these rules permit construction of $\<Map>\angles{\tau'}$
   where $\tau'$ is itself not well-defined.}
 
 \todo{``$\kappa : \|Det / NonDet|$'' should be ``$\kappa = \|Det /
@@ -493,11 +507,11 @@ all local variables that are collections to reduce false positives.
 methods such as \<List.sort>, \<Collections.sort>, and \<Arrays.sort>:
  as shown in Figure~\ref{fig-sorting}. 
 \begin{figure}
-%     $\infer[\textsc{list sort}]{\Gamma \vdash x : \|Det \ List|\langle\|Det| \ \beta\rangle}{\Gamma \vdash x : \|OrderNonDet \ List|\langle\|Det| \ \beta\rangle & \|x.sort()|}$
+%     $\infer[\textsc{list sort}]{\Gamma \vdash x : \|Det \ List|\angles{\|Det| \ \beta}}{\Gamma \vdash x : \|OrderNonDet \ List|\angles{\|Det| \ \beta} & \|x.sort()|}$
 %     
 %     \bigskip
     
-    $\infer[\textsc{sort}]{\Gamma \vdash x : \|Det \ List|\langle\|Det| \ \beta\rangle}{\Gamma \vdash x : \|OrderNonDet \ List|\langle\|Det| \ \beta\rangle & \|Collections.sort(x)|}$
+    $\infer[\textsc{sort}]{\Gamma \vdash x : \|Det \ List|\angles{\|Det| \ \beta}}{\Gamma \vdash x : \|OrderNonDet \ List|\angles{\|Det| \ \beta} & \|Collections.sort(x)|}$
     
 %     \bigskip
 %     
@@ -611,11 +625,11 @@ PolyDet$\uparrow$ boolean equals(PolyDet Set<E> this, PolyDet Object o)
 While this is sound, it is imprecise in the case of \codeid{OrderNonDet Sets}. We added the following rule shown in Figure~\ref{fig-precision-rules} to our checker to improve precision.
 \begin{figure}
     \todo{add line break}
-    $\infer[\textsc{set precision}]{\Gamma \vdash \|z : Det|}{\Gamma \vdash \|x| : \|OrderNonDet| \ \|Set|\langle \kappa_{x} \ \beta_{x}\rangle, \|y| : \|OrderNonDet| \ \|Set|\langle \kappa_{y} \ \beta_{y}\rangle & \|z = x.equals(y)| & \langle \kappa_{x} \ \beta_{x}\rangle \nsqsubseteq \langle \|OrderNonDet \ List| \rangle & \langle \kappa_{y} \ \beta_{y}\rangle \nsqsubseteq \langle \|OrderNonDet \ List| \rangle }$
+    $\infer[\textsc{set precision}]{\Gamma \vdash \|z : Det|}{\Gamma \vdash \|x| : \|OrderNonDet| \ \|Set|\angles{ \kappa_{x} \ \beta_{x}}, \|y| : \|OrderNonDet| \ \|Set|\angles{ \kappa_{y} \ \beta_{y}} & \|z = x.equals(y)| & \angles{ \kappa_{x} \ \beta_{x}} \nsqsubseteq \angles{ \|OrderNonDet \ List| } & \angles{ \kappa_{y} \ \beta_{y}} \nsqsubseteq \angles{ \|OrderNonDet \ List| } }$
     
     \bigskip
     
-    $\infer[\textsc{map precision}]{\Gamma \vdash \|z : Det|}{\Gamma \vdash \|x : OrderNonDet \ Map\langle Det \ \beta_k, \kappa_v\ \beta_v \rangle, y : Det \ \beta| & \|z = x.get(y)|}$
+    $\infer[\textsc{map precision}]{\Gamma \vdash \|z : Det|}{\Gamma \vdash \|x : OrderNonDet \ Map\angles{ Det \ \beta_k, \kappa_v\ \beta_v }, y : Det \ \beta| & \|z = x.get(y)|}$
     
     \caption{Improving precision}
     \label{fig-precision-rules}
