@@ -65,14 +65,15 @@
 %  how it is represented in Java, and how to read a type \<@Q BaseType>.}
 
 In a type system,
-a \textit{type} stands for a set of values.  It abstracts or restricts the
+a \textit{type} represents a set of values.  It abstracts or restricts the
 set of possible run-time values that an expression may evaluate to.
 A programming language provides \emph{basetypes}, such as \<int>.
 A \textit{type qualifier} on a \textit{type} adds additional constraints;
 that is, it reduces the size of the set of values.
-A type checker can verify the correctness of this \textit{type} with its dataflow analysis and subtyping rules.
-In Java, a type qualifier is written as a type annotation with a leading \<@>, as in
+In Java, a type qualifier is written as a type annotation (which has a leading \<@>), as in
 \<@Positive int>.
+A type checker can verify the correctness of a \textit{type} via subtyping
+rules and dataflow analysis.
 
 \begin{figure}
     \bigskip
