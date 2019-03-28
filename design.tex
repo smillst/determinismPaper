@@ -127,6 +127,16 @@ A type checker verifies the types written in a program.
     \label{fig:typecheck-rules}
 \end{figure}
 
+\todo{Define the Greek.  For example:
+
+  A type $\tau = \kappa\ \beta$ consists of a qualifier and a basetype.
+  Neither may be omitted.
+
+  $\beta$ is a type that lacks its type qualifier, but has type qualifiers
+  on any type arguments:
+  $\beta = C | C\angles{\overline{\tau}}$.
+  }
+
 
 \subsection{Determinism types}\label{type-hierarchy}
 
@@ -189,7 +199,9 @@ where $\kappa$ is a type qualifier (that is, \<NonDet>, \<OrderNonDet>, or
     
     \bigskip
     
-    $\infer[\rulename{nondet collection}]{\wellformed{\|NonDet| \ \beta_c\angles{\|NonDet| \ \beta_e}}}{\beta_c \sqsubseteq \<Collection>}$
+    $\infer[\rulename{nondet collection}]
+    {\wellformed{\|NonDet| \ C\angles{\|NonDet| \ \beta_e}}}
+    {C \sqsubseteq \<Collection> & \wellformed{\|NonDet| \ \beta_e}}$
     
     \bigskip
     
@@ -213,12 +225,11 @@ where $\kappa$ is a type qualifier (that is, \<NonDet>, \<OrderNonDet>, or
     
     \bigskip
     
-    $\infer[\rulename{nondet map}]{\wellformed{\|NonDet| \ \beta_m\angles{\|NonDet| \ \beta_k, \|NonDet| \ \beta_v}}}{\beta_m \sqsubseteq \<Map>}$
+    $\infer[\rulename{nondet map}]
+    {\wellformed{\|NonDet| \ \beta_m\angles{\|NonDet| \ \beta_k, \|NonDet| \ \beta_v}}}
+    {\beta_m \sqsubseteq \<Map> & \wellformed{\|NonDet| \ \beta_k} & \wellformed{\|NonDet| \ \beta_v}}$
     
     \caption{Type well formedness}
-\todo{The \rulename{noncollection} rule is not correct, because not every type is
-  well-formed.  It needs an antecedent stating that $\beta$ is not a
-  collection or map.}
 
 \todo{\todo{I think this will be OK, by redefining $\beta$.}
   The collection rules do not permit nested collections; similarly, the
@@ -339,6 +350,7 @@ A collection or map annotated as \<OrderNonDet> has the following properties:
 \OurTypeSystem supports three types of polymorphism:  type
 polymorphism, basetype polymorphism, and qualifier polymorphism.
 These apply to both classes and methods.
+\todo{Greekify the following}
 \begin{itemize}
 \item
 In \theDeterminismCheckerImplementation,
