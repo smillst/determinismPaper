@@ -397,7 +397,9 @@ but not on fields.
 
 
 When a user writes a polymorphic qualifier on a method signature or a type parameter,
-it indicates that it could resolve\todo{Should all occurrences of ``resolve'' be ``can be instantiated''} to any type in the type system depending on how it is used.
+it indicates that it could be instantiated
+%\todo{Should all occurrences of ``resolve'' be ``can be instantiated''} 
+to any type in the type system depending on how it is used.
 In \theDeterminismChecker, we define a polymorphic qualifier \<PolyDet>.
 One of the most common locations for a polymorphic qualifier is at a method signature.
 Consider the following declaration of addition:
@@ -412,8 +414,8 @@ There are two valid instantiations for this declaration:
 \end{Verbatim}
 This indicates that method \<foo> can be called with arguments having any of the \codeid{Det or NonDet} type qualifiers.
 %   (\<@OrderNonDet> is not allowed because it is invalid on primitive types).
- \<PolyDet> resolves to the least upper bound of
-the actual types on arguments. For instance, if this method is called as \codeid{foo(@Det String arg1, @NonDet boolean arg2)}, \theDeterminismChecker resolves the method declaration as \codeid{@NonDet int foo(@NonDet String param1, @NonDet boolean param2)}
+ \<PolyDet> gets instantiated to the least upper bound of
+the actual types on arguments. For instance, if this method is called as \codeid{foo(@Det String arg1, @NonDet boolean arg2)}, \theDeterminismChecker instantiates the method declaration as \codeid{@NonDet int foo(@NonDet String param1, @NonDet boolean param2)}
 causing the return type to have the type qualifier \<NonDet>.
 
 \subsection{Polymorphism rules for collections}\label{polymorphism-up-down}
@@ -424,7 +426,7 @@ Recall that \theDeterminismChecker does not permit \<OrderNonDet> on a type
 that isn't a collection.
 As a consequence, resolution of polymorphic type qualifiers at method signatures could have undesirable effects.
 Suppose a method declaration is annotated as \codeid{PolyDet int size(PolyDet List<T> list)}. Invoking this method
-with an argument of type \codeid{OrderNonDet List<Det String>} will result in \<PolyDet> getting resolved to \<OrderNonDet> which is invalid
+with an argument of type \codeid{OrderNonDet List<Det String>} will result in \<PolyDet> getting instantiated to \<OrderNonDet> which is invalid
 on the return type \<int>. We circumvent this scenario by introducing two variants to the \<PolyDet> qualifier, \PolyDetUp
 and \PolyDetDown. 
 
@@ -442,8 +444,8 @@ and \PolyDetDown.
 
 The semantics of these variants are as follows:
 \begin{itemize}
-    \item \PolyDetUp: Same as \<PolyDet> except when it resolves to \<OrderNonDet>, it is replaced with \<NonDet>.
-    \item \PolyDetDown: Same as \<PolyDet> except when it resolves to \<OrderNonDet>, it is replaced with \<Det>.
+    \item \PolyDetUp: Same as \<PolyDet> except when it is instantiated as \<OrderNonDet>, it is replaced with \<NonDet>.
+    \item \PolyDetDown: Same as \<PolyDet> except when it is instantiated as \<OrderNonDet>, it is replaced with \<Det>.
 \end{itemize} 
 The modifiers $\uparrow$ and $\downarrow$ are indicative of the subtyping relationship of \<OrderNonDet> with \<NonDet> and \<Det> respectively
 in the determinism type hierarchy.
@@ -502,7 +504,7 @@ type instantiations. This is especially useful in preventing methods from non-de
 of a deterministic receiver. To have this effect, the library method \<ArrayList.add> is annotated as:
 \codeid{public void add(PolyDet ArrayList<E> this, PolyDet("use") int index, E element)}.
 Since \<PolyDet("use")> has no effect on type instantiations, calling this method on a \<Det List>
-will result in the method declaration being resolved as \codeid{public void add(@Det ArrayList<E> this, @Det int index, E element)}
+will result in the method declaration being instantiated as \codeid{public void add(@Det ArrayList<E> this, @Det int index, E element)}
 irrespective of the type of \<index>, thereby preventing undesired side-effects.
 
 
@@ -676,7 +678,7 @@ While this is sound, it is imprecise in the case of \codeid{OrderNonDet Sets}. W
     \label{fig-precision-rules}
 \end{figure}
 According to this rule, if the \<Set> receiver has type \codeid{@OrderNonDet Set<@Det List} and the argument to the \codeid{equals()} method is
-also of the same type, the return type gets the qualifier \<Det>. Without this precision rule, the return type would have resolved to \<NonDet> which
+also of the same type, the return type gets the qualifier \<Det>. Without this precision rule, the return type would have been instantiated as \<NonDet> which
 is sound but imprecise. This rule is careful enough to not annotate the return type of \<equals()> as \<Det> if a type argument to either the
 receiver or the argument happens to be an \codeid{OrderNonDet List} (An order nondeterministic list does not provide any guarantee on the
 equality as it is dependent on the iteration order). 
