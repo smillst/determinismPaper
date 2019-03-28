@@ -509,18 +509,54 @@ Annotating \<size()> as \codeid{PolyDet$\downarrow$ int size(PolyDet List<T> lis
     \label{fig-poly-resolution}
 \end{figure}
 
-\begin{table}[]
-    \begin{tabular}{|l|l|l|}
-        \hline
-        \textbf{\<PolyDet>} & \textbf{\PolyDetUp} & \textbf{\PolyDetDown} \\ \hline
-        \<NonDet> & \<NonDet> &  \<NonDet>\\ \hline
-        \<OrderNonDet> & \<NonDet> &  \<Det>\\ \hline
-        \<Det> & \<Det> &  \<Det>\\ \hline
-    \end{tabular}
+%\begin{table}[]
+%    \begin{tabular}{|l|l|l|}
+%        \hline
+%        \textbf{\<PolyDet>} & \textbf{\PolyDetUp} & \textbf{\PolyDetDown} \\ \hline
+%        \<NonDet> & \<NonDet> &  \<NonDet>\\ \hline
+%        \<OrderNonDet> & \<NonDet> &  \<Det>\\ \hline
+%        \<Det> & \<Det> &  \<Det>\\ \hline
+%    \end{tabular}
+%\caption{Polymorphic resolution}
+%\todo{Write this as a rule rather than a table.}
+%\label{tab-poly-resolutions}
+%\end{table}
+
+\begin{figure}
+    $\infer[\rulename{ordernondet polyup}]
+    {\tau \uparrow \ = \|NonDet \ \beta|}
+    {\tau \ = \|OrderNonNonDet \ \beta|
+        & \wellformed{\tau}
+    }$
+
+    \bigskip
+
+    $\infer[\rulename{ordernondet polydown}]
+    {\tau \downarrow \ = \|Det \ \beta|}
+    {\tau \ = \|OrderNonNonDet \ \beta|
+        & \wellformed{\tau}
+    }$
+
+    \bigskip
+    
+    $\infer[\rulename{polyup}]
+    {\tau \uparrow \ = \kappa \ \beta}
+    {\tau \ =\kappa \ \beta
+        & \kappa \in \{\|Det, NonDet|\}
+        & \wellformed{\tau}
+    }$
+    
+    \bigskip
+    
+    $\infer[\rulename{polydown}]
+    {\tau \downarrow \ = \kappa \ \beta}
+    {\tau \ =\kappa \ \beta
+        & \kappa \in \{\|Det, NonDet|\}
+        & \wellformed{\tau}
+    }$
 \caption{Polymorphic resolution}
-\todo{Write this as a rule rather than a table.}
 \label{tab-poly-resolutions}
-\end{table}
+\end{figure}
 
 \subsubsection{Differentiating binding and use}\label{bindings-uses}
 
