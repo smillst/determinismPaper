@@ -1,43 +1,47 @@
 \section{Evaluation}
 \subsection{NONDEX case study}
 \begin{table}[]
-    \begin{tabular}{|p{1.5cm}|p{1cm}|p{3cm}|p{2cm}|p{2cm}|p{3cm}|}
+    \begin{tabular}{|p{1.5cm}|p{1cm}|p{3cm}|p{4cm}|p{2cm}|p{1.5cm}|}
         \hline
-        Benchmark & Recall? & Error message source & \#annotations & Type of annotation added & Error msg \\ \hline
-        P1 & Yes & FieldAccess.java: [102,87] &  &  &  assignment type incompatible \\
-        P2 &  &  &  &  &  \\
-        P3 &  &  &  &  &  \\ 
-        P4 &  &  &  &  &  \\ 
-        P5 &  &  &  &  &  \\ 
-        P5 &  &  &  &  &  \\ 
-        P6 &  &  &  &  &  \\ 
-        P6 &  &  &  &  &  \\
-        P7 &  &  &  &  &  \\ 
-        P7 &  &  &  &  &  \\
-        P7 &  &  &  &  &  \\
-        P7 &  &  &  &  &  \\
-        P7 &  &  &  &  &  \\
-        P8 &  &  &  &  &  \\
-        P8 &  &  &  &  &  \\
-        P8 &  &  &  &  &  \\
-        P9 &  &  &  &  &  \\
-        P10 &  &  &  &  &  \\
-        P10 &  &  &  &  &  \\
-        P11 &  &  &  &  &  \\
-        P12 &  &  &  &  &  \\
-        P13 &  &  &  &  &  \\
-        P14 &  &  &  &  &  \\
-        P15 &  &  &  &  &  \\
-        P15 &  &  &  &  &  \\
-        P16 &  &  &  &  &  \\
-        P17 &  &  &  &  &  \\
-        P18 &  &  &  &  &  \\
-        P19 &  &  &  &  &  \\
-        P19 &  &  &  &  &  \\
-        P19 &  &  &  &  &  \\
-        P20 &  &  &  &  &  \\
-        P20 &  &  &  &  &  \\
-        P21 &  &  &  &  &  \\
-        P21 &  &  &  &  &  \\ \hline
+        Benchmark & Recall? & Error message source & Error msg & \#annotations & Annotation type  \\ \hline
+        P1 & Yes & FieldAccess.java: [102,87] & assignment type incompatible &  &   \\
+        P2 & MI &  &  &  &  \\
+        P3 & Yes & DateTimeZone.java: [475,15] &  return type incompatible&  &  \\ 
+        P4 & MI &  &  &  &  \\ 
+        P5 & src &  &  &  &  \\ 
+        P5 & src &  &  &  &  \\ 
+        P6 & MI &  &  &  &  \\ 
+        P6 & MI &  &  &  &  \\
+        P7(test error) & Yes & checker/ tests/ determinism/P71.java: 5 & return type incompatible &  &  \\ 
+        P7(2) & Yes & FieldUtils.java: [219,84] & assignment type incompatible &  &  \\
+        P7(2) & Yes & Reflection ToStringBuilder.java: [543,65]  & assignment type incompatible &  &  \\
+        P7(2) & Yes & HashCodeBuilder.java: [193,69]  & assignment type incompatible &  &  \\
+        P7(2) & Yes & CompareToBuilder.java: [322,65] & assignment type incompatible &  &  \\
+        P7(2) & Yes & EqualsBuilder.java: [419,69]  & assignment type incompatible &  &  \\
+        P7 & Yes & FieldUtils.java: [200,69] & assignment type incompatible & &  \\
+        P7 & Yes & FieldUtils.java: [219,84] & assignment type incompatible &  &  \\
+        P7 & Yes & FieldUtils.java: [240,86] & assignment type incompatible &  &  \\
+        P8 & RM &  &  &  &  \\
+        P8 & RM &  &  &  &  \\
+        P8 & RM &  &  &  &  \\
+        P9 & MI &  &  &  &  \\
+        P10 & crash &  &  &  &  \\
+        P10 & crash &  &  &  &  \\
+        P11 & MI &  &  &  &  \\
+        P12 & MI &  &  &  &  \\
+        P13 & crash &  &  &  &  \\
+        P14 & MI &  &  &  &  \\
+        P15 & MI &  &  &  &  \\
+        P15 & MI &  &  &  &  \\
+        P16 & Yes & MethodSorter.java: [56,61]  & assignment type incompatible &  &  \\
+        P17 & Yes &  &  &  &  \\
+        P18 & src &  &  &  &  \\
+        P19 & MI &  &  &  &  \\
+        P19 & MI &  &  &  &  \\
+        P19 & MI &  &  &  &  \\
+        P20 & MI &  &  &  &  \\
+        P20 & MI &  &  &  &  \\
+        P21 & MI &  &  &  &  \\
+        P21 & MI &  &  &  &  \\ \hline
     \end{tabular}
 \end{table}
