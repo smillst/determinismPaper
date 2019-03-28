@@ -1,12 +1,32 @@
 \section{Evaluation}
 \subsection{NONDEX case study}
+Methodology:
+\begin{itemize}
+    \item Objective: Measure recall.
+    \item Benchmarks from NONDEX paper.
+    \item That paper gives flaky test class and source of flakiness (nondeterministic method call).
+    \item Look at the source method under test.
+    \item annotate the local arrays and collections (This has been mostly sufficient for recall)
+\end{itemize}
+
+Discussion of results:
+
+\begin{itemize}
+    \item Refer to table and describe it.
+    \item P7: same source causing multiple tests to be flaky
+    \item Example for class.GetDeclaredMethod() and show annotations
+    \item Example for HashMap.entrySet() and show annotations.
+    \item qualitative comparison: orthogonal techniques (reporting tests vs reporting source locations).
+    \item From NonDex paper: "manually inspecting these failures was rather challenging"
+\end{itemize}
+
 \begin{table}[]
     \begin{tabular}{|p{1.5cm}|p{1cm}|p{3cm}|p{4cm}|p{2cm}|p{1.5cm}|}
         \hline
         Benchmark & Recall? & Error message source & Error msg & \#annotations & Annotation type  \\ \hline
         P1 & Yes & FieldAccess.java: [102,87] & assignment type incompatible &  &   \\
         P2 & MI &  &  &  &  \\
-        P3 & Yes & DateTimeZone.java: [475,15] &  return type incompatible&  &  \\ 
+        P3 & Yes & DateTimeZone.java: [731,27] &  return type incompatible&  &  \\ 
         P4 & MI &  &  &  &  \\ 
         P5 & src &  &  &  &  \\ 
         P5 & src &  &  &  &  \\ 
