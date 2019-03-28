@@ -100,10 +100,10 @@ A type checker verifies the types written in a program.
     
     \bigskip
     
-    $\infer[\textsc{invariant type param}]{C_1\angles{\overline{\tau_i}}
+    $\infer[\textsc{invariant type arg}]{C_1\angles{\overline{\tau_i}}
       \sqsubseteq C_2\angles{\overline{\tau_i}}}{C_1 \sqsubseteq C_2}$
     
-    \caption{A sampling of standard type checking rules.  Most standard rules are omitted
+    \caption{A sampling of standard typing rules.  We omit other standard rules,
     for brevity.  $\sqsubseteq$ is overloaded for classes and types.}
     \label{typecheck-rules-standard}
 \end{figure}
@@ -122,7 +122,7 @@ A type checker verifies the types written in a program.
     \infer{\kappa \beta_1 \sqsubseteq \kappa \beta_2}{\beta_1 \sqsubseteq \beta_2}$
     
     
-    \caption{Type checking rules.  $\sqsubseteq$ is overloaded for classes,
+    \caption{Subtyping rules for \ourTypeSystem.  $\sqsubseteq$ is overloaded for classes,
     basetypes, type qualifiers, and types.}
     \label{fig:typecheck-rules}
 \end{figure}
@@ -155,50 +155,16 @@ The core of the determinism type system is the following type qualifiers:
 \end{itemize}
 \Cref{fig:typecheck-rules,fig:determinism-hierarchy} show their subtyping relationship.
 
-\<OrderNonDet> may only be written on collections and maps.  Our implementation
-handles array types, and any class (including user-defined classes) that
-implements the \<Iterable> or \<Iterator> interfaces; this includes all
-Java collections such as \<List>s and \<Set>s.  For simplicity, and because
-the semantics and rules are similar even though the syntax varies, this
-paper uses the term ``collection'' and the type \<Collection> to represent
-all these types.
+\<OrderNonDet> may only be written on collections and maps.
 
 A map is a dictionary or associative array, such as a hash table.
-Our type system largely treats a map as a collection of key--value pairs.  Like a
-collection, a map may be \<Det>, \<OrderNonDet>, or \<NonDet>.  (In Java,
-\<HashMap> cannot be deterministic, but \<TreeMap> and \<LinkedHashMap>
-can.\todo{forward reference?})
+Our type system largely treats a map as a collection of key--value pairs.
+
+Both collections and map may be \<Det>, \<OrderNonDet>, or \<NonDet>, and
+the element types can be specified independently of the collection type,
+including qualifiers.
 
 
-In \cref{code-determinism}, we present some of the JDK methods that we have annotated with our determinism types and give examples of
-client code that would produce errors at compile time.
-\begin{figure}
-    \begin{verbatim}
-    // Annotated JDK methods
-    public class Random implements java.io.Serializable {
-        public @NonDet Random() {}
-    }
-    public class PrintStream extends FilterOutputStream 
-        implements Appendable, Closeable {
-        public void println(@Det Object x) {}
-    }
-    
-    // Client code
-    class Client {
-        void test() {
-            @Det double d = Math.random(); // Error - subtyping rules violated.
-            @NonDet double nd = Math.random(); // No error.
-            System.out.println(nd); // Error - println takes @Det arguments.
-        }
-    }
-    \end{verbatim}
-    \caption{Example: Errors detected by \theDeterminismChecker.}
-\todo{Use real examples of bugs from case studies, throughout.  Artificial
-  examples are less compelling (and lead the reader to wonder whether no
-  real example exist).  Put the first example of an error in a figure in
-  Section 1, to help with motivating the problem.}
-    \label{code-determinism}
-\end{figure}
 
 
 \subsection{Collection types}\label{collection-rules}
