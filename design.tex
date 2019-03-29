@@ -522,26 +522,26 @@ The semantics of these variants are as follows:
 The modifiers $\uparrow$ and $\downarrow$ are indicative of the subtyping relationship of \<OrderNonDet> with \<NonDet> and \<Det> respectively
 in the determinism type hierarchy.
 
-\Cref{fig-poly-resolution} presents the rule for type checking of methods annotated with \<PolyDet> or its variants.
+%\Cref{fig-poly-resolution} presents the rule for type checking of methods annotated with \<PolyDet> or its variants.
 A polymorphic method type checks if every instantiation of \<PolyDet> type checks. If this method has \PolyDetUp\ or \PolyDetDown\
-in its signature then the instantiation of \<PolyDet> at that location gets replaced by the appropriate type as shown in \cref{tab-poly-resolutions}.
+in its signature then the instantiation of \<PolyDet> at that location gets replaced by the appropriate type as shown in \cref{fig:poly-resolutions}.
 
-Annotating \<size()> as \codeid{PolyDet$\downarrow$ int size(PolyDet List<T> list)} will only allow the following type resolutions:
+Annotating \<size()> as \codeid{PolyDet$\downarrow$ int size(PolyDet List<T> list)} will only allow the following type instantiations:
 \begin{itemize}
     \item \codeid{@Det int size(@Det List<T> list)}
     \item \codeid{@Det int size(@OrderNonDet List<T> list)}
     \item \codeid{@NonDet int size(@NonDet List<T> list)}
 \end{itemize}
 
-\begin{figure}
-    $\infer[\rulename{poly resolution}]{\pi_r \ \beta_r\ \<m>(\overline{\pi_i \ \beta_i})\{\ \}}{\forall \kappa \in \{\|NonDet, OrderNonDet, Det|\} : \kappa \ \beta_r\ \<m>(\overline{K \ \beta_i})\{\ \} & \pi_r, \pi_i \in \{\|PolyDet|, \PolyDetUp, \PolyDetDown    \}}$
-    \caption{Polymorphic resolution rule}
-    \todo{I'm not sure what this is doing.  What code does it reject?}
-    \todo{This suggests that \PolyDetUp is a qualifier, rather than
-      $\uparrow$ being an operator on qualifiers.  We should clarify which
-      it is.}
-    \label{fig-poly-resolution}
-\end{figure}
+%\begin{figure}
+%    $\infer[\rulename{poly resolution}]{\pi_r \ \beta_r\ \<m>(\overline{\pi_i \ \beta_i})\{\ \}}{\forall \kappa \in \{\|NonDet, OrderNonDet, Det|\} : \kappa \ \beta_r\ \<m>(\overline{K \ \beta_i})\{\ \} & \pi_r, \pi_i \in \{\|PolyDet|, \PolyDetUp, \PolyDetDown    \}}$
+%    \caption{Polymorphic resolution rule}
+%    \todo{I'm not sure what this is doing.  What code does it reject?}
+%    \todo{This suggests that \PolyDetUp is a qualifier, rather than
+%      $\uparrow$ being an operator on qualifiers.  We should clarify which
+%      it is.}
+%    \label{fig-poly-resolution}
+%\end{figure}
 
 %\begin{table}[]
 %    \begin{tabular}{|l|l|l|}
@@ -559,15 +559,7 @@ Annotating \<size()> as \codeid{PolyDet$\downarrow$ int size(PolyDet List<T> lis
 \begin{figure}
     $\infer[\rulename{ordernondet polyup}]
     {\tau \uparrow \ = \|NonDet \ \beta|}
-    {\tau \ = \|OrderNonNonDet \ \beta|
-        & \wellformed{\tau}
-    }$
-
-    \bigskip
-
-    $\infer[\rulename{ordernondet polydown}]
-    {\tau \downarrow \ = \|Det \ \beta|}
-    {\tau \ = \|OrderNonNonDet \ \beta|
+    {\tau \ = \|OrderNonDet \ \beta|
         & \wellformed{\tau}
     }$
 
@@ -579,6 +571,14 @@ Annotating \<size()> as \codeid{PolyDet$\downarrow$ int size(PolyDet List<T> lis
         & \kappa \in \{\|Det, NonDet|\}
         & \wellformed{\tau}
     }$
+
+    \bigskip
+
+    $\infer[\rulename{ordernondet polydown}]
+    {\tau \downarrow \ = \|Det \ \beta|}
+    {\tau \ = \|OrderNonDet \ \beta|
+        & \wellformed{\tau}
+    }$
     
     \bigskip
     
@@ -588,8 +588,8 @@ Annotating \<size()> as \codeid{PolyDet$\downarrow$ int size(PolyDet List<T> lis
         & \kappa \in \{\|Det, NonDet|\}
         & \wellformed{\tau}
     }$
-\caption{Polymorphic resolution}
-\label{tab-poly-resolutions}
+\caption{Polymorphic resolution ($\uparrow$ is overloaded for types and qualifiers)}
+\label{fig:poly-resolutions}
 \end{figure}
 
 \subsubsection{Differentiating binding and use}\label{bindings-uses}
