@@ -71,7 +71,7 @@ object-oriented language.
 %\todo{Need some background around here about what a type qualifier is,
 %  how it is represented in Java, and how to read a type \<@Q BaseType>.}
 
-\todo{Greek letters go after this paragraph.}
+%\todo{Greek letters go after this paragraph.}
 
 In a type system,
 a \textit{type} represents a set of values.  It abstracts or restricts the
@@ -127,16 +127,22 @@ A type checker verifies the types written in a program.
     \label{fig:typecheck-rules}
 \end{figure}
 
-\todo{Define the Greek.  For example:
+%\todo{Define the Greek.  For example:
+%
+%  A type $\tau = \kappa\ \beta$ consists of a qualifier and a basetype.
+%  Neither may be omitted.
+%
+%  $\beta$ is a type that lacks its type qualifier, but has type qualifiers
+%  on any type arguments:
+%  $\beta = C | C\angles{\overline{\tau}}$.
+%  }
 
-  A type $\tau = \kappa\ \beta$ consists of a qualifier and a basetype.
-  Neither may be omitted.
-
-  $\beta$ is a type that lacks its type qualifier, but has type qualifiers
-  on any type arguments:
-  $\beta = C | C\angles{\overline{\tau}}$.
-  }
-
+Figure~\ref{typecheck-rules-standard} shows a sample of the standard typing rules applied to 
+any typed language. In the generic case, the type $\tau$ represents a valid basetype in a programming language.
+\ourTypeSystem extends a basetype with a type qualifier. Throughout this paper, $\tau$ represents a fully qualified type.
+In other words, type $\tau = \kappa \ \beta$ consists of both a qualifier $\kappa$ and a basetype $\beta$, neither of which may be omitted.
+Further, $\beta$ is a type without a type qualifier, but which has type qualifiers on all its type parameters.
+Formally, $\beta ::= C|C \angles{\tau}$ where $C$ represents a Java basetype.
 
 \subsection{Determinism types}\label{type-hierarchy}
 
