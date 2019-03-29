@@ -356,41 +356,65 @@ A collection or map annotated as \<OrderNonDet> has the following properties:
 \end{enumerate}
 
 \begin{figure}
-    $\infer[\rulename{iteration}]
-    {\Gamma \vdash \|y| : \|OrderNonDet\ Iterator|\angles{\tau}}
-    {\Gamma \vdash \|x| : \|OrderNonDet \ C\angles{\tau}|
-    & C \sqsubseteq \|Collection|
-    & \|y = C.iterator()|
-    & \wellformed{\tau}
-    }$
+%    $\infer[\rulename{iteration}]
+%    {\Gamma \vdash \|y| : \|OrderNonDet\ Iterator|\angles{\tau}}
+%    {\Gamma \vdash \|x| : \|OrderNonDet \ C\angles{\tau}|
+%    & C \sqsubseteq \|Collection|
+%    & \|y = C.iterator()|
+%    & \wellformed{\tau}
+%    }$
 
+    \rulename{iteration}: 
+    $
+    \forall \tau . \|OrderNonDet \ C| \angles{\tau} \rightarrow 
+    \|OrderNonDet \ Iterator| \angles{\tau}
+    $
+    
     \bigskip
     
-    $\infer[\rulename{next element}]
-    {\Gamma \vdash \|z| : \|NonDet \ \beta|}
-    {\Gamma \vdash \|y| : \|OrderNonDet \ Iterator\angles{\kappa \ \beta}|
-        & \|z = y.next()|
-        & \wellformed{\kappa \ \beta}
-    }$
+%    $\infer[\rulename{next element}]
+%    {\Gamma \vdash \|z| : \|NonDet \ \beta|}
+%    {\Gamma \vdash \|y| : \|OrderNonDet \ Iterator\angles{\kappa \ \beta}|
+%        & \|z = y.next()|
+%        & \wellformed{\kappa \ \beta}
+%    }$
 
+    \rulename{next element}:
+    $
+    \forall \kappa \beta . \|OrderNonDet \ Iterator|\angles{\kappa \ \beta} \rightarrow
+    \|NonDet|\ \beta
+    $
+    
     \bigskip
     
-    $\infer[\rulename{hasnext element}]
-    {\Gamma \vdash \|z| : \|Det \ boolean|}
-    {\Gamma \vdash \|y| : \|OrderNonDet \ Iterator\angles{\tau}|
-        & \|z = y.hasNext()|
-        & \wellformed{\tau}
-    }$
+%    $\infer[\rulename{hasnext element}]
+%    {\Gamma \vdash \|z| : \|Det \ boolean|}
+%    {\Gamma \vdash \|y| : \|OrderNonDet \ Iterator\angles{\tau}|
+%        & \|z = y.hasNext()|
+%        & \wellformed{\tau}
+%    }$
 
+    \rulename{hasnext element}:
+    $
+    \forall \tau . \|OrderNonDet \ Iterator|\angles{\tau} \rightarrow
+    \|Det \ boolean|
+    $
     \bigskip
 
-    $\infer[\rulename{size}]
-    {\Gamma \vdash \|y| : \|Det \ int|}
-    {\Gamma \vdash \|x| : \|OrderNonDet \ C\angles{\tau}|
-        & C \sqsubseteq \|Collection|
-        & \|y = x.size()|
-        & \wellformed{\tau}
-    }$
+%    $\infer[\rulename{size}]
+%    {\Gamma \vdash \|y| : \|Det \ int|}
+%    {\Gamma \vdash \|x| : \|OrderNonDet \ C\angles{\tau}|
+%        & C \sqsubseteq \|Collection|
+%        & \|y = x.size()|
+%        & \wellformed{\tau}
+%    }$
+
+    \rulename{size}:
+    $
+    \forall \tau . \|OrderNonDet \ C|\angles{\tau} \rightarrow
+    \|Det \ int|
+    $
+    
 \caption{\<OrderNonDet> Collection rules}
 \label{fig-ordernondet-rules}
 \end{figure}
