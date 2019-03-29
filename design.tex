@@ -137,12 +137,15 @@ A type checker verifies the types written in a program.
 %  $\beta = C | C\angles{\overline{\tau}}$.
 %  }
 
-Figure~\ref{typecheck-rules-standard} shows a sample of the standard typing rules applied to 
+Figure~\cref{typecheck-rules-standard} shows a sample of the standard typing rules applied to 
 any typed language. In the generic case, the type $\tau$ represents a valid basetype in a programming language.
 \ourTypeSystem extends a basetype with a type qualifier. Throughout this paper, $\tau$ represents a fully qualified type.
 In other words, type $\tau = \kappa \ \beta$ consists of both a qualifier $\kappa$ and a basetype $\beta$, neither of which may be omitted.
 Further, $\beta$ is a type without a type qualifier, but which has type qualifiers on all its type parameters.
-Formally, $\beta ::= C|C \angles{\tau}$ where $C$ represents a Java basetype.
+Formally, $\beta ::= C|C \angles{\tau}$ where $C$ represents a valid Java basetype.
+\ourTypeSystem checks all the standard typing rules including the ones shown in Figure~\cref{typecheck-rules-standard} with
+the only difference of having an additional type qualifier on each of the basetypes. The type qualifiers can only 
+constrain the set of valid types. As a result, \ourTypeSystem doesn't allow any behavior that the original type system doesn't.
 
 \subsection{Determinism types}\label{type-hierarchy}
 
@@ -181,15 +184,15 @@ Both collections and map may be \<Det>, \<OrderNonDet>, or \<NonDet>, and
 the element types can be specified independently of the collection type,
 including qualifiers.
 
-\todo{A type $\tau$ is represented as $\kappa \ \beta$
-where $\kappa$ is a type qualifier (that is, \<NonDet>, \<OrderNonDet>, or
-\<Det>) and $\beta$ is a Java basetype.}
+%\todo{A type $\tau$ is represented as $\kappa \ \beta$
+%where $\kappa$ is a type qualifier (that is, \<NonDet>, \<OrderNonDet>, or
+%\<Det>) and $\beta$ is a Java basetype.}
 
 
 \subsection{Collection types}\label{collection-rules}
 
-\todo{Note that the \rulename{ordernondet} versions also handle \<Det>,
-  because $\<Det> \sqsubseteq \<OrderNonDet>$.}
+%\todo{Note that the \rulename{ordernondet} versions also handle \<Det>,
+%  because $\<Det> \sqsubseteq \<OrderNonDet>$.}
 
 \begin{figure}
     $\infer[\rulename{noncollection}]
@@ -237,19 +240,19 @@ where $\kappa$ is a type qualifier (that is, \<NonDet>, \<OrderNonDet>, or
     
     \caption{Type well formedness}
 
-\todo{\todo{I think this will be OK, by redefining $\beta$.}
-  The collection rules do not permit nested collections; similarly, the
-  (currently commented out) array rules did not permit any two-dimensional
-  array to be well-formed.  There is a bigger issue here.
-  Consider the ``nondet collection'' rule.  $\beta_c$ is a class (we need
-  to use a different symbol for it, probably $c$), but $\beta_e$ should be
-  a full type, which might contain type qualifiers within it.  (Actually,
-  $\|NonDet|\ \beta_e$ is a type, not $\beta_e$ itself.)  So, there should
-  be an antecedent stating that $\|NonDet| \beta_e$ is well-formed, and
-  for the ``ordernondet collection'' rule stating that $\kappa_e \beta_e$
-  is well-formed.  Likewise, antecedents are needed for the map rules.
-  Otherwise, these rules permit construction of $\<Map>\angles{\tau'}$
-  where $\tau'$ is itself not well-defined.}
+%\todo{\todo{I think this will be OK, by redefining $\beta$.}
+%  The collection rules do not permit nested collections; similarly, the
+%  (currently commented out) array rules did not permit any two-dimensional
+%  array to be well-formed.  There is a bigger issue here.
+%  Consider the ``nondet collection'' rule.  $\beta_c$ is a class (we need
+%  to use a different symbol for it, probably $c$), but $\beta_e$ should be
+%  a full type, which might contain type qualifiers within it.  (Actually,
+%  $\|NonDet|\ \beta_e$ is a type, not $\beta_e$ itself.)  So, there should
+%  be an antecedent stating that $\|NonDet| \beta_e$ is well-formed, and
+%  for the ``ordernondet collection'' rule stating that $\kappa_e \beta_e$
+%  is well-formed.  Likewise, antecedents are needed for the map rules.
+%  Otherwise, these rules permit construction of $\<Map>\angles{\tau'}$
+%  where $\tau'$ is itself not well-defined.}
 
   \label{type-validity}
 \end{figure}
@@ -260,7 +263,7 @@ where $\kappa$ is a type qualifier (that is, \<NonDet>, \<OrderNonDet>, or
 %  throughout.}
 rules of \ourTypeSystem. 
 As stated in the rule \rulename{noncollection}, the types \<Det> and \<NonDet>
-can be written on any non-collection Java basetype.
+can be written on any non-collection Java basetype. 
 
 \begin{figure}
     \centering
@@ -280,7 +283,8 @@ can be written on any non-collection Java basetype.
 The element type of a \<NonDet> collection must be \<NonDet>.
 Otherwise, the type qualifier on a collection's element must be a subtype or equal to
 the collection's type qualifier (\rulename{collection}\ rules of
-\cref{type-validity}).
+\cref{type-validity}). Note that the \rulename{ordernondet} versions also handle \<Det>,
+because $\<Det> \sqsubseteq \<OrderNonDet>$.
 \Cref{fig:determinism-collections} restates its restrictions, and here are examples.
 
 \smallskip
