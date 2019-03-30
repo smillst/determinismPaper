@@ -7,12 +7,15 @@
 \end{itemize}
 
 \subsection{Running NONDEX on Randoop}
-To evaluate how existing tools perform on large programs, we ran NONDEX~\cite{nondex-tool} on Randoop~\cite{randoop-tool}.
-\begin{itemize} 
-    \item Ran randoop with NonDex, instructions from cite.
-    \item didn't find any flakiness issues in the FULL mode.
-    \item \todo{check if the bugs discovered by \theDeterminismChecker have test coverage}
-\end{itemize}
+To evaluate how existing tools perform on large programs, we ran the tool \href{https://github.com/TestingResearchIllinois/NonDex}{NONDEX~\cite{nondex}} on 
+\href{https://github.com/randoop/randoop}{Randoop~\cite{randoop}}.
+We followed the instructions to build the project with the gradle plugin. 
+NONDEX terminated in approximately 20 seconds and didn't report any flaky tests.
+\todo{check if the bugs discovered by \theDeterminismChecker have test coverage}
+\todo{We investigated the tests covering code that \theDeterminismChecker reported as nondeterministic.
+If code is covered by tests, NONDEX couldn't discover it. Else, its a limitation of NONDEX}.
+This indicates that the additional programmer effort required by \theDeterminismChecker is justified
+as our tool discovers non-trivial issues and doesn't depend on code coverage or runtime heuristics.
 
 \subsection{NONDEX case study}
 Methodology:
