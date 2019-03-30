@@ -3,3 +3,19 @@ Can we try to run those other tools on Randoop?
 I think that would be a compelling way to argue that they don't scale.
 Using a type-checker does require a commitment of time to do annotations,
 which we should admit, of course.
+
+
+All nondeterminism that NonDex found was due to 7 methods in 3 classes:
+Class#getDeclaredFields
+Class#getDeclaredMethods
+Class#getFields
+DateFormatSymbols#getZoneStrings
+HashMap#entrySet
+HashMap#keySet
+HashMap#values
+
+
+
+
+A NonDet annotation:
+http://www.swi-prolog.org/pldoc/man?section=modes
