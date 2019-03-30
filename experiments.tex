@@ -1,4 +1,19 @@
 \section{Evaluation}
+\begin{itemize}
+    \item goals of evaluation: Compare with NonDex and Deflaker
+    \item Quantitative comparison: \theDeterminismChecker finds all bugs reported by NonDex and Deflaker?
+    \item Qualitative study of the issues discovered.
+    \item System info: 2.3 GHz Intel Core i5, 8 GB 2133 MHz
+\end{itemize}
+
+\subsection{Running NONDEX on Randoop}
+To evaluate how existing tools perform on large programs, we ran NONDEX~\cite{nondex-tool} on Randoop~\cite{randoop-tool}.
+\begin{itemize} 
+    \item Ran randoop with NonDex, instructions from cite.
+    \item didn't find any flakiness issues in the FULL mode.
+    \item \todo{check if the bugs discovered by \theDeterminismChecker have test coverage}
+\end{itemize}
+
 \subsection{NONDEX case study}
 Methodology:
 \begin{itemize}
@@ -7,6 +22,9 @@ Methodology:
     \item That paper gives flaky test class and source of flakiness (nondeterministic method call).
     \item Look at the source method under test.
     \item annotate the local arrays and collections (This has been mostly sufficient for recall)
+    \item exceptions: unbuildable handlebars
+    \item the reported source of nondeterminism couldn't be found in the source code.
+    \item \todo{P4, P12 and P21}
 \end{itemize}
 
 Discussion of results:
@@ -18,51 +36,43 @@ Discussion of results:
     \item Example for HashMap.entrySet() and show annotations.
     \item qualitative comparison: orthogonal techniques (reporting tests vs reporting source locations).
     \item From NonDex paper: "manually inspecting these failures was rather challenging"
-    \item Note: P7\_1 and P18: error in test case, so we added the same test to our microbenchmarks
+    \item P18 sl4j: nondeterminism in the test case. we provide stub for junit.
+    \item Specification for Assert: parameters are annotated as Det
 \end{itemize}
 
 \begin{table}[]
-    \begin{tabular}{|p{1.5cm}|p{1cm}|p{3cm}|p{4cm}|p{2cm}|p{1.5cm}|}
+    \begin{tabular}{|p{1.5cm}|p{1cm}|p{4cm}|p{5cm}|}
         \hline
-        Benchmark & Recall? & Error message source & Error msg & \#annotations & Annotation type  \\ \hline
-        P1 & Yes & FieldAccess.java: [102,87] & assignment type incompatible &  &   \\
-        P2 & MI &  &  &  &  \\
-        P3 & Yes & DateTimeZone.java: [731,27] &  return type incompatible&  &  \\ 
-        P4 & MI &  &  &  &  \\ 
-        P5 & visualee &  &  &  &  \\ 
-        P5 & visualee &  &  &  &  \\ 
-        P6 & MI &  &  &  &  \\ 
-        P6 & MI &  &  &  &  \\
-        P7(test error) & Yes & checker/ tests/ determinism/P71.java: 5 & return type incompatible &  &  \\ 
-        P7(2) & Yes & FieldUtils.java: [219,84] & assignment type incompatible &  &  \\
-        P7(2) & Yes & Reflection ToStringBuilder.java: [543,65]  & assignment type incompatible &  &  \\
-        P7(2) & Yes & HashCodeBuilder.java: [193,69]  & assignment type incompatible &  &  \\
-        P7(2) & Yes & CompareToBuilder.java: [322,65] & assignment type incompatible &  &  \\
-        P7(2) & Yes & EqualsBuilder.java: [419,69]  & assignment type incompatible &  &  \\
-        P7 & Yes & FieldUtils.java: [200,69] & assignment type incompatible & &  \\
-        P7 & Yes & FieldUtils.java: [219,84] & assignment type incompatible &  &  \\
-        P7 & Yes & FieldUtils.java: [240,86] & assignment type incompatible &  &  \\
-        P8 & RM &  &  &  &  \\
-        P8 & RM &  &  &  &  \\
-        P8 & RM &  &  &  &  \\
-        P9 & MI &  &  &  &  \\
-        P10 & crash &  &  &  &  \\
-        P10 & crash &  &  &  &  \\
-        P11 & MI &  &  &  &  \\
-        P12 & MI &  &  &  &  \\
-        P13 & crash &  &  &  &  \\
-        P14 & MI &  &  &  &  \\
-        P15 & MI &  &  &  &  \\
-        P15 & MI &  &  &  &  \\
-        P16 & Yes & MethodSorter.java: [56,61]  & assignment type incompatible &  &  \\
-        P17 & Yes &  &  &  &  \\
-        P18 & Arr Iter &  &  &  &  \\
-        P19 & MI &  &  &  &  \\
-        P19 & MI &  &  &  &  \\
-        P19 & MI &  &  &  &  \\
-        P20 & MI &  &  &  &  \\
-        P20 & MI &  &  &  &  \\
-        P21 & MI &  &  &  &  \\
-        P21 & MI &  &  &  &  \\ \hline
+        Benchmark & Recall? & Error message source & Error msg  \\ \hline
+        P1 & Yes & FieldAccess.java: [102,87] & assignment type incompatible \\
+        P2 & Yes & YamlWriter.java: [224,28] & cast unsafe  \\
+        P3 & Yes & DateTimeZone.java: [731,27] &  return type incompatible \\ 
+        P4 & * & Det checker not found  &   \\ 
+        P5 & ** & Class.getDeclaredMethods not found &    \\ 
+        P6 & Yes & OptionGroup.java: [55,40]  & argument type incompatible \\ 
+        P6 & Yes & Option.java: [157,28]  &  assignment type incompatible\\
+        P7(test error) & Yes* & checker/ tests/ determinism/P71.java: 5 & return type incompatible \\ 
+        P7(2) & Yes & FieldUtils.java: [219,84] & assignment type incompatible \\
+        P7(2) & Yes & Reflection ToStringBuilder.java: [543,65]  & assignment type incompatible  \\
+        P7(2) & Yes & HashCodeBuilder.java: [193,69]  & assignment type incompatible   \\
+        P7(2) & Yes & CompareToBuilder.java: [322,65] & assignment type incompatible   \\
+        P7(2) & Yes & EqualsBuilder.java: [419,69]  & assignment type incompatible  \\
+        P7 & Yes & FieldUtils.java: [200,69] & assignment type incompatible \\
+        P7 & Yes & FieldUtils.java: [219,84] & assignment type incompatible  \\
+        P7 & Yes & FieldUtils.java: [240,86] & assignment type incompatible  \\
+        P8 & ** & getDeclaredFields not found &   \\
+        P9 & Yes & Printers.java: [269,97]  &  enhancedfor type incompatible \\
+        P10 & ** & getDeclaredFields not found  &  \\
+        P11 & Yes & MapUtils.java: [20,50]   & enhancedfor type incompatible  \\
+        P12 & *  & 0 errors &  \\
+        P13 & ** & unbuildable handlebars &  \\
+        P14 & Yes  & Maps.java: [91,69] & invalid element type   \\
+        P15 & Yes & PkiMessageDecoder.java: [144,29]  &  enhancedfor type incompatible  \\
+        P16 & Yes & MethodSorter.java: [56,61]  & assignment type incompatible  \\
+        P17 & Yes & JSONObject.java: [674,51]  & assignment type incompatible  \\
+        P18 & Yes & SubstitutableLoggerTest.java: [67,61]   & enhancedfor type incompatible  \\
+        P19 & Yes & DataDictionaryEventSource.java: [73,78]  &  enhancedfor type incompatible  \\
+        P20 & Yes & SaverImpl.java: [43,69]  &  return type incompatible  \\
+        P21 & * & 0 errors &   \\ \hline
     \end{tabular}
 \end{table}
