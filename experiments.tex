@@ -1,7 +1,7 @@
 \section{Evaluation}
 \begin{itemize}
     \item goals of evaluation: Compare with NonDex and Deflaker
-    \item Quantitative comparison: \theDeterminismChecker finds all bugs reported by NonDex and Deflaker?
+    \item Quantitative comparison: \TheDeterminismChecker finds all bugs reported by NonDex and Deflaker?
     \item Qualitative study of the issues discovered.
     \item System info: 2.3 GHz Intel Core i5, 8 GB 2133 MHz
 \end{itemize}
@@ -10,29 +10,28 @@
 To evaluate how existing tools perform on large programs, we ran the tool \href{https://github.com/TestingResearchIllinois/NonDex}{NONDEX~\cite{nondex}} on 
 \href{https://github.com/randoop/randoop}{Randoop~\cite{randoop}}.
 We followed the instructions to build the project with the gradle plugin. 
-NONDEX terminated in approximately 20 seconds and didn't report any flaky tests.
-\todo{check if the bugs discovered by \theDeterminismChecker have test coverage}
-\todo{We investigated the tests covering code that \theDeterminismChecker reported as nondeterministic.
+NONDEX terminated without reporting any flaky tests.
+\todo{check if the bugs discovered by \TheDeterminismChecker have test coverage}
+\todo{We investigated the tests covering code that \TheDeterminismChecker reported as nondeterministic.
 If code is covered by tests, NONDEX couldn't discover it. Else, its a limitation of NONDEX}.
-This indicates that the additional programmer effort required by \theDeterminismChecker is justified
+This indicates that the additional programmer effort required by \TheDeterminismChecker is justified
 as our tool discovers non-trivial issues and doesn't depend on code coverage or other runtime heuristics.
 
 \subsection{NONDEX case study}
-Methodology:
-\begin{itemize}
-    \item Objective: Measure recall.
-    \item Benchmarks from NONDEX paper.
-    \item That paper gives flaky test class and source of flakiness (nondeterministic method call).
-    \item Look at the source method under test.
-    \item annotate the local arrays and collections (This has been mostly sufficient for recall)
-    \item exceptions: unbuildable handlebars
-    \item the reported source of nondeterminism couldn't be found in the source code.
-    \item \todo{P4, P12 and P21}
-\end{itemize}
+\cite{nondex} reported flaky tests on 21 open source projects. The authors also reported the sources of flakiness
+after manually inspecting these tests. We ran \TheDeterminismChecker on all these benchmarks with the objective
+of measuring recall of our tool. We cloned all 21 repos and switched to the commit that had a flakiness issue as reported 
+in~\cite{nondex}. Of these projects \<handlebars> has a compile time failure which prevents us from running \TheDeterminismChecker on it. For benchmarks \<visualee>, \<easy-batch>, and \<vraptor>, we couldn't find
+the sources of flakiness as reported in~\cite{nondex} anywhere in the respective repositories.
+\TheDeterminismChecker reported the nondeterministic locations correctly in the rest of the projects.
+All these benchmarks and instructions to reproduce our results can be found at \href{https://github.com/t-rasmud/determinismCaseStudies}{https://github.com/t-rasmud/determinismCaseStudies}.
+\todo{P4, P12 and P21 det checker isn't recognized?}
 
 Discussion of results:
 
 \begin{itemize}
+    \item Look at the source method under test.
+    \item annotate the local arrays and collections (This has been mostly sufficient for recall)
     \item Refer to table and describe it.
     \item P7: same source causing multiple tests to be flaky
     \item Example for class.GetDeclaredMethod() and show annotations
@@ -41,6 +40,7 @@ Discussion of results:
     \item From NonDex paper: "manually inspecting these failures was rather challenging"
     \item P18 sl4j: nondeterminism in the test case. we provide stub for junit.
     \item Specification for Assert: parameters are annotated as Det
+    \item \todo{Link to det checker repo?}
 \end{itemize}
 
 \begin{table}[]
