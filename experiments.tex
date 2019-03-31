@@ -150,4 +150,21 @@ even have to be executed in our case.
 \todo{If there is time, we could do a second case study, on a program that
   NonDex did not find nondeterminism in.  Our hope would be to find
   nondeterminism that NonDex did not.  Choose a small project that is
-  maintained (it has recent commits), so we can communicate with the authors.
+  maintained (it has recent commits), so we can communicate with the authors.}
+
+\section{deflaker case study}
+\begin{table}[]
+    \begin{tabular}{|l|l|}
+        \hline
+        Benchmark, issue & found by det checker? \\ \hline
+        achilles, [2] issue \#309 &  Race condition\\ \hline
+        achilles, [3] issue \#310 & Same fix for \#309 and \#310 \\ \hline
+        checkstyle [4] issue \#4664& det checker not found \\ \hline
+        jackrabbit-oak [6] \#6512&  Unresolved on issue tracker \\ \hline
+        jackrabbit-oak [7] issue \#6524&  Dead link, didn't find 6524 in issue tracker \\ \hline
+        nutz [10] issue \#1283 &  \\ \hline
+        &  \\ \hline
+        &  \\ \hline
+    \end{tabular}
+\end{table}
+ 
