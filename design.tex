@@ -655,7 +655,7 @@ We therefore recommend that programmers explicitly annotate
 all local variables that are collections to reduce false positives.
 
 \TheDeterminismChecker has additional type refinement rules for the sorting
-methods such as \<List.sort>, \<Collections.sort>, and \<Arrays.sort>:
+methods of \<List>, \<Collections>, and \<Arrays> classes
  as shown in \cref{fig-sorting}.
 \begin{figure}
 %     $\infer[\rulename{list sort}]{\Gamma \vdash x : \|Det \ List|\angles{\|Det| \ \beta}}{\Gamma \vdash x : \|OrderNonDet \ List|\angles{\|Det| \ \beta} & \|x.sort()|}$
