@@ -21,27 +21,72 @@ as our tool discovers non-trivial issues and doesn't depend on code coverage or 
 \cite{nondex} reported flaky tests on 21 open source projects. The authors also reported the sources of flakiness
 after manually inspecting these tests. We ran \TheDeterminismChecker on all these benchmarks with the objective
 of measuring recall of our tool. We cloned all 21 repos and switched to the commit that had a flakiness issue as reported 
-in~\cite{nondex}. Of these projects \<handlebars> has a compile time failure which prevents us from running \TheDeterminismChecker on it. For benchmarks \<visualee>, \<easy-batch>, and \<vraptor>, we couldn't find
+in~\cite{nondex}. Of these projects, \<handlebars> has a compile time failure which prevents us from running \TheDeterminismChecker on it. For benchmarks \<visualee>, \<easy-batch>, and \<vraptor>, we couldn't find
 the sources of flakiness as reported in~\cite{nondex} anywhere in the respective repositories.
-\TheDeterminismChecker reported the nondeterministic locations correctly in the rest of the projects.
+\TheDeterminismChecker reported the nondeterministic source locations correctly in the rest of the projects.
 All these benchmarks and instructions to reproduce our results can be found at \href{https://github.com/t-rasmud/determinismCaseStudies}{https://github.com/t-rasmud/determinismCaseStudies}.
 \todo{P4, P12 and P21 det checker isn't recognized?}
 
-Discussion of results:
+All the flakiness that NONDEX found was due to 7 methods in 3 classes:
+\<Class.getDeclaredFields>, \<Class.getDeclaredMethods>, \<Class.getFields>, \<DateFormatSymbols.getZoneStrings>,
+\<HashMap.entrySet>, \<HashMap.keySet>, and \<HashMap.values>.  
+We provide samples of the annotated source code form these benchmarks and the errors as reported by \TheDeterminismChecker 
+in Figures~\ref{code-reflectasm} and~\ref{code-actiongenerator}.
+\begin{figure}
+    \begin{verbatim}
+    static public FieldAccess get (Class type) {
+        @Det ArrayList<@Det Field> fields = new ArrayList<Field>();
+        ...
+        while (nextClass != Object.class) {
+            @Det Field @Det[] declaredFields = nextClass.getDeclaredFields();
+            ...
+        }
+    }
+    [ERROR] FieldAccess.java:[102,87] [assignment.type.incompatible] 
+    incompatible types in assignment.
+    found   : @Det Field @OrderNonDet []
+    required: @Det Field @Det []
+    \end{verbatim}
+    \caption{Annotated source code from reflectasm.}
+    \label{code-reflectasm}
+\end{figure}
+\begin{figure}
+    \begin{verbatim}
+    protected SimpleDataEvent createNextEvent() {
+      for (@Det Entry<@Det String, @Det FieldType> entry : fields.entrySet()) {
+          ...
+      }
+      ...
+    }
+    [ERROR] DataDictionaryEventSource.java:[73,78] [enhancedfor.type.incompatible] 
+    incompatible types in enhanced for loop.
+    found   : @NonDet Entry<@Det String, @Det FieldType>
+    required: @Det Entry<@Det String, @Det FieldType>
+    \end{verbatim}
+    \caption{Annotated source code from ActionGenerator.}
+    \label{code-actiongenerator}
+\end{figure}
+As can be seen from these figures, annotating local arrays and collections
+has been sufficient to discover the sources of nondeterminism in most of the projects.
+The rest of the projects required annotating the return types of methods.
 
-\begin{itemize}
-    \item Look at the source method under test.
-    \item annotate the local arrays and collections (This has been mostly sufficient for recall)
-    \item Refer to table and describe it.
-    \item P7: same source causing multiple tests to be flaky
-    \item Example for class.GetDeclaredMethod() and show annotations
-    \item Example for HashMap.entrySet() and show annotations.
-    \item qualitative comparison: orthogonal techniques (reporting tests vs reporting source locations).
-    \item From NonDex paper: "manually inspecting these failures was rather challenging"
-    \item P18 sl4j: nondeterminism in the test case. we provide stub for junit.
-    \item Specification for Assert: parameters are annotated as Det
-    \item \todo{Link to det checker repo?}
-\end{itemize}
+For the benchmark \<commons-lang>, \cite{nondex} report multiple failing tests (14 flaky tests) due to calls
+to \<Class.getDeclaredFields>. Upon inspecting the source code, we find that all of invocations to
+\<Class.getDeclaredFields> are made from 5 locations. This means that annotating 5 lines of source code
+would have been sufficient to identify the nondeterminism. Having said that, we admit that there could be
+significant programmer effort involved in annotating the whole program. On the other hand,~\cite{nondex}
+state "we found that manually inspecting these failures was
+rather challenging, and we leave it as future work to automate
+debugging test failures due to ADINS code". \TheDeterminismChecker reports source locations
+which makes it easier for the programmer to fix issues and is orthogonal to the approach taken by NONDEX which
+report failing tests.
+
+\TheDeterminismChecker is also capable of detecting nondetermism in test cases. We provide a stub file
+for \<junit> in which we annotated all the \<assert> methods as accepting only \<Det> parameters.
+This will report any \<junit> test that passes nondeterministic arguments to \<assert>s and the test doesn't
+even have to be executed in our case.
+\todo{It took one of our authors about an hour to create this stub file - proof of easy estensibility of tool?} 
+\todo{Link to det checker repo?}
 
 \begin{table}[]
     \begin{tabular}{|p{1.5cm}|p{1cm}|p{4cm}|p{5cm}|}
