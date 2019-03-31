@@ -1,4 +1,10 @@
-\section{Evaluation}
+\section{Comparison to previous work}
+
+The state of the art in flaky test detection is NonDex~\cite{nondex}.
+\Cref{sec:related} explains how NonDex works.
+
+
+
 \begin{itemize}
     \item goals of evaluation: Compare with NonDex and Deflaker
     \item Quantitative comparison: \theDeterminismChecker finds all bugs reported by NonDex and Deflaker?
@@ -6,18 +12,29 @@
     \item System info: 2.3 GHz Intel Core i5, 8 GB 2133 MHz
 \end{itemize}
 
-\subsection{Running NONDEX on Randoop}
-To evaluate how existing tools perform on large programs, we ran the tool \href{https://github.com/TestingResearchIllinois/NonDex}{NONDEX~\cite{nondex}} on 
-\href{https://github.com/randoop/randoop}{Randoop~\cite{randoop}}.
-We followed the instructions to build the project with the gradle plugin. 
-NONDEX terminated in approximately 20 seconds and didn't report any flaky tests.
+
+\subsection{Case study with NonDex}\label{sec:nondex-randoop}
+
+We ran NonDex on the same commit of Randoop as we used for the case study
+of \cref{sec:case-study}.  This version contains 3 nondeterminism bugs that
+\ourTool found.
+
+We modified Randoop by deleting tests that were skipped by its buildfile,
+because the NonDex gradle plugin does not respect those settings.
+
+After that, NonDex ran without problems on Randoop.
+It terminated in approximately 20 seconds and reported no flaky tests.
+
+
 \todo{check if the bugs discovered by \theDeterminismChecker have test coverage}
 \todo{We investigated the tests covering code that \theDeterminismChecker reported as nondeterministic.
 If code is covered by tests, NONDEX couldn't discover it. Else, its a limitation of NONDEX}.
-This indicates that the additional programmer effort required by \theDeterminismChecker is justified
-as our tool discovers non-trivial issues and doesn't depend on code coverage or runtime heuristics.
 
-\subsection{NONDEX case study}
+
+\subsection{\OurTool on NonDex benchmarks}\label{sec:nondex-benchmarks}
+
+\Cref{sec:nondex-randoop} shows that \ourTool finds errors that NonDex does not.
+
 Methodology:
 \begin{itemize}
     \item Objective: Measure recall.
