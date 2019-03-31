@@ -1,7 +1,14 @@
+%%% Todo comments
+
 %% Comment out one of these two definitions.
 % \newcommand{\todo}[1]{\relax}
 \newcommand{\todo}[1]{{\color{red}\bfseries [[#1]]}}
 
+
+%%% Anonymization.
+
+\newif\ifanonymous
+\anonymoustrue
 
 % For anonymity.  Let's find better names.
 \newcommand{\ourTypeSystem}{Tendon\xspace}
@@ -11,10 +18,11 @@
 \newcommand{\theDeterminismCheckerImplementation}{the Gar\c{c}on implementation\xspace}
 \newcommand{\TheDeterminismCheckerImplementation}{The Gar\c{c}on implementation\xspace}
 
-\newcommand{\rulename}[1]{\textsc{#1}}
+% A commit hash
+\newcommand{\commit}[1]{\ifanonymous{ (commit #1)}\else\fi}
 
 
-\newcommand{\wellformed}[1]{\vdash : #1}
+%%% Types and type rules
 
 \newcommand{\Det}{\text{\<Det>}\xspace}
 \newcommand{\OrderNonDet}{\text{\<OrderNonDet>}\xspace}
@@ -24,6 +32,12 @@
 \newcommand{\PolyDetUp}{\<PolyDet$\uparrow$>}
 \newcommand{\PolyDetDown}{\<PolyDet$\downarrow$>}
 
+\newcommand{\rulename}[1]{\textsc{#1}}
+
+\newcommand{\wellformed}[1]{\vdash : #1}
+
+
+%%% Code formatting
 
 % \|name| or \mathid{name} denotes identifiers and slots in formulas
 \def\|#1|{\mathid{#1}}
@@ -40,3 +54,8 @@
 \newcommand{\ptype}[2]{\<#1>\ensuremath{\langle}\<#2>\ensuremath{\rangle}}
 % A larger parameterized type
 \newcommand{\lptype}[2]{{\larger\<#1>\ensuremath{\langle}\<#2>\ensuremath{\rangle}}}
+
+
+%%% Citations
+
+\defcitealias{randoop-tool}{Randoop}

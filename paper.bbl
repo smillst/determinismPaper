@@ -2,7 +2,7 @@
 %%% Do NOT edit. File created by BibTeX with style
 %%% ACM-Reference-Format-Journals [18-Jan-2012].
 
-\begin{thebibliography}{3}
+\begin{thebibliography}{4}
 
 %%% ====================================================================
 %%% NOTE TO THE USER: you can override these defaults by providing
@@ -56,11 +56,18 @@
 \showDOI{\tempurl}
 
 
-\bibitem[\protect\citeauthoryear{{Shi}, {Gyori}, {Legunsen}, and
-  {Marinov}}{{Shi} et~al\mbox{.}}{2016}]%
+\bibitem[\protect\citeauthoryear{Randoop}{Randoop}{2019}]%
+        {randoop-tool}
+Randoop \bibinfo{year}{2019}\natexlab{}.
+\newblock \bibinfo{howpublished}{\url{https://github.com/randoop/randoop}}.
+\newblock
+
+
+\bibitem[\protect\citeauthoryear{Shi, Gyori, Legunsen, and Marinov}{Shi
+  et~al\mbox{.}}{2016}]%
         {nondex}
-\bibfield{author}{\bibinfo{person}{A. {Shi}}, \bibinfo{person}{A. {Gyori}},
-  \bibinfo{person}{O. {Legunsen}}, {and} \bibinfo{person}{D. {Marinov}}.}
+\bibfield{author}{\bibinfo{person}{August Shi}, \bibinfo{person}{Alex Gyori},
+  \bibinfo{person}{Owolabi Legunsen}, {and} \bibinfo{person}{Darko Marinov}.}
   \bibinfo{year}{2016}\natexlab{}.
 \newblock \showarticletitle{Detecting Assumptions on Deterministic
   Implementations of Non-deterministic Specifications}. In

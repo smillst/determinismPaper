@@ -1,0 +1,102 @@
+\section{Case study}\label{sec:randoop-case-study}
+
+As a case study, we applied \theDeterminismChecker to the Randoop test
+generation tool~\ifanonymous\citepalias{randoop-tool}\else\cite{PachecoLEB2007}\fi.
+We chose Randoop because 
+it is frequently used in software engineering experiments,
+it is actively maintained,
+and its developers have struggled with nondeterminism (personal
+communication, 2019).
+
+Randoop is intended to be deterministic, when invoked on a deterministic
+program.\footnote{Users of Randoop can pass in a different seed in order to
+  obtain a different deterministic output.  Randoop has command-line
+  options that enable concurrency and timeouts, both of which can lead to
+  nondeterministic behavior.}
+
+However, Randoop was not deterministic.  This caused the developers
+problems in 
+reproducing bugs reported by users, 
+reproducing test failures during development, and
+understanding the effect of changes to Randoop (by comparing executions of two
+similar variants of Randoop).
+
+The developers took extensive action to detect and mitigate the effect of, nondeterminism.
+They used Docker images to run tests, to avoid system dependencies such as
+a different JDK having a different number of classes or methods.
+They wrote tests with relaxed oracles (assertions) that permit multiple
+possible answers --- for example, in code coverage of generated tests.
+They used linters such as Error Prone, which warns if toString is used on
+array objects, which don't override Object.toString and therefore print a
+hash code which may vary from run to run.
+They used libraries that make hash codes deterministic, by giving each
+object of a type a unique ID that counts up from 1, rather than using a
+memory address as \<Object.hashCode> does.
+They wrote preprocess output and logs to make nondeterministic ones easier
+to compare, such as by removing or canonicalizing hash codes, dates, and
+other nondeterministing output.
+Each of these efforts wase helpful, but they were not enough to solve the problem.
+
+In July 2017, the Randoop developers spent two weeks of full-time work to
+eliminate unintentional nondeterministic behavior in Randoop.
+Their methodology was to repeatedly
+ run Randoop with verbose logging enabled,
+ look for differences in logging output,
+ find the root cause of nondeterminism,
+ and eliminate it.
+The most common causes were toString() routines and iteration order of sets and maps.
+Some of the nondeterminism was in libraries, such as the JDK\@.
+
+The developers chose not to make every Map a LinkedHashMap, because that
+would have increased memory and CPU costs.  They chose not to make every
+order-nondeterminism List a Set, for similar reasons:  deduplication was
+not always needed and would have increased costs.
+
+\todo{When we discuss annotation effort, compare to this.
+  The annotation effort is
+  high, but it's no more than the hundreds of hours that the Randoop
+  developers spent, with less success.}
+
+That coding sprint did not find all the problems.
+The developers debugged and fixed 5 additional determinism defects over the
+next 12 months, using a similar methodology.
+% [2413 changed lines in the diffs.
+% (This number slightly overstates the number of code changes made, because sometimes changing code would result in code formatting changes, and some changes in those commits are unrelated to determinism, such as documentation improvements.)]
+We analyzed a version of Randoop from February 2019 (commit 0a8e63fb), over 6 months after the most recent determinism bug fix.
+
+We annotated the core of Randoop (the \<src/main/java> directory), which
+contains 24K non-comment, non-blank lines of code.
+% (41 KLOC including blanks and comments).
+% [Maybe we will add 1600 LOC of agent code.]
+We did not annotate Randoop's test suite.
+
+\todo{Report the number of annotations required, and say a few words about
+  the process and the effort required.}
+
+
+\TheDeterminismChecker found three previously-unknown nondeterminism bugs in Randoop.
+The Randoop developers accepted our bug reports and committed fixes to the repository.
+
+\begin{itemize}
+\item
+  A use of \<HashSet> that the developers changed to \<LinkedHashSet>\commit{c975a9f7}.
+The old code could cause a problem if a type variable's lower or upper
+bound has a type parameter that the type variable itself does not have.
+This situation does occur, even in Randoop's test suite.
+
+\item 
+ Diagnostic output that printed a hash code for brevity, but should have had deterministic output\commit{661a4970}.  By contrast to the other two bugs, this one is not serious.
+
+\item
+Dependency on the CLASSPATH environment variable in preference to the
+classpath passed on the command line\commit{330e3c56}.
+This could have led to incorrect behavior if a user set the environment variable.
+The developers changed Randoop to not read the environment variable.
+\end{itemize}
+
+We reported another suspicous case of order-nondeterminism, in the
+\<findOverridden> method.  The Randoop developers explained it was
+acceptable, after tracing the flow through the program.  (One said, ``This
+looks OK to me \ldots\ it took me a little while to decide that.'')  The fact
+depended on subtle, undocumented invariants about Randoop that we had not
+been able to reverse-engineer.
