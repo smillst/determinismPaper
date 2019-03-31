@@ -32,8 +32,15 @@ If code is covered by tests, NONDEX couldn't discover it. Else, its a limitation
 This indicates that the additional programmer effort required by \TheDeterminismChecker is justified
 as our tool discovers non-trivial issues and doesn't depend on code coverage or other runtime heuristics.
 
-\subsection{NONDEX case study}
-\cite{nondex} reported flaky tests on 21 open source projects. The authors also reported the sources of flakiness
+\subsection{\OurTool on NonDex benchmarks}\label{sec:nondex-benchmarks}
+
+\Cref{sec:nondex-randoop} shows that \ourTool finds errors that NonDex does not.
+This section determines whether NonDex finds errors that \ourTool does not.
+Its authors ran NonDex on 195 open-source projects, and NonDex found flaky tests in
+21 of them.
+
+
+The authors also reported the sources of flakiness
 after manually inspecting these tests. We ran \TheDeterminismChecker on all these benchmarks with the objective
 of measuring recall of our tool. We cloned all 21 repos and switched to the commit that had a flakiness issue as reported 
 in~\cite{nondex}. Of these projects, \<handlebars> has a compile time failure which prevents us from running \TheDeterminismChecker on it. For benchmarks \<visualee>, \<easy-batch>, and \<vraptor>, we couldn't find
