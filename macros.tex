@@ -11,12 +11,19 @@
 \anonymoustrue
 
 % For anonymity.  Let's find better names.
+\ifanonymous
 \newcommand{\ourTypeSystem}{Tendon\xspace}
 \newcommand{\OurTypeSystem}{Tendon\xspace}
 \newcommand{\theDeterminismChecker}{Gar\c{c}on\xspace}
 \newcommand{\TheDeterminismChecker}{Gar\c{c}on\xspace}
-\newcommand{\theDeterminismCheckerImplementation}{the Gar\c{c}on implementation\xspace}
-\newcommand{\TheDeterminismCheckerImplementation}{The Gar\c{c}on implementation\xspace}
+\else
+\newcommand{\ourTypeSystem}{our type system\xspace}
+\newcommand{\OurTypeSystem}{Our type system\xspace}
+\newcommand{\theDeterminismChecker}{the Determinism Checker\xspace}
+\newcommand{\TheDeterminismChecker}{the Determinism Checker\xspace}
+\fi
+\newcommand{\theDeterminismCheckerImplementation}{\theDeterminismChecker implementation\xspace}
+\newcommand{\TheDeterminismCheckerImplementation}{\TheDeterminismChecker implementation\xspace}
 
 % A commit hash
 \newcommand{\commit}[1]{\ifanonymous{ (commit #1)}\else\fi}
@@ -49,10 +56,10 @@
 \protected\def\codeid#1{\ifmmode{\mbox{\smaller\ttfamily{#1}}}\else{\smaller\ttfamily #1}\fi}
 
 % Enclosed in angle brackets
-\newcommand{\angles}[1]{\langle #1\rangle}
+\newcommand{\angles}[1]{\ensuremath{\langle}#1\ensuremath{\rangle}}
 % A parameterized type
 \newcommand{\ptype}[2]{\<#1>\ensuremath{\langle}\<#2>\ensuremath{\rangle}}
-% A larger parameterized type
+% A larger (in font size) parameterized type
 \newcommand{\lptype}[2]{{\larger\<#1>\ensuremath{\langle}\<#2>\ensuremath{\rangle}}}
 
 

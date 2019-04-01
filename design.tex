@@ -5,7 +5,7 @@ called \ourTypeSystem, in the context of a core calculus for an
 object-oriented language.
 
 
-\subsection{Preliminaries}
+\subsection{Preliminaries and notation}
 
 %% This section is too basic, and therefore is boring because most readers
 %% will already know it.  It also delays the interesting parts of the paper
@@ -73,19 +73,72 @@ object-oriented language.
 
 %\todo{Greek letters go after this paragraph.}
 
+\begin{figure}
+  \newcommand{\bnfalt}{\ \ |\ \ }
+  \begin{tabular}{lcll}
+    $C$ & ::= & \<Int>\bnfalt \<List>\bnfalt \ldots & class name \\
+    $\kappa$ & ::= & \<NonDet>\bnfalt \<OrderNonDet>\bnfalt\<Det> & type qualifier \\
+    $\tau$ & ::= & $\kappa\ \beta$ & \mbox{type} \\
+    $\beta$ & ::= & $C$\bnfalt $C\angles{\overline{\tau}}$ & \mbox{unqualified type}
+  \end{tabular}
+  \caption{Grammar of types}
+  \label{fig:grammar}
+\end{figure}
+
 In a type system,
 a \textit{type} represents a set of values.  It abstracts or restricts the
 set of possible run-time values that an expression may evaluate to.
-A programming language provides \emph{basetypes}, such as \<int>.
+A programming language provides \emph{basetypes}, such as \<Int>.
 A \textit{type qualifier} on a basetype adds additional constraints;
 that is, it reduces the size of the set of values.
-An example type qualifier is \<Positive>,\todo{should all type qualifiers
-  be lowercase in this section??} and a type (which combines a qualifier
-and a basetype) is \<Positive int>.
-A polymorphic type such as \<List> can be instantiated by a type argument,
-as in \ptype{List}{Positive int}.
+An example type qualifier is \<Positive>, and a type (which combines a qualifier
+and a basetype) is \<Positive Int>.
+A polymorphic type abstraction such as \<List> can be instantiated by a type argument,
+as in \ptype{List}{Positive Int}.
+
+\Cref{fig:grammar} formalizes these notions.
+\Cref{fig:grammar}'s $\beta$ is not a basetype as described above:  $\beta$
+lacks a top-level type, but any type arguments are full types
+$\tau$.  This paper does not formally define basetype, and uses $\beta$,
+for simplicity of exposition.
+In our core calculus, a type $\tau$ always has a qualifier.
+Our implementation, \theDeterminismChecker, uses inference and defaults to
+permit users to omit type qualifiers\todo{Forward reference}.
+
 
 A type checker verifies the types written in a program.
+A type qualifier constrain the set of possible run-time values, that is,
+$\kappa \ /beta \sqsubseteq \beta$.
+As a result, a qualifier type system does not allow any behavior that the
+original type system does not.
+However, the qualifier type system may reject more programs, and thus
+affords stronger guarantees.
+(Our implementation \theDeterminismChecker runs the underlying base type
+system, then issues additional errors and warnings.)
+\todo{Some qualifier type systems can be defined independently of the underlying
+type system.  We don't do that because there are interactions between the
+basetypes and the type qualifiers.  This allows greater precision, which
+is important in practice.}
+
+
+\begin{figure}
+    \bigskip
+
+    $\infer{\Det \sqsubseteq \OrderNonDet}{}
+    \quad\quad
+    \infer{\OrderNonDet \sqsubseteq \NonDet}{}$
+    
+    \bigskip
+
+    $\infer{\kappa_1 \beta \sqsubseteq \kappa_2 \beta}{\kappa_1 \sqsubseteq \kappa_2}
+    \quad\quad
+    \infer{\kappa \beta_1 \sqsubseteq \kappa \beta_2}{\beta_1 \sqsubseteq \beta_2}$
+    
+    
+    \caption{Subtyping rules for \ourTypeSystem.  $\sqsubseteq$ is overloaded for classes,
+    type qualifiers, types, and unqualified types $\beta$.}
+    \label{fig:typecheck-rules}
+\end{figure}
 
 \begin{figure}
     \bigskip
@@ -104,27 +157,8 @@ A type checker verifies the types written in a program.
       \sqsubseteq C_2\angles{\overline{\tau_i}}}{C_1 \sqsubseteq C_2}$
     
     \caption{A sampling of standard typing rules.  We omit other standard rules,
-    for brevity.  $\sqsubseteq$ is overloaded for classes and types.}
+    for brevity.}
     \label{typecheck-rules-standard}
-\end{figure}
-
-\begin{figure}
-    \bigskip
-
-    $\infer{\Det \sqsubseteq \OrderNonDet}{}
-    \quad\quad
-    \infer{\OrderNonDet \sqsubseteq \NonDet}{}$
-    
-    \bigskip
-
-    $\infer{\kappa_1 \beta \sqsubseteq \kappa_2 \beta}{\kappa_1 \sqsubseteq \kappa_2}
-    \quad\quad
-    \infer{\kappa \beta_1 \sqsubseteq \kappa \beta_2}{\beta_1 \sqsubseteq \beta_2}$
-    
-    
-    \caption{Subtyping rules for \ourTypeSystem.  $\sqsubseteq$ is overloaded for classes,
-    basetypes, type qualifiers, and types.}
-    \label{fig:typecheck-rules}
 \end{figure}
 
 %\todo{Define the Greek.  For example:
@@ -137,15 +171,14 @@ A type checker verifies the types written in a program.
 %  $\beta = C | C\angles{\overline{\tau}}$.
 %  }
 
-Figure~\cref{typecheck-rules-standard} shows a sample of the standard typing rules applied to 
-any typed language. In the generic case, the type $\tau$ represents a valid basetype in a programming language.
-\ourTypeSystem extends a basetype with a type qualifier. Throughout this paper, $\tau$ represents a fully qualified type.
-In other words, type $\tau = \kappa \ \beta$ consists of both a qualifier $\kappa$ and a basetype $\beta$, neither of which may be omitted.
-Further, $\beta$ is a type without a type qualifier, but which has type qualifiers on all its type parameters.
-Formally, $\beta ::= C|C \angles{\tau}$ where $C$ represents a valid Java basetype.
-\ourTypeSystem checks all the standard typing rules including the ones shown in Figure~\cref{typecheck-rules-standard} with
-the only difference of having an additional type qualifier on each of the basetypes. The type qualifiers can only 
-constrain the set of valid types. As a result, \ourTypeSystem doesn't allow any behavior that the original type system doesn't.
+\Cref{typecheck-rules-standard} shows a sample of standard typing rules for
+an object-oriented programming language.
+
+
+
+\OurTypeSystem checks all the standard typing rules including the ones shown in \cref{typecheck-rules-standard} with
+the only difference of having an additional type qualifier on each of the basetypes.
+
 
 \subsection{Determinism types}\label{type-hierarchy}
 
@@ -168,10 +201,9 @@ The core of the determinism type system is the following type qualifiers:
     \item \<OrderNonDet> indicates that the expression is a collection or
       map that contains the same elements in every execution, but possibly
       in a different order.
-    \item \<Det> indicates that
-    the expression evaluates to the same value (with respect to \<.equals()>) in all
-    executions; for a collection, iteration also yields the values in the same
-    order.
+    \item \<Det> indicates that the expression evaluates to equal values in
+      all executions; for an unordered collection such as a set, iteration
+      also yields the values in the same order.
 \end{itemize}
 \Cref{fig:typecheck-rules,fig:determinism-hierarchy} show their subtyping relationship.
 
@@ -190,6 +222,8 @@ including qualifiers.
 
 
 \subsection{Collection types}\label{collection-rules}
+
+\subsubsection{Type well-formedness}
 
 %\todo{Note that the \rulename{ordernondet} versions also handle \<Det>,
 %  because $\<Det> \sqsubseteq \<OrderNonDet>$.}
@@ -282,25 +316,25 @@ can be written on any non-collection Java basetype.
 
 The element type of a \<NonDet> collection must be \<NonDet>.
 Otherwise, the type qualifier on a collection's element must be a subtype or equal to
-the collection's type qualifier (\rulename{collection}\ rules of
+the collection's type qualifier (\rulename{collection} rules of
 \cref{type-validity}). Note that the \rulename{ordernondet} versions also handle \<Det>,
 because $\<Det> \sqsubseteq \<OrderNonDet>$.
-\Cref{fig:determinism-collections} restates its restrictions, and here are examples.
+\Cref{fig:determinism-collections} restates the \rulename{collection} rules
+of
+\cref{type-validity}.
 
 \smallskip
 \noindent
 \begin{minipage}{.48\textwidth}
 Some examples of valid types are:
 % Using "~" instead of "\ " does not work within \codeid :-(
-\begin{smaller}
 \begin{Verbatim}[commandchars=\\\{\}]
-NonDet      \lptype{List}{NonDet      Integer}
+NonDet      \lptype{List}{NonDet      Int}
 OrderNonDet \lptype{List}{OrderNonDet \lptype{Set}{...}}
-OrderNonDet \lptype{List}{Det         Integer}
-Det         \lptype{List}{Det         Integer}
+OrderNonDet \lptype{List}{Det         Int}
+Det         \lptype{List}{Det         Int}
 
 \end{Verbatim}
-\end{smaller}
 \end{minipage}
 \hfill
 \begin{minipage}{.46\textwidth}
@@ -308,9 +342,9 @@ These types are invalid:
 \begin{smaller}
 \begin{Verbatim}[commandchars=\\\{\}]
 NonDet      \lptype{List}{OrderNonDet \lptype{Set}{...}}
-NonDet      \lptype{List}{Det         Integer}
-OrderNonDet \lptype{List}{NonDet      Integer}
-Det         \lptype{List}{NonDet      Integer}
+NonDet      \lptype{List}{Det         Int}
+OrderNonDet \lptype{List}{NonDet      Int}
+Det         \lptype{List}{NonDet      Int}
 Det         \lptype{List}{OrderNonDet \lptype{Set}{...}}
 \end{Verbatim}
 \end{smaller}
@@ -318,25 +352,52 @@ Det         \lptype{List}{OrderNonDet \lptype{Set}{...}}
 \smallskip
 
 
- Although \<NonDet> collections containing \<Det> or \<OrderNonDet> elements could exist, they are
-disallowed to prevent the following bug:
+It is possible to store an expression of type \<Det> in a \<NonDet>
+collection, but all elements retrieved from a \<NonDet> collection have
+type \<NonDet>.  If the type \ptype{NonDet List}{Det String} were
+permitted, the following type hole would exist:
 
-\begin{verbatim}
-public static void add(@NonDet List<@Det String> list, @NonDet int index, @Det String s) {
-    list.add(index, s);
-}
+\begin{Verbatim}[commandchars=\\\{\}]
+\lptype{Det    List}{Det String} ddlist
+\lptype{NonDet List}{Det String} ndlist = ddlist   // permitted by subtyping rules
+NonDet Int ni = ...
+ndlist[ni] = "anywhere"
+\end{Verbatim}
 
-public static void f(@Det List<@Det String> list, @NonDet int index, @Det String s) {
-    add(list, index, s);
-}
-\end{verbatim}
+\noindent
+The deterministic string \<"anywhere"> is placed in the list at an
+arbitrary (that is, nondeterministic) index.  This must be prohibited,
+because it unsoundly permits the deterministic list \<ddlist> to differ
+from execution to execution.
 
-The possibility of mutation allows us to add to the \<Det List> at a
-\<NonDet> index, which is unsound.
 
-\todo{Some notes:}
-Typical type for \<get> is \\
-$\forall \tau . \<List>\angles{\tau} \times \<int> \rightarrow \tau$ \\
+\subsubsection{Behavior of order-nondeterministic collections}
+
+A collection of type \<OrderNonDet> has special properties, including the following
+
+\begin{enumerate}
+\item
+The individual elements retrieved from it have type \<NonDet>.  This
+affects access, iteration, searching, and more.
+(Rules \rulename{iteration} and \rulename{next element} in Figure~\ref{fig-ordernondet-rules})
+\item
+Size-related operations return a deterministic result.  This also affects
+queries of whether an iterator has more elements.
+\item
+If the collection is sorted, or its elements are placed in a collection
+that does sorting, the result is deterministic.
+\end{enumerate}
+
+To state the first point more formally, the 
+typical type for list access, such as \<get>, is \\
+$$\forall \tau . \<List>\angles{\tau} \times \<int> \rightarrow \tau$$
+but this type is incorrect for \ourTypeSystem.  Each of the following is a 
+$$
+\forall \kappa\ \beta . \<List>\angles{\tau} \times \<int> \rightarrow \tau \\
+\forall \tau . \<List>\angles{\tau} \times \<int> \rightarrow \tau \\
+\forall \tau . \<List>\angles{\tau} \times \<int> \rightarrow \tau
+$$
+
 but we need to change that.  If either argument is \<OrderNonDet> or \<NonDet>, then the
 result is \<NonDet>.
 If both arguments are \<Det>, the result is $\tau$ as usual.
@@ -346,14 +407,6 @@ If both arguments are \<Det>, the result is $\tau$ as usual.
 
 
 
-A collection or map annotated as \<OrderNonDet> has the following properties:
-%\todo{Write these as type rules.}
-\begin{enumerate}
-    \item The individual elements extracted by iterating over the collection get the type \<NonDet> (Rules \rulename{iteration} and \rulename{next element} in Figure~\ref{fig-ordernondet-rules}). 
-    Rule \rulename{hasnext element} states that querying if the iterator of an \<OrderNonDet Collection> \<hasNext()> will result in a \<Det boolean>.
-    \item Accessing properties such as \<size()> or querying if the collection \<isEmpty()> will return types
-    that are annotated as \<Det> as they do not depend on the iteration order. 
-\end{enumerate}
 
 \begin{figure}
 %    $\infer[\rulename{iteration}]
