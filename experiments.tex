@@ -43,11 +43,10 @@ Its authors ran NonDex on 195 open-source projects, and NonDex found flaky tests
 The authors also reported the sources of flakiness
 after manually inspecting these tests. We ran \TheDeterminismChecker on all these benchmarks with the objective
 of measuring recall of our tool. We cloned all 21 repos and switched to the commit that had a flakiness issue as reported 
-in~\cite{nondex}. Of these projects, \<handlebars> has a compile time failure which prevents us from running \TheDeterminismChecker on it. For benchmarks \<visualee>, \<easy-batch>, and \<vraptor>, we couldn't find
+in~\cite{nondex}. Of these projects, \<handlebars> and \<oryx> have compile time failures which prevents us from running \TheDeterminismChecker on them. For benchmarks \<visualee>, \<easy-batch>, and \<vraptor>, we couldn't find
 the sources of flakiness as reported in~\cite{nondex} anywhere in the respective repositories.
 \TheDeterminismChecker reported the nondeterministic source locations correctly in the rest of the projects.
 All these benchmarks and instructions to reproduce our results can be found at \href{https://github.com/t-rasmud/determinismCaseStudies}{https://github.com/t-rasmud/determinismCaseStudies}.
-\todo{P4 compile error: dependencies}
 
 All the flakiness that NONDEX found was due to 7 methods in 3 classes:
 \<Class.getDeclaredFields>, \<Class.getDeclaredMethods>, \<Class.getFields>, \<DateFormatSymbols.getZoneStrings>,
@@ -111,7 +110,7 @@ even have to be executed in our case.
 \todo{Link to det checker repo?}
 
 \begin{table}[]
-    \begin{tabular}{|p{1.5cm}|p{1cm}|p{4cm}|p{5cm}|}
+    \begin{tabular}{|p{1.5cm}|p{1cm}|p{5cm}|p{5cm}|}
         \hline
         Benchmark & Recall? & Error message source & Error msg  \\ \hline
         P1 & Yes & FieldAccess.java: [102,87] & assignment type incompatible \\
@@ -121,7 +120,7 @@ even have to be executed in our case.
         P5 & ** & Class.getDeclaredMethods not found &    \\ 
         P6 & Yes & OptionGroup.java: [55,40]  & argument type incompatible \\ 
         P6 & Yes & Option.java: [157,28]  &  assignment type incompatible\\
-        P7(test error) & Yes* & checker/ tests/ determinism/P71.java: 5 & return type incompatible \\ 
+        P7(test error & Yes & MultilineRecursiveToString..: [95,35] argument type incompatible & MultilineRecursiveToString...: [208,50]  return type incompatible \\ 
         P7(2) & Yes & FieldUtils.java: [219,84] & assignment type incompatible \\
         P7(2) & Yes & Reflection ToStringBuilder.java: [543,65]  & assignment type incompatible  \\
         P7(2) & Yes & HashCodeBuilder.java: [193,69]  & assignment type incompatible   \\
