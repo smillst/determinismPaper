@@ -107,7 +107,7 @@ report failing tests.
 for \<junit> in which we annotated all the \<assert> methods as accepting only \<Det> parameters.
 This will report any \<junit> test that passes nondeterministic arguments to \<assert>s and the test doesn't
 even have to be executed in our case.
-\todo{It took one of our authors about an hour to create this stub file - proof of easy estensibility of tool?} 
+\todo{It took one of our authors about an hour to create this stub file - proof of easy extensibility of tool?} 
 \todo{Link to det checker repo?}
 
 \begin{table}[]
@@ -134,7 +134,7 @@ even have to be executed in our case.
         P9 & Yes & Printers.java: [269,97]  &  enhancedfor type incompatible \\
         P10 & ** & getDeclaredFields not found  &  \\
         P11 & Yes & MapUtils.java: [20,50]   & enhancedfor type incompatible  \\
-        P12 & *  & 0 errors &  \\
+        P12 & Yes  & GSLayerEncoder21.java: [113,91]  & enhancedfor type incompatible \\
         P13 & ** & unbuildable handlebars &  \\
         P14 & Yes  & Maps.java: [91,69] & invalid element type   \\
         P15 & Yes & PkiMessageDecoder.java: [144,29]  &  enhancedfor type incompatible  \\
@@ -143,7 +143,7 @@ even have to be executed in our case.
         P18 & Yes & SubstitutableLoggerTest.java: [67,61]   & enhancedfor type incompatible  \\
         P19 & Yes & DataDictionaryEventSource.java: [73,78]  &  enhancedfor type incompatible  \\
         P20 & Yes & SaverImpl.java: [43,69]  &  return type incompatible  \\
-        P21 & * & 0 errors &   \\ \hline
+        P21 & Yes & RestDocumentation.java: [419,50] &  argument type incompatible   \\ \hline
     \end{tabular}
 \end{table}
 
@@ -151,3 +151,19 @@ even have to be executed in our case.
   NonDex did not find nondeterminism in.  Our hope would be to find
   nondeterminism that NonDex did not.  Choose a small project that is
   maintained (it has recent commits), so we can communicate with the authors.}
+
+\section{deflaker case study}
+\begin{table}[]
+    \begin{tabular}{|l|l|}
+        \hline
+        Benchmark, issue & found by det checker? \\ \hline
+        achilles, [2] issue \#309 &  Race condition\\ \hline
+        achilles, [3] issue \#310 & Same fix for \#309 and \#310 \\ \hline
+        checkstyle [4] issue \#4664& det checker not found \\ \hline
+        jackrabbit-oak [6] \#6512&  Unresolved on issue tracker \\ \hline
+        jackrabbit-oak [7] issue \#6524&  Dead link, didn't find 6524 in issue tracker \\ \hline
+        nutz [10] issue \#1283 &  Removed tests (Printing (HTTP's) Response.getstatus())\\ \hline
+        togglz [19] issue \#223 & (use NONDEX for debugging) \\ \hline
+        togglz [20] issue \#240 &  \\ \hline
+    \end{tabular}
+\end{table}
