@@ -47,7 +47,7 @@ in~\cite{nondex}. Of these projects, \<handlebars> has a compile time failure wh
 the sources of flakiness as reported in~\cite{nondex} anywhere in the respective repositories.
 \TheDeterminismChecker reported the nondeterministic source locations correctly in the rest of the projects.
 All these benchmarks and instructions to reproduce our results can be found at \href{https://github.com/t-rasmud/determinismCaseStudies}{https://github.com/t-rasmud/determinismCaseStudies}.
-\todo{P4, P12 and P21 det checker isn't recognized?}
+\todo{P4 compile error: dependencies}
 
 All the flakiness that NONDEX found was due to 7 methods in 3 classes:
 \<Class.getDeclaredFields>, \<Class.getDeclaredMethods>, \<Class.getFields>, \<DateFormatSymbols.getZoneStrings>,
@@ -117,7 +117,7 @@ even have to be executed in our case.
         P1 & Yes & FieldAccess.java: [102,87] & assignment type incompatible \\
         P2 & Yes & YamlWriter.java: [224,28] & cast unsafe  \\
         P3 & Yes & DateTimeZone.java: [731,27] &  return type incompatible \\ 
-        P4 & * & Det checker not found  &   \\ 
+        P4 & * & compile dependency failure  &   \\ 
         P5 & ** & Class.getDeclaredMethods not found &    \\ 
         P6 & Yes & OptionGroup.java: [55,40]  & argument type incompatible \\ 
         P6 & Yes & Option.java: [157,28]  &  assignment type incompatible\\
