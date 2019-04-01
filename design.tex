@@ -182,16 +182,17 @@ the only difference of having an additional type qualifier on each of the basety
 
 \subsection{Determinism types}\label{type-hierarchy}
 
-\begin{wrapfigure}{R}{0.3\textwidth}
+%% Reinstate wrapfigure later.  But, if it spans pages, every following
+%% page to the end of the document is narrowed to accommodate it.
+% \begin{wrapfigure}{R}{0.3\textwidth}
+\begin{figure}
     \begin{center}
         \includegraphics[scale=0.37]{detHierarchy}
     \end{center}
     \caption{Determinism type qualifier hierarchy}
     \label{fig:determinism-hierarchy}
-%\todo{Drop the at-signs (@).}
-%\todo{The text is weirdly small for the box.
-%  Probably redraw this.}
-\end{wrapfigure}
+\end{figure}
+% \end{wrapfigure}
 
 The core of the determinism type system is the following type qualifiers:
 %\todo{introduce just @Det and @NonDet first, and then @OrderNonDet after polymorphism.}
@@ -373,12 +374,12 @@ from execution to execution.
 
 \subsubsection{Behavior of order-nondeterministic collections}
 
-A collection of type \<OrderNonDet> has special properties, including the following
+A collection of type \<OrderNonDet> has special properties, including the following.
 
 \begin{enumerate}
 \item
 The individual elements retrieved from it have type \<NonDet>.  This
-affects access, iteration, searching, and more.
+affects access, iteration, searching, etc.
 (Rules \rulename{iteration} and \rulename{next element} in Figure~\ref{fig-ordernondet-rules})
 \item
 Size-related operations return a deterministic result.  This also affects
@@ -389,19 +390,31 @@ that does sorting, the result is deterministic.
 \end{enumerate}
 
 To state the first point more formally, the 
-typical type for list access, such as \<get>, is \\
-$$\forall \tau . \<List>\angles{\tau} \times \<int> \rightarrow \tau$$
-but this type is incorrect for \ourTypeSystem.  Each of the following is a 
-$$
-\forall \kappa\ \beta . \<List>\angles{\tau} \times \<int> \rightarrow \tau \\
-\forall \tau . \<List>\angles{\tau} \times \<int> \rightarrow \tau \\
-\forall \tau . \<List>\angles{\tau} \times \<int> \rightarrow \tau
-$$
+typical type for a list access operation, such as \<get>, is
+$$\forall \tau . \<List>\angles{\tau} \times \<Det Int> \rightarrow \tau$$
+but this type is incorrect for \ourTypeSystem.  Each of the following is a
+correct (but overly restrictive) type for \<get>:
+\begin{eqnarray*}
+\forall \kappa\ \beta . \<NonDet>\ \<List>\angles{\kappa\ \beta} \times \<Det Int>
+& \strut\hspace{-1em} \rightarrow \<NonDet>\ \beta
+& \mbox{\quad in this case $\kappa = \<NonDet>$} \\
+\forall \kappa\ \beta . \<OrderNonDet>\ \<List>\angles{\kappa\ \beta} \times \<Det Int>
+& \strut\hspace{-1em} \rightarrow \<NonDet>\ \beta
+& \mbox{\quad in this case $\kappa \in \{ \<OrderNonDet>, \<Det> \} $} \\
+\forall \kappa\ \beta . \<Det>\ \<List>\angles{\kappa\ \beta} \times \<Det Int>
+& \strut\hspace{-1em} \rightarrow \<Det>\ \beta\phantom{\<Non>}
+& \mbox{\quad in this case $\kappa = \<Det>$}
+\end{eqnarray*}
 
-but we need to change that.  If either argument is \<OrderNonDet> or \<NonDet>, then the
-result is \<NonDet>.
-If both arguments are \<Det>, the result is $\tau$ as usual.
-\todo{In that case, we know that $\tau = \<Det> \beta$.}
+\noindent
+and no type introduced so far can express this polymorphism.
+(The typing is actually even more complex, because if \emph{either}
+argument to \<get> is \<OrderNonDet> or \<NonDet>, then the
+result is \<NonDet>.  The above examples only show the case where the index
+is deterministic.)
+The typical type fro the list access operation only applies if both
+arguments are \<Det>,
+and our typing must have that as a special case, which is the first line above.
 
 
 
@@ -474,12 +487,24 @@ If both arguments are \<Det>, the result is $\tau$ as usual.
 
 \subsection{Polymorphism}\label{polymorphism}
 
-\OurTypeSystem supports three types of polymorphism:  type
-polymorphism, basetype polymorphism, and qualifier polymorphism.
-These apply to both classes and methods.
+\todo{Cut parts of the below; show the rest in Greek.}
+
+\OurTypeSystem supports both basetype polymorphism and qualifier polymorphism.
+When both are applied, it gives the effect of type polymorphism.
+Polymorphism applies to both classes and methods.
+
 \todo{Greekify the following}
 \begin{itemize}
 \item
+Type polymorphism has the usual semantics.  For example, the type of the
+identity function is $\forall \tau . \tau \rightarrow \tau$, which can be
+equivalently written as
+$\forall \kappa \ \beta . \kappa \ \beta \rightarrow \kappa \ \beta$.
+\item
+Basetype polymorphism lets the basetype vary without applies a 
+
+An example of a type-polymorphic method is identity
+
 In \theDeterminismCheckerImplementation,
 type polymorphism is handled by Java's generics mechanism, which
 \theDeterminismChecker fully supports, including class and method generics,

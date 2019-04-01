@@ -120,3 +120,53 @@ breaks our determinism guarantees).
 
 
 \<@Det> equality is with respect to \<.equals()>.
+
+
+\subsection{Polymorphism}\label{java-polymorphism}
+
+\OurTypeSystem supports three types of polymorphism:  type
+polymorphism, basetype polymorphism, and qualifier polymorphism.
+These apply to both classes and methods.
+
+\todo{They 
+
+\begin{itemize}
+\item
+In \theDeterminismCheckerImplementation,
+type polymorphism is handled by Java's generics mechanism, which
+\theDeterminismChecker fully supports, including class and method generics,
+inference, etc.
+Given the Java declaration
+\begin{Verbatim}
+<T> T identity(T arg) { return arg; }
+\end{Verbatim}
+the type of \<identity(arg)> is the same as the type of
+\<arg>, and a programmer can write a type such as \codeid{List<@NonDet
+  Integer>} (but see below for details about collections).
+\item
+Basetype polymorphism is enabled by writing a type qualifier on a use of a
+type variable, which overrides the type qualifier at the instantiation
+site.
+For example, a \<choose> operation on sets could be defined in Java as
+\begin{Verbatim}
+class ChooseableSet<T> implements Set<T> {
+  // return an arbitrary element from the set
+  @NonDet T choose();
+}
+\end{Verbatim}
+\item
+Java does not provide a syntax that can be used for qualifier polymorphism,
+so we use a special type qualifier name, \<@PolyDet>.
+A qualifier-polymorphic method \<m> with signature $\forall \kappa . \kappa\ \<int> \times \<Det boolean> \rightarrow
+\kappa\ \<String>$ would be written in our dialect of Java as
+\begin{Verbatim}
+@PolyDet String m(@PolyDet int, @Det boolean)
+\end{Verbatim}
+Each use of \<@PolyDet> stands for a use of the qualifier variable
+$\kappa$, and there is no need to declare the qualifier variable $\kappa$.
+\TheDeterminismChecker currently supports
+qualifier
+polymorphism on methods but not on classes.
+Therefore, \<@PolyDet> may be written in methods (signatures and bodies)
+but not on fields.
+\end{itemize}
