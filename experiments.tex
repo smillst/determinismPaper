@@ -28,7 +28,7 @@ It completed successfully without reporting any flaky tests.
 
 \todo{check if the bugs discovered by \theDeterminismChecker have test coverage}
 \todo{We investigated the tests covering code that \theDeterminismChecker reported as nondeterministic.
-If code is covered by tests, NONDEX couldn't discover it. Else, its a limitation of NONDEX}.
+If code is covered by tests, NonDex couldn't discover it. Else, its a limitation of NonDex.}
 This indicates that the additional programmer effort required by \TheDeterminismChecker is justified
 as our tool discovers non-trivial issues and doesn't depend on code coverage or other runtime heuristics.
 
@@ -48,7 +48,7 @@ the sources of flakiness as reported in~\cite{nondex} anywhere in the respective
 \TheDeterminismChecker reported the nondeterministic source locations correctly in the rest of the projects.
 All these benchmarks and instructions to reproduce our results can be found at \href{https://github.com/t-rasmud/determinismCaseStudies}{https://github.com/t-rasmud/determinismCaseStudies}.
 
-All the flakiness that NONDEX found was due to 7 methods in 3 classes:
+All the flakiness that NonDex found was due to 7 methods in 3 classes:
 \<Class.getDeclaredFields>, \<Class.getDeclaredMethods>, \<Class.getFields>, \<DateFormatSymbols.getZoneStrings>,
 \<HashMap.entrySet>, \<HashMap.keySet>, and \<HashMap.values>.  
 We provide samples of the annotated source code form these benchmarks and the errors as reported by \TheDeterminismChecker 
@@ -99,7 +99,7 @@ significant programmer effort involved in annotating the whole program. On the o
 state "we found that manually inspecting these failures was
 rather challenging, and we leave it as future work to automate
 debugging test failures due to ADINS code". \TheDeterminismChecker reports source locations
-which makes it easier for the programmer to fix issues and is orthogonal to the approach taken by NONDEX which
+which makes it easier for the programmer to fix issues and is orthogonal to the approach taken by NonDex which
 report failing tests.
 
 \TheDeterminismChecker is also capable of detecting nondetermism in test cases. We provide a stub file
@@ -162,7 +162,7 @@ even have to be executed in our case.
         jackrabbit-oak [6] \#6512&  Unresolved on issue tracker \\ \hline
         jackrabbit-oak [7] issue \#6524&  Dead link, didn't find 6524 in issue tracker \\ \hline
         nutz [10] issue \#1283 &  Removed tests (Printing (HTTP's) Response.getstatus())\\ \hline
-        togglz [19] issue \#223 & (use NONDEX for debugging) \\ \hline
+        togglz [19] issue \#223 & (use NonDex for debugging) \\ \hline
         togglz [20] issue \#240 &  \\ \hline
     \end{tabular}
 \end{table}
