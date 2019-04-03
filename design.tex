@@ -951,7 +951,7 @@ While this is sound, it is imprecise in the case of \codeid{OrderNonDet
   conclusion be $\beta_v$?}
     \label{fig-precision-rules}
 \end{figure}
-According to this rule, if the \<Set> receiver has type \codeid{@OrderNonDet Set<@Det List} and the argument to the \codeid{equals()} method is
+According to this rule, if the \<Set> receiver has type \codeid{@OrderNonDet Set<@Det List>} and the argument to the \codeid{equals()} method is
 also of the same type, the return type gets the qualifier \<Det>. Without this precision rule, the return type would have been instantiated as \<NonDet> which
 is sound but imprecise. This rule is careful enough to not annotate the return type of \<equals()> as \<Det> if a type argument to either the
 receiver or the argument happens to be an \codeid{OrderNonDet List}.
