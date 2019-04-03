@@ -101,3 +101,24 @@ acceptable, after tracing the flow through the program.  (One said, ``This
 looks OK to me \ldots\ it took me a little while to decide that.'')  The fact
 depended on subtle, undocumented invariants about Randoop that we had not
 been able to reverse-engineer.
+
+
+
+
+The large number of \<@Det> annotations has two main reasons.
+
+One is that we annotated some core components of Randoop to require all
+boolean expressions used in conditionals to be deterministic.  (This is an
+option in our implementation, which increases soundness.)  This forced
+their clients, and much of the Randoop codebase, to be deterministic.
+These annotations are not incorrect, but they are stricter than necessary
+because some types could otherwise be @PolyDet, which is the default for
+formal parameter and return types.  We plan to re-do the annotation effort
+from scratch, and the number of annotations will be much lower.
+
+The second reason is a limitation in \theDeterminismCheckerImplementation.
+\TheDeterminismChecker does not support qualifier polymorphism over
+classes.  This means that fields must be deterministic.  Our annotations in
+Randoop use qualifier polymorphism extensively on methods but cannot use it
+on classes, and this leads to many more Det annotations than would be
+needed otherwise.
