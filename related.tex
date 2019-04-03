@@ -2,31 +2,40 @@
 
 \todo{TODO}
 
-The state of the art is NonDex.  It is a highly effective tool.
-
+The state of the art is NonDex~\cite{nondex}.  It is a highly effective tool.
 % https://github.com/TestingResearchIllinois/NonDex/wiki/Supported-APIs
-NonDex uses a hand-crafted list of 47 methods (25 unique method names) in
-in 13 classes.
-This is analogous to our annotations on the JDK\@.
-\todo{Say how much code our annotations cover?}
-\todo{Check whether our JDK is missing anything they support.}
+NonDex uses a hand-crafted list of 47 methods (25 unique method names)
+in 13 classes that were identified as potential sources of flakiness. 
+This is analogous to our annotations on the JDK\@. So far, we have annotated
+928 methods across 41 classes.
+For each of the identified methods, the authors built models that
+return different results when called consecutively. A modified JVM then
+runs a given test multiple times and reports the test as being flaky if it observes
+diverging test output. While this approach produces precise results, it requires manual inspection
+and considerable debugging effort to locate and fix the source of flakiness. \TheDeterminismChecker, in
+contrast, reports the cause of nondeterminism at compile requiring little to no debugging effort with the
+caveat of producing higher false positives compared to NonDex.
+%\todo{Check whether our JDK is missing anything they support - No}
 %\todo{Did the NonDex authors contact the maintainers of the tools in which
-%  they found nondeterminism?}
-\todo{The NonDex authors didn't contact the maintainers of tools.
-From the paper: "NonDex detected 57 previously unknown
-flaky tests in open-source projects and three flaky tests
-that have been already fixed by the open-source software
-developers."}
+%  they found nondeterminism - No!}
+%\todo{The NonDex authors didn't contact the maintainers of tools.
+%From the paper: "NonDex detected 57 previously unknown
+%flaky tests in open-source projects and three flaky tests
+%that have been already fixed by the open-source software
+%developers."}
+
+
 
 \todo{A NonDet annotation:
   \url{http://www.swi-prolog.org/pldoc/man?section=modes}}
 
-\todo{All nondeterminism that NonDex found was due to 7 methods in 3 classes:
-Class\#getDeclaredFields
-Class\#getDeclaredMethods
-Class\#getFields
-DateFormatSymbols\#getZoneStrings
-HashMap\#entrySet
-HashMap\#keySet
-HashMap\#values
-}
+%% Added this info in the experiments section
+%\todo{All nondeterminism that NonDex found was due to 7 methods in 3 classes:
+%Class\#getDeclaredFields
+%Class\#getDeclaredMethods
+%Class\#getFields
+%DateFormatSymbols\#getZoneStrings
+%HashMap\#entrySet
+%HashMap\#keySet
+%HashMap\#values
+%}
