@@ -34,3 +34,19 @@
         P21 & Yes & RestDocumentation.java: [419,50] &  argument type incompatible   \\ \hline
     \end{tabular}
 \end{table}
+
+\begin{table}[]
+    \begin{tabular}{|l|p{5cm}|}
+        \hline
+        Benchmark, issue & found by det checker? \\ \hline
+        achilles, [2] issue \#309 &  Race condition\\ \hline
+        achilles, [3] issue \#310 & Same fix for \#309 and \#310 \\ \hline
+        checkstyle [4] issue \#4664&test (added to test cases in det checker) \\ \hline
+        jackrabbit-oak [6] \#6512&  Unresolved on issue tracker (Race condition issue) \\ \hline
+        jackrabbit-oak [7] issue \#6524&  Dead link, didn't find 6524 in issue tracker \\ \hline
+        nutz [10] issue \#1283 &  Removed tests (Printing (HTTP's) Response.getstatus()) has Chinese characters,
+        compilation with det checker stuck!\\ \hline
+        togglz [19] issue \#223 & build issue \\ \hline
+        togglz [20] issue \#240 &  build issue\\ \hline
+    \end{tabular}
+\end{table}

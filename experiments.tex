@@ -1,4 +1,4 @@
-\section{Comparison to previous work}
+\section{Comparison to NonDex}
 
 The state of the art in flaky test detection is NonDex~\cite{nondex}.
 \Cref{sec:related} explains how NonDex works. In this section, we perform a qualitative comparison of the
@@ -125,19 +125,24 @@ empirical evidence of the ease of extensibility of our tool.
   nondeterminism that NonDex did not.  Choose a small project that is
   maintained (it has recent commits), so we can communicate with the authors.}
 
-\section{deflaker case study}
-\begin{table}[]
-    \begin{tabular}{|l|p{5cm}|}
-        \hline
-        Benchmark, issue & found by det checker? \\ \hline
-        achilles, [2] issue \#309 &  Race condition\\ \hline
-        achilles, [3] issue \#310 & Same fix for \#309 and \#310 \\ \hline
-        checkstyle [4] issue \#4664&test (added to test cases in det checker) \\ \hline
-        jackrabbit-oak [6] \#6512&  Unresolved on issue tracker (Race condition issue) \\ \hline
-        jackrabbit-oak [7] issue \#6524&  Dead link, didn't find 6524 in issue tracker \\ \hline
-        nutz [10] issue \#1283 &  Removed tests (Printing (HTTP's) Response.getstatus()) has Chinese characters,
-        compilation with det checker stuck!\\ \hline
-        togglz [19] issue \#223 & build issue \\ \hline
-        togglz [20] issue \#240 &  build issue\\ \hline
-    \end{tabular}
-\end{table}
+\section{Comparison to Deflaker}
+Deflaker~\cite{deflaker}, like NonDex, reports tests that could be flaky. Ideally, we would have 
+liked to run all three tools (NonDex, DeFlaker, and \TheDeterminismChecker) on an open source project
+that wasn't explored by any of the tool for a fair comparison. Unfortunately, there are issues with the
+DeFlaker plugin and we weren't able to run it on any project. We have created a Github issue for the same
+in its repository.
+
+\subsection{\TheDeterminismChecker on DeFlaker benchmarks}\label{sec:deflaker-benchmarks}
+DeFlaker found 87 previously unknown flaky tests in 93 projects that were being actively developed at the the time
+the paper was written. The authors reported 19 of these tests, out of which 7 were addressed by the maintainers of
+those projects. Since we can only verify if \TheDeterminismChecker finds the same bugs by looking at the source code
+locations, we ran our tool on the benchmarks where the reported bug was fixed. We again defer the reader to~\cite{deflaker}
+for a complete list of the open source projects and their details.
+
+Two of the seven flaky tests (in \<achilles> and \<jackrabbit-oak>) that DeFlaker reported were caused by a race condition. \TheDeterminismChecker
+is designed for sequential programs and hence cannot detect this category of bugs.  
+We couldn't find the link to one of the issues in the issue tracker of \<jackrabbit-oak>
+We ran into build issues
+for \<tigglz> and \<nutz> which had two and one flakiness issues respectively. 
+\TheDeterminismChecker was able to find the source of flakiness in \<checkstyle>. This bug was in a test
+case that deterministically accessed an \<OrderNonDet> array returned by \<Class.getDeclaredConstructors()>.
