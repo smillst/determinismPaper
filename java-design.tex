@@ -194,3 +194,102 @@ This indicates that method \<foo> can be called with arguments having any of the
  \<PolyDet> gets instantiated to the least upper bound of
 the actual types on arguments. For instance, if this method is called as \codeid{foo(@Det String arg1, @NonDet boolean arg2)}, \theDeterminismChecker instantiates the method declaration as \codeid{@NonDet int foo(@NonDet String param1, @NonDet boolean param2)}
 causing the return type to have the type qualifier \<NonDet>.
+
+
+
+\subsection{Dataflow analysis and type refinement}\label{sec:dataflow-java}
+
+\todo{Relate this to defaulting.}
+
+It also performs dataflow analysis and refines the types of these locals, thereby reducing the qualifier burden 
+on the programmer. Consider the example below:
+\begin{verbatim}
+void foo(@Det int x) {
+    @NonDet int y = x;    // Type of y gets refined to @Det.
+    @Det int z = y;       // No error here.
+}
+\end{verbatim}
+In the example above, even though the local variable \codeid{y} was declared to be \codeid{NonDet}, it gets
+type refined to \codeid{Det} after the first assignment statement. As the result, the assignment of \codeid{y}
+to a \codeid{Det} variable \codeid{z} is sound. In the following example,
+\begin{verbatim}
+void foo(@NonDet Object x, @Det Object y) {
+    x = y;                // No type refinement for x.
+    @Det Object z = x;    // Error.
+}
+\end{verbatim}
+\theDeterminismChecker reports a warning at the second assignment statement of \codeid{foo}. Type refinement only applies to locals. Refining non-locals can result in side effects making the analysis unsound.
+
+With the above rules, \theDeterminismChecker will automatically annotate a local collection with type \<NonDet> and its
+type arguments will get the type qualifier \<Det>. For example, a locally declared \codeid{List} of \codeid{Strings} will be automatically annotated
+as \codeid{NonDet List<Det String>}. Recall from~\cref{collection-rules} that \theDeterminismChecker does not allow this type on
+any collection. While this is still sound, it will result in \theDeterminismChecker reporting a lot of errors because every locally declared 
+collection gets annotated with this invalid type. To avoid this situation, we make an exception to the defaulting rules for local collections
+and annotate their type parameters also with \<NonDet>. So a local list of Strings gets the default qualifier of \codeid{NonDet List<NonDet String>}. While this defaulting eliminates the possibility of automatically annotating locals collections with an invalid
+type, it could result in a high number of false positives. In the following code snippet,
+\begin{verbatim}
+void test(@Det List<@Det String> argList) {
+    List<String> localList = argList;
+}    
+\end{verbatim}
+\theDeterminismChecker would report an error at the assignment statement since the inferred type for \codeid{localList} is 
+\codeid{NonDet List<NonDet> String} and since collections types are invariant.
+We therefore recommend that programmers explicitly annotate
+all local variables that are collections to reduce false positives.
+
+
+\subsection{Maps}\label{sec:maps-java}
+
+
+
+ A \<Map> is deterministic if its \<entrySet> is deterministic.
+In other words, iterating over this \<entrySet> is guaranteed to produce the same values in the exact same order across executions.
+The \<Map> interface in Java doesn't define an \<iterator()> interface. Therefore it's sound to equate the determinism of the \<Set>
+returned by \<entrySet()> to the determinism of the \<Map>. Interestingly, we found that every implementation of the \<Map> 
+interface had the following property: if the \<Set> returned by \<entrySet()> has a determinism type $\kappa$, then
+the \<Set>s returned by \<keySet()> and \<values()> also have the exact same determinism type $\kappa$.
+
+We noticed the following properties with respect to determinism regarding the most widely used \<Map> implementations:
+\begin{itemize}
+    \item \<HashMap> can never guarantee fully deterministic iteration over its entries. A \codeid{Det HashMap} does not exist.
+    \item \<LinkedHashMap> can have any of \<Det>, \<OrderNonDet>, or \<NonDet> types. Iterating over a \<LinkedHashMap> returns
+    its entries in the order of their insertion. An \<OrderNonDet LinkedHashMap> can be created by calling its constructor with a \<HashMap>.
+    \item \<TreeMap> can either be \<Det> or \<NonDet>. An \<OrderNonDet TreeMap> doesn't exist because the entries always ordered.
+\end{itemize}
+
+We prohibit the creation of a \codeid{Det HashMap} or an \codeid{OrderNonDet TreeMap} in our determinism checker.
+\Cref{fig-creation-rules} formalizes these rules. Similar constraints apply to \<HashSet>s and \<TreeSet>s which are
+also expressed by the last two rules of \cref{fig-creation-rules}.
+
+\begin{figure}
+    $\infer[\rulename{hashmap creation}]{\|new \ \kappa\ HashMap()|}{\kappa \in \{ \<OrderNonDet>, \<NonDet> \}}$
+    
+    \bigskip
+    
+    $\infer[\rulename{treemap creation}]{\|new \ \kappa\ TreeMap()|}{\kappa \in \{ \<Det>, \<NonDet> \}}$
+    
+    \bigskip
+    
+    $\infer[\rulename{hashset creation}]{\|new \ \kappa\ HashSet()|}{\kappa \in \{ \<OrderNonDet>, \<NonDet> \}}$
+    
+    \bigskip
+    
+    $\infer[\rulename{treeset creation}]{\|new \ \kappa\ TreeSet()|}{\kappa \in \{ \<Det>, \<NonDet> \}}$
+    \caption{\<Map> and \<Set> creation rules}
+    \todo{Are these type well-formedness rules?}
+\todo{What about \<new TreeSet(myOrderedCollection<Det ...>)> which yields a
+  deterministic set?}
+    \label{fig-creation-rules}
+\end{figure}
+
+In the JDK, \<LinkedHashSet> is implemented as a subclass of \<HashMap>.
+\todo{Talk about this design choice. Josh Bloch's book: "If the code surrounding the first declaration depended on LinkedHashSet's ordering policy,
+    then it would be incorrect to substitute HashSet for LinkedHashSet in the declaration, because HashSet makes no guarantee concerning iteration order."} 
+
+
+\subsection{Precision improvements}\label{sec:precision-java}
+
+\codeid{System.getProperty()} returns a \<NonDet> type since we can't provide any determinism guarantees for
+executions across machines. However, we make exceptions when the argument to this method is one of 
+\codeid{"line.separator", "path.separator", or "file.separator"} as they return OS dependent values which are guaranteed to be deterministic on that OS.
+

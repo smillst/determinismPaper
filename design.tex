@@ -490,8 +490,32 @@ and our typing must have that as a special case, which is the first line above.
 
 \subsection{Polymorphism}\label{polymorphism}
 
+This section first describes basic polymorphism over type qualifiers and
+over basetypes (\cref{sec:basic-polymorphism}).  Then, it describes two
+extensions.
+One extension resolves \<OrderNonDet> to \<NonDet> or \<Det> where
+needed (\cref{polymorphism-up-down}).
+The other extension permits use of polymorphic (type) variables without
+affecting binding of those variables --- that is, it affects which
+instantiation of an abstraction is chosen at a use site 
+(\cref{bindings-uses}).
+
 \todo{Can we come up with more examples of interesting functions to
   describe here?  Or put them in section 3.}
+
+
+\subsubsection{Qualifier and basetype polymorphism}\label{sec:basic-polymorphism}
+
+\OurTypeSystem supports parametric
+polymorphism~\cite{Abadi:1989:FIM:77350.77373,Plotkin:1993:LPP:645891.671433}
+over both classes and methods.
+A polymorphic abstraction (a class or method) is written and
+typechecked once.
+It acts as if it has multiple different types, and each use site is
+typechecked using the most specific applicable (instantiated,
+non-polymorphic) type.
+
+
 
 \OurTypeSystem supports both basetype polymorphism and qualifier polymorphism.
 When both are applied, it gives the effect of type polymorphism.
@@ -504,10 +528,7 @@ Type polymorphism has the usual semantics.  For example, the type of the
 identity function is $\forallt{\tau} \tau \rightarrow \tau$, which can be
 equivalently written as
 $\forallt{\kappa \ \beta} \kappa \ \beta \rightarrow \kappa \ \beta$.
-(Compare this to 
-$\forallt{\kappa} \forallt{\beta} \kappa \ \beta \rightarrow \kappa \ \beta$
-which differs because the qualifier and basetype can vary independently;
-see below.)\todo{Does the foregoing make sense?}
+
 
 \item
   Basetype polymorphism lets the basetype vary indepentently of the
@@ -516,43 +537,37 @@ see below.)\todo{Does the foregoing make sense?}
 
   $\forallt{\beta} \<Set>\angles{\<Det>\ \beta} \rightarrow \<NonDet>\ \beta$
 
-  Basetype polymorphism is rarely used.  Full type polymorphism is more
+  Basetype polymorphism is rarely used on its own.  Full type polymorphism is more
   common, even if the type is decomposed and the parts used independently,
   as in this more general signature for the \<choose> function:
 
-  $\forallt{\kappa\ \beta} \<Set>\angles{\kappa\ \beta} \rightarrow \<NonDet> \beta$
+  $\forallt{\kappa\ \beta} \<Set>\angles{\kappa\ \beta} \rightarrow \<NonDet>\ \beta$
 
 \item
 Qualifier polymorphism is common.  For example, here is the signature for
 the \<length> method on strings:
 
-$\<length>\ :\ \forallt{\kappa} . \kappa\ \<String> \rightarrow \kappa \<Int>$
+$\<length>\ :\ \forallt{\kappa} \kappa\ \<String> \rightarrow \kappa\ \<Int>$
 
 \noindent
 and here is that for the addition operation:
 
-$\<plus>\ :\ \forallt{\kappa} . \kappa\ \<Int> \times \kappa\ \<Int> \rightarrow \kappa \<Int>$
+$\<plus>\ :\ \forallt{\kappa} \kappa\ \<Int> \times \kappa\ \<Int> \rightarrow \kappa\ \<Int>$
 
 \end{itemize}
 
-\OurTypeSystem uses the standard meaning of parametric
-polymorphism~\cite{Abadi:1989:FIM:77350.77373,Plotkin:1993:LPP:645891.671433}.
-A polymorphic abstraction (such as a class or function) is written and
-typechecked once, but can be instantiated differently at different uses,
-each of which behaves as if it was written with a different non-polymorphic
-type.
-
-Informally, the \<length> above acts as if it had multiple
+Informally, the \<length> method above acts as if it had multiple
 (overloaded) definitions
 
 $\<NonDet>\ \<String> \rightarrow \<NonDet> \<Int>$
 
 $\<Det>\ \<String> \rightarrow \<Det> \<Int>$
 
-The body must typecheck at every possible instantiation, and at a use site,
+The body of \<length> must typecheck at every possible instantiation of its
+polymorphic function type.  At a use site of \<length>,
 the most specific applicable instantiation is chosen.
 Here is an example:
-(put it in a table)
+\todo{(put it in a table)}
 
 \begin{Verbatim}
 NonDet Int ni;
@@ -572,23 +587,30 @@ function would not be instantiated at $\kappa = \<OrderNonDet>.$
 
 As described so far, polymorphism cannot express the collection behaviors
 of \cref{sec:ond-behavior}.
-Consider this typing for the \<size> function:
+Consider this potential typing for the \<size> method in class \CollectionE:
 
-$\<size>\ :\ \forallt{\kappa} \kappa\ \<Collection> \rightarrow \kappa\ \<Int>$
+$\<size>\ :\ \forallt{\kappa} \kappa\ \CollectionE \rightarrow \kappa\ \<Int>$
 
-It cannot be instantiated as 
+\noindent
+It cannot be instantiated at $\kappa = \<OrderNonDet>$ as 
 
-$\<size>\ :\ \<OrderNonDet>\ \<Collection> \rightarrow \<OrderNonDet> \<Int>$
+$\<size>\ :\ \<OrderNonDet>\ \CollectionE \rightarrow \<OrderNonDet>\ \<Int>$
 
-because such an instantiation would include the invalid type \<OrderNonDet Int>.
+\noindent
+because such an instantiation would include the invalid return type \<OrderNonDet Int>.
+This means that the only two instantiations are at 
+$\kappa = \<NonDet>$ and $\kappa = \<Det>$.  An invocation on a
+\<OrderNonDet> collection would choose the \<NonDet> instantiation and the
+size would be \<NonDet Int>.
+%
 A similar problem occurs for the \<first> operation that returns the first
 element of a list.
 
-\OurTypeSystem resolves this problem by introducing two variants to the
-\<PolyDet> qualifier, \PolyDetUp\ and \PolyDetDown.
+\OurTypeSystem resolves this problem by introducing two operators over
+polymorhic (type) variables, $\uparrow$ and $\downarrow$.
 The $\uparrow$ operator converts \<OrderNonDet> to \<NonDet> and leaves the
-other qualifiers unchanged.  The upward-pointing arrow is mnemonic of how
-\<OrderNonDet> is changed:  it replaced by something higher in the type hierarchy.
+other qualifiers unchanged.  The upward-pointing arrow is mnemonic for replacing
+\<OrderNonDet> by something higher in the type hierarchy.
 The $\downarrow$ operator is analogous, but converts \<OrderNonDet> to
 \<Det>, which is lower in the type hierarchy.
 \Cref{fig:poly-resolutions} formalizes their behavior.
@@ -612,31 +634,40 @@ The $\downarrow$ operator is analogous, but converts \<OrderNonDet> to
 
 The correct type for \<size> is
 
-$\<size> : \forallt{\kappa} \kappa\ \<Collection> \rightarrow \down{\kappa} \<Int>$
+$\<size> : \forallt{\kappa} \kappa\ \CollectionE \rightarrow \down{\kappa}\ \<Int>$
 
+\noindent
 This can be instantiated at all three type qualifiers without creating any
-invalid types, and the instantiations implement the semantics of \cref{sec:ond-behavior}:
+invalid types:
 
-$\<size> : \<NonDet>\ \<Collection> \rightarrow \<NonDet> \<Int>$
+$\<size> : \<NonDet>\ \CollectionE \rightarrow \<NonDet>\ \<Int>$
 
-$\<size> : \<OrderNonDet>\ \<Collection> \rightarrow \<Det> \<Int>$
+$\<size> : \<OrderNonDet>\ \CollectionE \rightarrow \<Det>\ \<Int>$
 
-$\<size> : \<Det>\ \<Collection> \rightarrow \<Det> \<Int>$
+$\<size> : \<Det>\ \CollectionE \rightarrow \<Det>\ \<Int>$
 
-An example use of $\uparrow$ is the \<first> operation.  A simplified
-version of its type is
+\noindent
+The above instantiations implement the semantics of \cref{sec:ond-behavior}.
 
-$\<first> : \forallt{\kappa\ \beta} \kappa\ \<List>\angles{\kappa\ \beta} \rightarrow \up{\kappa}\ \beta$
+An example use of $\uparrow$ is in the \<first> method in class \ListKB\ that
+returns the first element of a list.  Its type is
 
-whose type qualifier can be instantiated as
+$\<first> : \forallt{\kappa} \kappa\ \ListKB \rightarrow \up{\kappa}\ \beta_e$
 
-$\<first> : \forallt{\beta} \<NonDet>\ \<List>\angles{\<NonDet>\ \beta} \rightarrow \<NonDet>\ \beta$
+\noindent
+which can be instantiated as
 
-$\<first> : \forallt{\beta} \<OrderNonDet>\ \<List>\angles{\<OrderNonDet>\ \beta} \rightarrow \<NonDet>\ \beta$
+$\<first> : \<NonDet>\ \ListKB \rightarrow \<NonDet>\ \beta_e$
 
-$\<first> : \forallt{\beta} \<Det>\ \<List>\angles{\<Det>\ \beta} \rightarrow \<Det>\ \beta$
+$\<first> : \<OrderNonDet>\ \ListKB \rightarrow \<NonDet>\ \beta_e$
 
-The actual type of \<first> accounts for more possible types for the type arguments.
+$\<first> : \<Det>\ \ListKB \rightarrow \<Det>\ \beta_e$
+
+\todo{As I mentioned in email, $\<NonDet>\ \beta_e$ looks wrong to me,
+  because $\beta_e$ may be a collection whose type arguments are not
+  compatible with \<NonDet>.  Maybe just remark that the instantiation does
+  not happen in that case.  If we try to adjust the type arguments to fit
+  \<NonDet>, then unsoundness occurs.}
 
 
 %\begin{figure}
@@ -694,7 +725,11 @@ The actual type of \<first> accounts for more possible types for the type argume
         & \kappa \in \{\|Det, NonDet|\}
         & \wellformed{\tau}
     }$
-\caption{Polymorphic resolution ($\uparrow$ is overloaded for types and qualifiers)}
+\caption{Polymorphic resolution of $\uparrow$ and $\downarrow$ operators ($\uparrow$ is overloaded for types and qualifiers)}
+\todo{I think this needs to do something to nested collections.  Or maybe
+  just clarify that if there is a nested collection such that this would
+  yield an invalid type, then the instantiation does not apply.  That might
+  be cleanest.}
 \label{fig:poly-resolutions}
 \end{figure}
 
@@ -702,7 +737,10 @@ The actual type of \<first> accounts for more possible types for the type argume
 
 A simplified type for the list \<get> method for lists of strings is
 
-$\<get> : \forallt{\kappa} \kappa\ \<List>\angles{\kappa\ \<String>} \times \kappa\ \<Int> \rightarrow \up{\kappa}\ \<String>$
+$\<get> : \forallt{\kappa} \kappa\ \<List>\angles{\kappa\ \<String>} \times \kappa\ \<Int> \rightarrow \kappa\ \<String>$
+\todo{Used to be $\up{\kappa}$ for return type, but I don't think that is needed.}
+\todo{Oh, maybe it's because we need to be able to instantiate in the tye
+  parameter differently?  How do we enable that?}
 
 (The actual typing permits the qualifier on the type argument to differ
 from the type qualifier on the list, and it handles arbitrary basetypes
@@ -710,11 +748,9 @@ including collections that may themselves be order-nondeterministic.)
 
 Instantiations are:
 
-$\<get> : \forallt{\kappa\ \beta} \<List>\angles{\kappa\ \beta} \times \kappa\ \<Int> \rightarrow \up{\kappa}\ \beta$
+$\<get> : \<NonDet List>\angles{\<NonDet String>} \times \<NonDet Int> \rightarrow \<NonDet String>$
 
-$\<get> : \forallt{\kappa\ \beta} \<List>\angles{\kappa\ \beta} \times \kappa\ \<Int> \rightarrow \up{\kappa}\ \beta$
-
-$\<get> : \forallt{\kappa\ \beta} \<List>\angles{\kappa\ \beta} \times \kappa\ \<Int> \rightarrow \up{\kappa}\ \beta$
+$\<get> : \<Det List>\angles{\<Det String>} \times \<Det Int> \rightarrow \<Det String>$
 
 \todo{We don't need the OrderNonDet instantiation.  The other two
   instantiations are enough.
@@ -723,7 +759,7 @@ $\<get> : \forallt{\kappa\ \beta} \<List>\angles{\kappa\ \beta} \times \kappa\ \
    // instantiation: OrderNonDet List<Det String> x _ Int -> NonDet String 
 \end{Verbatim}
 
-If either the list or the index is non-deterministic, then the result is
+If either the list or the index is (order) non-deterministic, then the result is
 nondeterministic:
 
 \begin{Verbatim}
@@ -743,9 +779,9 @@ get(dl, di) : Det String    // instantiation: NonDet List<Det String> x Det Int 
 
 
 A similar typing does \emph{not} work for the \<set> function that sets an
-element of a list, because it would permit a deterministic collection must
-not be side-effected in non-deterministic ways.  Consider the following
-type for
+element of a list, because it would permit a deterministic collection to
+be side-effected in non-deterministic ways.  Consider the following
+possible type for
 
 $\<set> : \forall \forallt{\tau}$
 
@@ -771,62 +807,55 @@ irrespective of the type of \<index>, thereby preventing undesired side-effects.
 
 
 \subsection{Dataflow analysis and type refinement}\label{dataflow}
-\TheDeterminismChecker performs automatic type inference for local types within method bodies.
-It also performs dataflow analysis and refines the types of these locals, thereby reducing the qualifier burden 
-on the programmer. Consider the example below:
-\begin{verbatim}
-void foo(@Det int x) {
-    @NonDet int y = x;    // Type of y gets refined to @Det.
-    @Det int z = y;       //  No error here.
-}
-\end{verbatim}
-In the example above, even though the local variable \codeid{y} was declared to be \codeid{NonDet}, it gets
-type refined to \codeid{Det} after the first assignment statement. As the result, the assignment of \codeid{y}
-to a \codeid{Det} variable \codeid{z} is sound. In the following example,
-\begin{verbatim}
-void foo(@NonDet Object x, @Det Object y) {
-    x = y;                // No type refinement for x.
-    @Det Object z = x;    // Error.
-}
-\end{verbatim}
-\theDeterminismChecker reports a warning at the second assignment statement of \codeid{foo}. Type refinement only applies to locals. Refining non-locals can result in side effects making the analysis unsound.
+\TheDeterminismChecker performs local type inference within method bodies.
+It does not perform whole-program type inference.
+This makes separate compilation possible.
+It forces programmers to write specifications (type qualifiers) on methods,
+which is good style and valuable documentation.
 
-With the above rules, \theDeterminismChecker will automatically annotate a local collection with type \<NonDet> and its
-type arguments will get the type qualifier \<Det>. For example, a locally declared \codeid{List} of \codeid{Strings} will be automatically annotated
-as \codeid{NonDet List<Det String>}. Recall from~\cref{collection-rules} that \theDeterminismChecker does not allow this type on
-any collection. While this is still sound, it will result in \theDeterminismChecker reporting a lot of errors because every locally declared 
-collection gets annotated with this invalid type. To avoid this situation, we make an exception to the defaulting rules for local collections
-and annotate their type parameters also with \<NonDet>. So a local list of Strings gets the default qualifier of \codeid{NonDet List<NonDet String>}. While this defaulting eliminates the possibility of automatically annotating locals collections with an invalid
-type, it could result in a high number of false positives. In the following code snippet,
-\begin{verbatim}
-void test(@Det List<@Det String> argList) {
-    List<String> localList = argList;
-}    
-\end{verbatim}
-\theDeterminismChecker would report an error at the assignment statement since the inferred type for \codeid{localList} is 
-\codeid{NonDet List<NonDet> String} and since collections types are invariant.
-We therefore recommend that programmers explicitly annotate
-all local variables that are collections to reduce false positives.
+The local type inference is flow-sensitive.  That is, each variable may
+have a different type on every line of the program, depending on
+assignments to the variable.  The inferred type always respects any
+declared type:  that is, it is always a refinement (a subtype) of the
+declared type, if any.
+
+In addition to assignments, some method calls refine the types of their
+arguments.  One example is the \<sort> routine, as shown in 
+as shown in \cref{fig-sorting}.  One notable fact about the \rulename{sort}
+rule is that it requires the type argument to be deterministic (type
+qualifier \<Det>).  This is necessary because of two constraints.
+First, refinement must not change the type argument, because of invariant
+type argument subtyping.
+Second, the only possible type argument for a \<Det> collection is \<Det>.
+
+
+It is not permitted to 
+
+
+
 
 \TheDeterminismChecker has additional type refinement rules for the sorting
 methods of \<List>, \<Collections>, and \<Arrays> classes
- as shown in \cref{fig-sorting}.
 \begin{figure}
 %     $\infer[\rulename{list sort}]{\Gamma \vdash x : \|Det \ List|\angles{\|Det| \ \beta}}{\Gamma \vdash x : \|OrderNonDet \ List|\angles{\|Det| \ \beta} & \|x.sort()|}$
 %     
 %     \bigskip
     
-    $\infer[\rulename{sort}]{\Gamma \vdash x : \|Det \ List|\angles{\|Det| \ \beta}}{\Gamma \vdash x : \|OrderNonDet \ List|\angles{\|Det| \ \beta} & \|Collections.sort(x)|}$
+  $\infer[\rulename{sort}]
+  {\Gamma \vdash x : \<Det List>\angles{\<Det>\ \beta}}
+  {\Gamma \vdash x : \<OrderNonDet List>\angles{\<Det>\ \beta} & \<sort(x)>}$
     
 %     \bigskip
 %     
 %     $\infer[\rulename{arrays sort}]{\Gamma \vdash x : \|Det \ \beta \ Det[]| }{\Gamma \vdash x : \|Det \ \beta \ OrderNonDet[]| & \|Arrays.sort( \ x)|}$
     
-    \caption{Sorting type refinement rules}
+    \caption{Sorting type refinement rules.  \<sort> is a method that works
+    by side effect and changes the value---and the type---of its receiver.}
+\todo{These don't capture the notion of ``the type \emph{after} the sort call''.}
     \label{fig-sorting}
 \end{figure}
 \TheDeterminismChecker type refines a receiver of type \codeid{OrderNonDet List} to a \codeid{Det List} if all the
-type argument of this \codeid{List} have the type qualifier \codeid{Det} (Rule LIST SORT in \cref{fig-sorting}).
+type argument of this \codeid{List} have the type qualifier \codeid{Det} (Rule \rulename{sort} in \cref{fig-sorting}).
 As per these rules, if \codeid{sort()} is called on a receiver of type \codeid{OrderNonDet List<Det Set<Det String>>}, it will
 be type refined to \codeid{Det List<Det Set<Det String>>}. However a receiver of type \codeid{OrderNonDet List<OrderNonDet Set<Det String>>} will not be type refined.
 
@@ -879,77 +908,57 @@ be type refined to \codeid{Det List<Det Set<Det String>>}. However a receiver of
 %We therefore recommend that programmers explicitly annotate
 %all local variables that are collections to reduce false positives. The same reasoning and recommendation applies to arrays.
 
-\subsection{Maps discussion}\label{maps}
-A \<Map> is a set of mappings from keys to values. A \<Map> is deterministic if its \<entrySet> is deterministic.
-In other words, iterating over this \<entrySet> is guaranteed to produce the same values in the exact same order across executions.
-The \<Map> interface in Java doesn't define an \<iterator()> interface. Therefore it's sound to equate the determinism of the \<Set>
-returned by \<entrySet()> to the determinism of the \<Map>. Interestingly, we found that every implementation of the \<Map> 
-interface had the following property: if the \<Set> returned by \<entrySet()> has a determinism type $\kappa$, then
-the \<Set>s returned by \<keySet()> and \<values()> also have the exact same determinism type $\kappa$.
+\subsection{Maps}\label{maps}
+A map is a collection of keys--value pairs.
+Like other collections, a map can be nondeterministic,
+order-nondeterministic, or deterministic.
+Analogously to set membership, lookups are deterministic in
+order-nondeterministic and deterministic maps; in addition, the iteration
+order is fixed in a deterministic map.
 
-We noticed the following properties with respect to determinism regarding the most widely used \<Map> implementations:
-\begin{itemize}
-    \item \<HashMap> can never guarantee fully deterministic iteration over its entries. A \codeid{Det HashMap} does not exist.
-    \item \<LinkedHashMap> can have any of \<Det>, \<OrderNonDet>, or \<NonDet> types. Iterating over a \<LinkedHashMap> returns
-    its entries in the order of their insertion. An \<OrderNonDet LinkedHashMap> can be created by calling its constructor with a \<HashMap>.
-    \item \<TreeMap> can either be \<Det> or \<NonDet>. An \<OrderNonDet TreeMap> doesn't exist because the entries always ordered according
-    to the natural ordering of the keys. 
-\end{itemize}
+We explain why each of these is possible by considering three common
+implementation strategies.
 
-We prohibit the creation of a \codeid{Det HashMap} or an \codeid{OrderNonDet TreeMap} in our determinism checker.
-\Cref{fig-creation-rules} formalizes these rules. Similar constraints apply to \<HashSet>s and \<TreeSet>s which are
-also expressed by the last two rules of \cref{fig-creation-rules}.
+A hash table is order-nondeterministic, because hash codes are
+nondeterministic in general.
 
-\begin{figure}
-    $\infer[\rulename{hashmap creation}]{\|new \ \kappa\ HashMap()|}{\kappa \in \{ \<OrderNonDet>, \<NonDet> \}}$
-    
-    \bigskip
-    
-    $\infer[\rulename{treemap creation}]{\|new \ \kappa\ TreeMap()|}{\kappa \in \{ \<Det>, \<NonDet> \}}$
-    
-    \bigskip
-    
-    $\infer[\rulename{hashset creation}]{\|new \ \kappa\ HashSet()|}{\kappa \in \{ \<OrderNonDet>, \<NonDet> \}}$
-    
-    \bigskip
-    
-    $\infer[\rulename{treeset creation}]{\|new \ \kappa\ TreeSet()|}{\kappa \in \{ \<Det>, \<NonDet> \}}$
-    \caption{\<Map> and \<Set> creation rules}
-    \label{fig-creation-rules}
-\end{figure}
+A hash table can be augmented by a linked list recording insertion order,
+so that iteration order is deterministic.
 
-In the JDK, \<LinkedHashSet> is implemented as a subclass of \<HashMap>.
-\todo{Talk about this design choice. Josh Bloch's book: "If the code surrounding the first declaration depended on LinkedHashSet's ordering policy,
-    then it would be incorrect to substitute HashSet for LinkedHashSet in the declaration, because HashSet makes no guarantee concerning iteration order."} 
+A map can be backed by a sorted collection, such as a tree.  Such a map is
+either \<NonDet> (if \<NonDet> keys or values are inserted into it) or
+\<Det>, but never \<OrderNonDet>.
+
 
 \subsection{Determinism checker specific rules for precision}\label{precision}
 We annotated the \codeid{equals()} method of the \<Set> class in the JDK as
 \begin{verbatim}
 PolyDet("down") boolean equals(PolyDet Set<E> this, PolyDet Object o)
 \end{verbatim}
-While this is sound, it is imprecise in the case of \codeid{OrderNonDet Sets}. We added the following rule shown in \cref{fig-precision-rules} to our checker to improve precision.
+While this is sound, it is imprecise in the case of \codeid{OrderNonDet
+  Set}s.\todo{Explain why.}
+ We added the following rule shown in \cref{fig-precision-rules} to our checker to improve precision.
 \begin{figure}
     \todo{add line break}
-    $\infer[\rulename{set precision}]{\Gamma \vdash \|z : Det|}{\Gamma \vdash \|x| : \|OrderNonDet| \ \|Set|\angles{ \kappa_{x} \ \beta_{x}}, \|y| : \|OrderNonDet| \ \|Set|\angles{ \kappa_{y} \ \beta_{y}} & \|z = x.equals(y)| & \angles{ \kappa_{x} \ \beta_{x}} \nsqsubseteq \angles{ \|OrderNonDet \ List| } & \angles{ \kappa_{y} \ \beta_{y}} \nsqsubseteq \angles{ \|OrderNonDet \ List| } }$
+    $\infer[\rulename{set precision}]{\Gamma \vdash \|x.equals(y) : Det|}{\Gamma \vdash \|x| : \|OrderNonDet| \ \|Set|\angles{ \kappa_{x} \ \beta_{x}}, \|y| : \|OrderNonDet| \ \|Set|\angles{ \kappa_{y} \ \beta_{y}} & \kappa_{x} \ \beta_{x} \nsqsubseteq \|OrderNonDet \ List| & \kappa_{y} \ \beta_{y} \nsqsubseteq \|OrderNonDet \ List| }$
     
     \bigskip
     
-    $\infer[\rulename{map precision}]{\Gamma \vdash \|z : Det|}{\Gamma \vdash \|x : OrderNonDet \ Map\angles{ Det \ \beta_k, \kappa_v\ \beta_v }, y : Det \ \beta| & \|z = x.get(y)|}$
+    $\infer[\rulename{map precision}]{\Gamma \vdash \|x.get(y) : Det|}{\Gamma \vdash \|x : OrderNonDet \ Map\angles{ Det \ \beta_k, \kappa_v\ \beta_v }, y : Det \ \beta|}$
     
     \caption{Improving precision}
+\todo{In the \rulename{map precision} rule, should the \<Det> in the
+  conclusion be $\beta_v$?}
     \label{fig-precision-rules}
 \end{figure}
 According to this rule, if the \<Set> receiver has type \codeid{@OrderNonDet Set<@Det List} and the argument to the \codeid{equals()} method is
 also of the same type, the return type gets the qualifier \<Det>. Without this precision rule, the return type would have been instantiated as \<NonDet> which
 is sound but imprecise. This rule is careful enough to not annotate the return type of \<equals()> as \<Det> if a type argument to either the
-receiver or the argument happens to be an \codeid{OrderNonDet List} (An order nondeterministic list does not provide any guarantee on the
+receiver or the argument happens to be an \codeid{OrderNonDet List}.
+\todo{The following is the key!  Put in earlier.}(An order nondeterministic list does not provide any guarantee on the
 equality as it is dependent on the iteration order). 
 
 Similarly, the \codeid{get()} method in the \<Map> class is annotated with polymorphic qualifiers and the rule \rulename{map precision}\ in \cref{fig-precision-rules} improves precision for \<OrderNonDet> receivers.
-
-\codeid{System.getProperty()} returns a \<NonDet> type since we can't provide any determinism guarantees for
-executions across machines. However, we make exceptions when the argument to this method is one of 
-\codeid{"line.separator", "path.separator", or "file.separator"} as they return OS dependent values which are guaranteed to be deterministic on that OS.
 
 \subsection{Extending \ourTypeSystem}\label{extending-det-checker}
 We have primarily focused on collections and annotated the corresponding classes in the JDK.
