@@ -91,16 +91,38 @@ classpath passed on the command line\commit{330e3c56}.
 This could have led to incorrect behavior if a user set the environment variable.
 The developers changed Randoop to not read the environment variable.
 
-\item  \textbf{Bug 3:}
-Diagnostic output that printed a hash code for brevity, but should have had deterministic output\commit{661a4970}.  By contrast to the other two bugs, this one is not serious.
+\item \textbf{Bug 3:}
+Diagnostic output that printed a hash code for brevity, but should have had
+deterministic output\commit{661a4970}.  By contrast to the first two bugs,
+this one is not serious.
+
+\item \textbf{Bug 4:}
+Diagnostic output that printed a timestamp, but should have obeyed an
+option about whether to do so\commit{a460df97}.  By contrast to the first
+two bugs, this one is not serious.
+
 \end{itemize}
 
 We reported another suspicious case of order-nondeterminism, in the
-\<findOverridden> method.  The Randoop developers explained it was
+\<SpecificationCollection>\-\<.findOverridden> method.  The Randoop developers explained it was
 acceptable, after tracing the flow through the program.  (One said, ``This
 looks OK to me \ldots\ it took me a little while to decide that.'')  The fact
 depended on subtle, undocumented invariants about Randoop that we had not
 been able to reverse-engineer.
+
+
+We annotated one package at a time, starting with the most central packges
+that are most depended upon.  Within a package, we followed a similar
+strategy, annotating supertypes first.  If the classes and methods had been
+documented with respect to their determinism, then our annotation effort
+would have been easy, just converting English into type qualifiers.
+Unfortunately, this was not the case: we reverse-engineered each
+specification, largely from the methods it calls.  Sometimes after we
+annotated a subclass, we had to go back and change existing annotation on
+the supertype or elsewhere.
+After resolving most type-checking warnings by adding or changing
+annotations, we manually examined each remaining one to determine whether
+it was a bug or a false positive warning.
 
 
 
