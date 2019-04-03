@@ -131,6 +131,9 @@ liked to run all three tools (NonDex, DeFlaker, and \TheDeterminismChecker) on a
 that wasn't explored by any of the tool for a fair comparison. Unfortunately, there are issues with the
 DeFlaker plugin and we weren't able to run it on any project. We have created a Github issue for the same
 in its repository.
+\todo{Deflaker works now. Tried on retrofit: only works where there is sufficient change in code coverage between head and its parent.
+Looked throught= about 10 commits, didn't find differential code coverage and therefore no flakes}
+\todo{Deflaker requires maven build. Randoop is on gradle.}
 
 \subsection{\TheDeterminismChecker on DeFlaker benchmarks}\label{sec:deflaker-benchmarks}
 DeFlaker found 87 previously unknown flaky tests in 93 projects that were being actively developed at the the time
