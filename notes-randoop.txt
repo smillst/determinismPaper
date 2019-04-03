@@ -37,6 +37,16 @@ diff:
 Don't use System.getProperty("java.class.path")
 Add junit.jar to classpath in tests.
 
+commit a460df97fde401646c58001d241d912f10464ea5
+Author: Michael Ernst <mernst@cs.washington.edu>
+Date:   Wed Apr 3 14:27:16 2019 -0700
+
+    Don't output timestamps when --deterministic command-line option is given
+    
+    Bug found by Determinism Checker
+
+Diff: test command-line argument, and print timestamp or not
+
 ===========================================================================
 
 Changes made to improve determinism, before running the Determinism Checker:
