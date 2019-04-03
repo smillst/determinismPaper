@@ -79,19 +79,19 @@ The Randoop developers accepted our bug reports and committed fixes to the repos
 of these bugs follows:
 
 \begin{itemize}
-\item
+\item \textbf{Bug 1:}
   A use of \<HashSet> that the developers changed to \<LinkedHashSet>\commit{c975a9f7}.
 The old code could cause a problem if a type variable's lower or upper
 bound has a type parameter that the type variable itself does not have.
 This situation does occur, even in Randoop's test suite.
 
-\item
+\item \textbf{Bug 2:}
 Dependency on the CLASSPATH environment variable in preference to the
 classpath passed on the command line\commit{330e3c56}.
 This could have led to incorrect behavior if a user set the environment variable.
 The developers changed Randoop to not read the environment variable.
 
-\item 
+\item  \textbf{Bug 3:}
 Diagnostic output that printed a hash code for brevity, but should have had deterministic output\commit{661a4970}.  By contrast to the other two bugs, this one is not serious.
 \end{itemize}
 

@@ -1,17 +1,12 @@
 \section{Comparison to previous work}
 
 The state of the art in flaky test detection is NonDex~\cite{nondex}.
-\Cref{sec:related} explains how NonDex works.
-
-
-
-\begin{itemize}
-    \item goals of evaluation: Compare with NonDex and Deflaker
-    \item Quantitative comparison: \TheDeterminismChecker finds all bugs reported by NonDex and Deflaker?
-    \item Qualitative study of the issues discovered.
-    \item System info: 2.3 GHz Intel Core i5, 8 GB 2133 MHz
-\end{itemize}
-
+\Cref{sec:related} explains how NonDex works. In this section, we perform a qualitative comparison of the
+errors reported by NonDex and those reported by \TheDeterminismChecker. We ran all our
+experiments on a 2.3 GHz Intel Core i5 processor with a RAM configuration of 8 GB 2133 MHz.
+\TheDeterminismChecker doesn't show any noticeable performance change at compile time.
+\TheDeterminismChecker runs on any project that builds with maven or gradle and requires
+Java version 8 or higher (support for annotations was added in Java 8).
 
 \subsection{Case study with NonDex}\label{sec:nondex-randoop}
 
@@ -20,15 +15,14 @@ of \cref{sec:randoop-case-study}.  This version contains 3 nondeterminism bugs t
 \theDeterminismChecker found.
 
 We modified Randoop by deleting tests that were skipped by its buildfile,
-because the NonDex gradle plugin does not respect those settings.
-
+because the NonDex gradle plugin does not respect those settings. 
 After that, NonDex ran without problems on Randoop.
 It completed successfully without reporting any flaky tests.
-
-
-\todo{check if the bugs discovered by \theDeterminismChecker have test coverage}
-\todo{We investigated the tests covering code that \theDeterminismChecker reported as nondeterministic.
-If code is covered by tests, NonDex couldn't discover it. Else, its a limitation of NonDex.}
+We investigated the tests covering code that \theDeterminismChecker reported as nondeterministic.
+Bug 1 and Bug 2 have corresponding test cases whereas Bug 3 does not.
+As NonDex is a \textit{flaky test} detection tool, Bug 3 is outside of its scope.
+The reason for nondeterminism in Bug 2 was a call to the \<System.getProperty()> method which
+is not modeled by NonDex.
 This indicates that the additional programmer effort required by \TheDeterminismChecker is justified
 as our tool discovers non-trivial issues and doesn't depend on code coverage or other runtime heuristics.
 
@@ -37,24 +31,36 @@ as our tool discovers non-trivial issues and doesn't depend on code coverage or 
 \Cref{sec:nondex-randoop} shows that \theDeterminismChecker finds errors that NonDex does not.
 This section determines whether NonDex finds errors that \theDeterminismChecker does not.
 Its authors ran NonDex on 195 open-source projects, and NonDex found flaky tests in
-21 of them.
-
-
+21 of them. We defer the reader to~\cite{nondex} for a complete list of these projects
+and the details of commits hashes in which NonDex detected flaky tests.
 The authors also reported the sources of flakiness
-after manually inspecting these tests. We ran \TheDeterminismChecker on all these benchmarks with the objective
-of measuring recall of our tool. We cloned all 21 repos and switched to the commit that had a flakiness issue as reported 
-in~\cite{nondex}. Of these projects, \<handlebars> and \<oryx> have compile time failures which prevents us from running \TheDeterminismChecker on them. For benchmarks \<visualee>, \<easy-batch>, and \<vraptor>, we couldn't find
+after manually inspecting these tests. 
+
+We ran \TheDeterminismChecker on all these benchmarks with the objective
+of measuring the recall of our tool. We cloned all 21 repos and switched to the commit that had a flakiness issue as reported 
+in~\cite{nondex}. Of these projects, \<handlebars> and \<oryx> have compile time failures which prevent us from running \TheDeterminismChecker on them. For benchmarks \<visualee>, \<easy-batch>, and \<vraptor>, we couldn't find
 the sources of flakiness as reported in~\cite{nondex} anywhere in the respective repositories.
 \TheDeterminismChecker reported the nondeterministic source locations correctly in the rest of the projects.
 All these benchmarks and instructions to reproduce our results can be found at \href{https://github.com/t-rasmud/determinismCaseStudies}{https://github.com/t-rasmud/determinismCaseStudies}.
 
-All the flakiness that NonDex found was due to 7 methods in 3 classes:
-\<Class.getDeclaredFields>, \<Class.getDeclaredMethods>, \<Class.getFields>, \<DateFormatSymbols.getZoneStrings>,
-\<HashMap.entrySet>, \<HashMap.keySet>, and \<HashMap.values>.  
-We provide samples of the annotated source code form these benchmarks and the errors as reported by \TheDeterminismChecker 
-in Figures~\ref{code-reflectasm} and~\ref{code-actiongenerator}.
+All the flakiness that NonDex found was due to 7 methods in 3 classes. We enumerate all the methods corresponding to
+each class in Figure~\ref{fig:flaky-sources}.
 \begin{figure}
-    \begin{verbatim}
+    \begin{tabular}{lll}
+        \<Class> & : \<getDeclaredFields>, \<getDeclaredMethods>, \<getFields> \\
+        \<DateFormatSymbols> & : \<getZoneStrings> \\
+        \<HashMap> & : \<entrySet>, \<keySet>, \<values>
+    \end{tabular}
+\caption{Souces of flakiness in~\cite{nondex}.}
+\label{fig:flaky-sources}
+\end{figure}
+
+We provide samples of the annotated source code from these benchmarks and the errors as reported by \TheDeterminismChecker 
+in Figure~\ref{fig:nondex-source}.
+\begin{figure}
+    \centering
+    \begin{subfigure}[b]{0.95\textwidth}
+        \begin{verbatim}
     static public FieldAccess get (Class type) {
         @Det ArrayList<@Det Field> fields = new ArrayList<Field>();
         ...
@@ -63,29 +69,33 @@ in Figures~\ref{code-reflectasm} and~\ref{code-actiongenerator}.
             ...
         }
     }
-    [ERROR] FieldAccess.java:[102,87] [assignment.type.incompatible] 
+    [ERROR] FieldAccess.java:[102,87] 
     incompatible types in assignment.
     found   : @Det Field @OrderNonDet []
     required: @Det Field @Det []
-    \end{verbatim}
-    \caption{Annotated source code from reflectasm.}
-    \label{code-reflectasm}
-\end{figure}
-\begin{figure}
-    \begin{verbatim}
+        \end{verbatim}
+        \caption{Annotated source code from reflectasm. \vspace{0.5cm}}
+        \label{code-reflectasm}
+    \end{subfigure}
+
+    \begin{subfigure}[b]{0.95\textwidth}
+        \begin{verbatim}
     protected SimpleDataEvent createNextEvent() {
-      for (@Det Entry<@Det String, @Det FieldType> entry : fields.entrySet()) {
-          ...
-      }
-      ...
+        for (@Det Entry<@Det String, @Det FieldType> entry : fields.entrySet()) {
+            ...
+        }
+        ...
     }
-    [ERROR] DataDictionaryEventSource.java:[73,78] [enhancedfor.type.incompatible] 
+    [ERROR] DataDictionaryEventSource.java:[73,78] 
     incompatible types in enhanced for loop.
     found   : @NonDet Entry<@Det String, @Det FieldType>
     required: @Det Entry<@Det String, @Det FieldType>
-    \end{verbatim}
-    \caption{Annotated source code from ActionGenerator.}
-    \label{code-actiongenerator}
+        \end{verbatim}
+        \caption{Annotated source code from ActionGenerator.}
+        \label{code-actiongenerator}
+    \end{subfigure}    
+    \caption{Errors detected by \TheDeterminismChecker.}
+    \label{fig:nondex-source}
 \end{figure}
 As can be seen from these figures, annotating local arrays and collections
 has been sufficient to discover the sources of nondeterminism in most of the projects.
@@ -100,52 +110,16 @@ state "we found that manually inspecting these failures was
 rather challenging, and we leave it as future work to automate
 debugging test failures due to ADINS code". \TheDeterminismChecker reports source locations
 which makes it easier for the programmer to fix issues and is orthogonal to the approach taken by NonDex which
-report failing tests.
+reports failing tests.
 
 \TheDeterminismChecker is also capable of detecting nondetermism in test cases. We provide a stub file
-for \<junit> in which we annotated all the \<assert> methods as accepting only \<Det> parameters.
-This will report any \<junit> test that passes nondeterministic arguments to \<assert>s and the test doesn't
-even have to be executed in our case.
-\todo{It took one of our authors about an hour to create this stub file - proof of easy extensibility of tool?} 
+for \<junit> in which we annotated the parameters of all the \<assert> methods as \<Det>.
+This will cause \TheDeterminismChecker to report any \<junit> test that passes nondeterministic arguments to 
+\<assert>s. The test case doesn't even have to be executed for out our tool to detect errors.
+It took one of our authors under an hour to create the stub file for junit. This gives us
+empirical evidence of the ease of extensibility of our tool.
+
 \todo{Link to det checker repo?}
-
-\begin{table}[]
-    \begin{tabular}{|p{1.5cm}|p{1cm}|p{5cm}|p{5cm}|}
-        \hline
-        Benchmark & Recall? & Error message source & Error msg  \\ \hline
-        P1 & Yes & FieldAccess.java: [102,87] & assignment type incompatible \\
-        P2 & Yes & YamlWriter.java: [224,28] & cast unsafe  \\
-        P3 & Yes & DateTimeZone.java: [731,27] &  return type incompatible \\ 
-        P4 & * & compile dependency failure  &   \\ 
-        P5 & ** & Class.getDeclaredMethods not found &    \\ 
-        P6 & Yes & OptionGroup.java: [55,40]  & argument type incompatible \\ 
-        P6 & Yes & Option.java: [157,28]  &  assignment type incompatible\\
-        P7(test error & Yes & MultilineRecursiveToString..: [95,35] argument type incompatible & MultilineRecursiveToString...: [208,50]  return type incompatible \\ 
-        P7(2) & Yes & FieldUtils.java: [219,84] & assignment type incompatible \\
-        P7(2) & Yes & Reflection ToStringBuilder.java: [543,65]  & assignment type incompatible  \\
-        P7(2) & Yes & HashCodeBuilder.java: [193,69]  & assignment type incompatible   \\
-        P7(2) & Yes & CompareToBuilder.java: [322,65] & assignment type incompatible   \\
-        P7(2) & Yes & EqualsBuilder.java: [419,69]  & assignment type incompatible  \\
-        P7 & Yes & FieldUtils.java: [200,69] & assignment type incompatible \\
-        P7 & Yes & FieldUtils.java: [219,84] & assignment type incompatible  \\
-        P7 & Yes & FieldUtils.java: [240,86] & assignment type incompatible  \\
-        P8 & ** & getDeclaredFields not found &   \\
-        P9 & Yes & Printers.java: [269,97]  &  enhancedfor type incompatible \\
-        P10 & ** & getDeclaredFields not found  &  \\
-        P11 & Yes & MapUtils.java: [20,50]   & enhancedfor type incompatible  \\
-        P12 & Yes  & GSLayerEncoder21.java: [113,91]  & enhancedfor type incompatible \\
-        P13 & ** & unbuildable handlebars &  \\
-        P14 & Yes  & Maps.java: [91,69] & invalid element type   \\
-        P15 & Yes & PkiMessageDecoder.java: [144,29]  &  enhancedfor type incompatible  \\
-        P16 & Yes & MethodSorter.java: [56,61]  & assignment type incompatible  \\
-        P17 & Yes & JSONObject.java: [674,51]  & assignment type incompatible  \\
-        P18 & Yes & SubstitutableLoggerTest.java: [67,61]   & enhancedfor type incompatible  \\
-        P19 & Yes & DataDictionaryEventSource.java: [73,78]  &  enhancedfor type incompatible  \\
-        P20 & Yes & SaverImpl.java: [43,69]  &  return type incompatible  \\
-        P21 & Yes & RestDocumentation.java: [419,50] &  argument type incompatible   \\ \hline
-    \end{tabular}
-\end{table}
-
 \todo{If there is time, we could do a second case study, on a program that
   NonDex did not find nondeterminism in.  Our hope would be to find
   nondeterminism that NonDex did not.  Choose a small project that is

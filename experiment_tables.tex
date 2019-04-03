@@ -1,0 +1,36 @@
+\begin{table}[]
+    \begin{tabular}{|p{1.5cm}|p{1cm}|p{5cm}|p{5cm}|}
+        \hline
+        Benchmark & Recall? & Error message source & Error msg  \\ \hline
+        P1 & Yes & FieldAccess.java: [102,87] & assignment type incompatible \\
+        P2 & Yes & YamlWriter.java: [224,28] & cast unsafe  \\
+        P3 & Yes & DateTimeZone.java: [731,27] &  return type incompatible \\ 
+        P4 & * & compile dependency failure  &   \\ 
+        P5 & ** & Class.getDeclaredMethods not found &    \\ 
+        P6 & Yes & OptionGroup.java: [55,40]  & argument type incompatible \\ 
+        P6 & Yes & Option.java: [157,28]  &  assignment type incompatible\\
+        P7(test error & Yes & MultilineRecursiveToString..: [95,35] argument type incompatible & MultilineRecursiveToString...: [208,50]  return type incompatible \\ 
+        P7(2) & Yes & FieldUtils.java: [219,84] & assignment type incompatible \\
+        P7(2) & Yes & Reflection ToStringBuilder.java: [543,65]  & assignment type incompatible  \\
+        P7(2) & Yes & HashCodeBuilder.java: [193,69]  & assignment type incompatible   \\
+        P7(2) & Yes & CompareToBuilder.java: [322,65] & assignment type incompatible   \\
+        P7(2) & Yes & EqualsBuilder.java: [419,69]  & assignment type incompatible  \\
+        P7 & Yes & FieldUtils.java: [200,69] & assignment type incompatible \\
+        P7 & Yes & FieldUtils.java: [219,84] & assignment type incompatible  \\
+        P7 & Yes & FieldUtils.java: [240,86] & assignment type incompatible  \\
+        P8 & ** & getDeclaredFields not found &   \\
+        P9 & Yes & Printers.java: [269,97]  &  enhancedfor type incompatible \\
+        P10 & ** & getDeclaredFields not found  &  \\
+        P11 & Yes & MapUtils.java: [20,50]   & enhancedfor type incompatible  \\
+        P12 & Yes  & GSLayerEncoder21.java: [113,91]  & enhancedfor type incompatible \\
+        P13 & ** & unbuildable handlebars &  \\
+        P14 & Yes  & Maps.java: [91,69] & invalid element type   \\
+        P15 & Yes & PkiMessageDecoder.java: [144,29]  &  enhancedfor type incompatible  \\
+        P16 & Yes & MethodSorter.java: [56,61]  & assignment type incompatible  \\
+        P17 & Yes & JSONObject.java: [674,51]  & assignment type incompatible  \\
+        P18 & Yes & SubstitutableLoggerTest.java: [67,61]   & enhancedfor type incompatible  \\
+        P19 & Yes & DataDictionaryEventSource.java: [73,78]  &  enhancedfor type incompatible  \\
+        P20 & Yes & SaverImpl.java: [43,69]  &  return type incompatible  \\
+        P21 & Yes & RestDocumentation.java: [419,50] &  argument type incompatible   \\ \hline
+    \end{tabular}
+\end{table}
