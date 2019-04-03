@@ -36,12 +36,18 @@
 \newcommand{\NonDet}{\text{\<NonDet>}\xspace}
 \newcommand{\Ond}{\OrderNonDet}
 
+\newcommand{\up}[1]{\ifmmode #1\mathord{\uparrow} \else #1$\uparrow$\fi}
+\newcommand{\down}[1]{\ifmmode #1\mathord{\downarrow} \else #1$\downarrow$\fi}
+
 \newcommand{\PolyDetUp}{\<PolyDet$\uparrow$>}
 \newcommand{\PolyDetDown}{\<PolyDet$\downarrow$>}
 
 \newcommand{\rulename}[1]{\textsc{#1}}
 
 \newcommand{\wellformed}[1]{\vdash : #1}
+
+% Polymorphic type
+\newcommand{\forallt}[1]{\ensuremath{\forall #1 . \ }}
 
 
 %%% Code formatting

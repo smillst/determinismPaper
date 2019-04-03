@@ -35,7 +35,7 @@ object-oriented language.
 %     x = y;    // Because types @A and @B are incomparable.
 %     z = x;    // Because @C is a subtype of @A.
 %     \end{verbatim}
-% \caption{Example: Invalid assingment}
+% \caption{Example: Invalid assignment}
 % \label{code-invalid1}
 % \end{figure}
 % 
@@ -298,6 +298,8 @@ including qualifiers.
 %  ``type well formedness''.  Choose one term and use it consistently
 %  throughout.}
 rules of \ourTypeSystem. 
+(For brevity, we use ``valid'' synonymously with ``well-formed'' and
+``invalid'' synonymously with ``non-well-formed''.)
 As stated in the rule \rulename{noncollection}, the types \<Det> and \<NonDet>
 can be written on any non-collection Java basetype. 
 
@@ -373,7 +375,7 @@ because it unsoundly permits the deterministic list \<ddlist> to differ
 from execution to execution.
 
 
-\subsubsection{Behavior of order-nondeterministic collections}
+\subsubsection{Behavior of order-nondeterministic collections}\label{sec:ond-behavior}
 
 A collection of type \<OrderNonDet> has special properties, including the following.
 
@@ -392,17 +394,17 @@ that does sorting, the result is deterministic.
 
 To state the first point more formally, the 
 typical type for a list access operation, such as \<get>, is
-$$\forall \tau . \<List>\angles{\tau} \times \<Det Int> \rightarrow \tau$$
+$$\forallt{\tau} \<List>\angles{\tau} \times \<Det Int> \rightarrow \tau$$
 but this type is incorrect for \ourTypeSystem.  Each of the following is a
 correct (but overly restrictive) type for \<get>:
 \begin{eqnarray*}
-\forall \kappa\ \beta . \<NonDet>\ \<List>\angles{\kappa\ \beta} \times \<Det Int>
+\forallt{\kappa\ \beta} \<NonDet>\ \<List>\angles{\kappa\ \beta} \times \<Det Int>
 & \strut\hspace{-1em} \rightarrow \<NonDet>\ \beta
 & \mbox{\quad in this case $\kappa = \<NonDet>$} \\
-\forall \kappa\ \beta . \<OrderNonDet>\ \<List>\angles{\kappa\ \beta} \times \<Det Int>
+\forallt{\kappa\ \beta} \<OrderNonDet>\ \<List>\angles{\kappa\ \beta} \times \<Det Int>
 & \strut\hspace{-1em} \rightarrow \<NonDet>\ \beta
 & \mbox{\quad in this case $\kappa \in \{ \<OrderNonDet>, \<Det> \} $} \\
-\forall \kappa\ \beta . \<Det>\ \<List>\angles{\kappa\ \beta} \times \<Det Int>
+\forallt{\kappa\ \beta} \<Det>\ \<List>\angles{\kappa\ \beta} \times \<Det Int>
 & \strut\hspace{-1em} \rightarrow \<Det>\ \beta\phantom{\<Non>}
 & \mbox{\quad in this case $\kappa = \<Det>$}
 \end{eqnarray*}
@@ -433,7 +435,7 @@ and our typing must have that as a special case, which is the first line above.
 
     \rulename{iteration}: 
     $
-    \forall \tau . \|OrderNonDet \ C| \angles{\tau} \rightarrow 
+    \forallt{\tau} \|OrderNonDet \ C| \angles{\tau} \rightarrow 
     \|OrderNonDet \ Iterator| \angles{\tau}
     $
     
@@ -448,7 +450,7 @@ and our typing must have that as a special case, which is the first line above.
 
     \rulename{next element}:
     $
-    \forall \kappa \beta . \|OrderNonDet \ Iterator|\angles{\kappa \ \beta} \rightarrow
+    \forallt{kappa \beta} \|OrderNonDet \ Iterator|\angles{\kappa \ \beta} \rightarrow
     \|NonDet|\ \beta
     $
     
@@ -463,7 +465,7 @@ and our typing must have that as a special case, which is the first line above.
 
     \rulename{hasnext element}:
     $
-    \forall \tau . \|OrderNonDet \ Iterator|\angles{\tau} \rightarrow
+    \forallt{\tau} \|OrderNonDet \ Iterator|\angles{\tau} \rightarrow
     \|Det \ boolean|
     $
     \bigskip
@@ -478,7 +480,7 @@ and our typing must have that as a special case, which is the first line above.
 
     \rulename{size}:
     $
-    \forall \tau . \|OrderNonDet \ C|\angles{\tau} \rightarrow
+    \forallt{\tau} \|OrderNonDet \ C|\angles{\tau} \rightarrow
     \|Det \ int|
     $
     
@@ -488,7 +490,8 @@ and our typing must have that as a special case, which is the first line above.
 
 \subsection{Polymorphism}\label{polymorphism}
 
-\todo{Cut parts of the below; show the rest in Greek.}
+\todo{Can we come up with more examples of interesting functions to
+  describe here?  Or put them in section 3.}
 
 \OurTypeSystem supports both basetype polymorphism and qualifier polymorphism.
 When both are applied, it gives the effect of type polymorphism.
@@ -498,88 +501,99 @@ Polymorphism applies to both classes and methods.
 \begin{itemize}
 \item
 Type polymorphism has the usual semantics.  For example, the type of the
-identity function is $\forall \tau . \tau \rightarrow \tau$, which can be
+identity function is $\forallt{\tau} \tau \rightarrow \tau$, which can be
 equivalently written as
-$\forall \kappa \ \beta . \kappa \ \beta \rightarrow \kappa \ \beta$.
-\item
-Basetype polymorphism lets the basetype vary without applies a 
+$\forallt{\kappa \ \beta} \kappa \ \beta \rightarrow \kappa \ \beta$.
+(Compare this to 
+$\forallt{\kappa} \forallt{\beta} \kappa \ \beta \rightarrow \kappa \ \beta$
+which differs because the qualifier and basetype can vary independently;
+see below.)\todo{Does the foregoing make sense?}
 
-An example of a type-polymorphic method is identity
+\item
+  Basetype polymorphism lets the basetype vary indepentently of the
+  qualifier, which might be fixed or might be polymorphic.
+  An example is a nondeterministic \<choose> function, which might have type
 
-In \theDeterminismCheckerImplementation,
-type polymorphism is handled by Java's generics mechanism, which
-\theDeterminismChecker fully supports, including class and method generics,
-inference, etc.
-Given the Java declaration
-\begin{Verbatim}
-<T> T identity(T arg) { return arg; }
-\end{Verbatim}
-the type of \<identity(arg)> is the same as the type of
-\<arg>, and a programmer can write a type such as \codeid{List<@NonDet
-  Integer>} (but see below for details about collections).
+  $\forallt{\beta} \<Set>\angles{\<Det>\ \beta} \rightarrow \<NonDet>\ \beta$
+
+  Basetype polymorphism is rarely used.  Full type polymorphism is more
+  common, even if the type is decomposed and the parts used independently,
+  as in this more general signature for the \<choose> function:
+
+  $\forallt{\kappa\ \beta} \<Set>\angles{\kappa\ \beta} \rightarrow \<NonDet> \beta$
+
 \item
-Basetype polymorphism is enabled by writing a type qualifier on a use of a
-type variable, which overrides the type qualifier at the instantiation
-site.
-For example, a \<choose> operation on sets could be defined in Java as
-\begin{Verbatim}
-class ChooseableSet<T> implements Set<T> {
-  // return an arbitrary element from the set
-  @NonDet T choose();
-}
-\end{Verbatim}
-\item
-Java does not provide a syntax that can be used for qualifier polymorphism,
-so we use a special type qualifier name, \<@PolyDet>.
-A qualifier-polymorphic method \<m> with signature $\forall \kappa . \kappa\ \<int> \times \<Det boolean> \rightarrow
-\kappa\ \<String>$ would be written in our dialect of Java as
-\begin{Verbatim}
-@PolyDet String m(@PolyDet int, @Det boolean)
-\end{Verbatim}
-Each use of \<@PolyDet> stands for a use of the qualifier variable
-$\kappa$, and there is no need to declare the qualifier variable $\kappa$.
-\TheDeterminismChecker currently supports
-qualifier
-polymorphism on methods but not on classes.
-Therefore, \<@PolyDet> may be written in methods (signatures and bodies)
-but not on fields.
+Qualifier polymorphism is common.  For example, here is the signature for
+the \<length> method on strings:
+
+$\<length>\ :\ \forallt{\kappa} . \kappa\ \<String> \rightarrow \kappa \<Int>$
+
+\noindent
+and here is that for the addition operation:
+
+$\<plus>\ :\ \forallt{\kappa} . \kappa\ \<Int> \times \kappa\ \<Int> \rightarrow \kappa \<Int>$
+
 \end{itemize}
 
+\OurTypeSystem uses the standard meaning of parametric
+polymorphism~\cite{Abadi:1989:FIM:77350.77373,Plotkin:1993:LPP:645891.671433}.
+A polymorphic abstraction (such as a class or function) is written and
+typechecked once, but can be instantiated differently at different uses,
+each of which behaves as if it was written with a different non-polymorphic
+type.
 
+Informally, the \<length> above acts as if it had multiple
+(overloaded) definitions
 
-When a user writes a polymorphic qualifier on a method signature or a type parameter,
-it indicates that it could be instantiated
-%\todo{Should all occurrences of ``resolve'' be ``can be instantiated''} 
-to any type in the type system depending on how it is used.
-In \theDeterminismChecker, we define a polymorphic qualifier \<PolyDet>.
-One of the most common locations for a polymorphic qualifier is at a method signature.
-Consider the following declaration of addition:
-\begin{verbatim}
-@PolyDet int plus(@PolyDet int a, @PolyDet int b) { return a+b; }
-\end{verbatim}
-\todo{It has the standard meaning.  There are two ways to interpret this.}
-There are two valid instantiations for this declaration:
+$\<NonDet>\ \<String> \rightarrow \<NonDet> \<Int>$
+
+$\<Det>\ \<String> \rightarrow \<Det> \<Int>$
+
+The body must typecheck at every possible instantiation, and at a use site,
+the most specific applicable instantiation is chosen.
+Here is an example:
+(put it in a table)
+
 \begin{Verbatim}
-  @NonDet int plus(@NonDet int a, @NonDet int b) { return a+b; }
-  @Det int plus(@Det int a, @Det int b) { return a+b; }
+NonDet Int ni;
+   Det Int di;
+
+plus(ni, ni)  // has type NonDet Int; most specific applicable instantiation is NonDet Int -> NonDet Int
+plus(di, di)  // has type Det Int; most specific applicable instantiation is Det Int -> Det Int
+plus(ni, di)  // has type NonDet Int; most specific applicable instantiation is NonDet Int -> NonDet Int
 \end{Verbatim}
-This indicates that method \<foo> can be called with arguments having any of the \codeid{Det or NonDet} type qualifiers.
-%   (\<@OrderNonDet> is not allowed because it is invalid on primitive types).
- \<PolyDet> gets instantiated to the least upper bound of
-the actual types on arguments. For instance, if this method is called as \codeid{foo(@Det String arg1, @NonDet boolean arg2)}, \theDeterminismChecker instantiates the method declaration as \codeid{@NonDet int foo(@NonDet String param1, @NonDet boolean param2)}
-causing the return type to have the type qualifier \<NonDet>.
 
-\subsection{Polymorphism rules for collections}\label{polymorphism-up-down}
+We adopt the convention that  polymorphism is not instantiated in ways
+that would create invalid types.  For example, the \<plus> polymorphic
+function would not be instantiated at $\kappa = \<OrderNonDet>.$
 
-Some types are invalid and must not be permitted (during polymorphic instantiation).
 
-Recall that \theDeterminismChecker does not permit \<OrderNonDet> on a type
-that isn't a collection.
-As a consequence, resolution of polymorphic type qualifiers at method signatures could have undesirable effects.
-Suppose a method declaration is annotated as \codeid{PolyDet int size(PolyDet List<T> list)}. Invoking this method
-with an argument of type \codeid{OrderNonDet List<Det String>} will result in \<PolyDet> getting instantiated to \<OrderNonDet> which is invalid
-on the return type \<int>. We circumvent this scenario by introducing two variants to the \<PolyDet> qualifier, \PolyDetUp
-and \PolyDetDown. 
+\subsubsection{Polymorphism rules for collections}\label{polymorphism-up-down}
+
+As described so far, polymorphism cannot express the collection behaviors
+of \cref{sec:ond-behavior}.
+Consider this typing for the \<size> function:
+
+$\<size>\ :\ \forallt{\kappa} \kappa\ \<Collection> \rightarrow \kappa\ \<Int>$
+
+It cannot be instantiated as 
+
+$\<size>\ :\ \<OrderNonDet>\ \<Collection> \rightarrow \<OrderNonDet> \<Int>$
+
+because such an instantiation would include the invalid type \<OrderNonDet Int>.
+A similar problem occurs for the \<first> operation that returns the first
+element of a list.
+
+\OurTypeSystem resolves this problem by introducing two variants to the
+\<PolyDet> qualifier, \PolyDetUp\ and \PolyDetDown.
+The $\uparrow$ operator converts \<OrderNonDet> to \<NonDet> and leaves the
+other qualifiers unchanged.  The upward-pointing arrow is mnemonic of how
+\<OrderNonDet> is changed:  it replaced by something higher in the type hierarchy.
+The $\downarrow$ operator is analogous, but converts \<OrderNonDet> to
+\<Det>, which is lower in the type hierarchy.
+\Cref{fig:poly-resolutions} formalizes their behavior.
+
+
 
 % Not true: We allow Poly(up) and down at every location where Poly is allowed.
 %Valid locations for \codeid{@PolyDet("up")} and  \codeid{@PolyDet("down")}:
@@ -593,27 +607,40 @@ and \PolyDetDown.
 %
 %$\infer{\Gamma \vdash x : @Det \  \beta_a}{\Gamma \vdash x :  \kappa_a \beta_a & \kappa_a : @OrderNonDet/@Det & \kappa_p : @PolyDet("down") & \kappa_p \ \beta_p : declaration \ type & \kappa_a \ \beta_a : resolved \ type}$
 
-The semantics of these variants are as follows:
-\begin{itemize}
-    \item \PolyDetUp: Same as \<PolyDet> except when it is instantiated as \<OrderNonDet>, it is replaced with \<NonDet>.
-    \item \PolyDetDown: Same as \<PolyDet> except when it is instantiated as \<OrderNonDet>, it is replaced with \<Det>.
-\end{itemize} 
-The modifiers $\uparrow$ and $\downarrow$ are indicative of the subtyping relationship of \<OrderNonDet> with \<NonDet> and \<Det> respectively
-in the determinism type hierarchy.
 
 %\Cref{fig-poly-resolution} presents the rule for type checking of methods annotated with \<PolyDet> or its variants.
-A polymorphic method type checks if every instantiation of \<PolyDet> type checks. If this method has \PolyDetUp\ or \PolyDetDown\
-in its signature then the instantiation of \<PolyDet> at that location gets replaced by the appropriate type as shown in \cref{fig:poly-resolutions}.
 
-Annotating \<size()> as \codeid{PolyDet$\downarrow$ int size(PolyDet List<T> list)} will only allow the following type instantiations:
-\begin{itemize}
-    \item \codeid{@Det int size(@Det List<T> list)}
-    \item \codeid{@Det int size(@OrderNonDet List<T> list)}
-    \item \codeid{@NonDet int size(@NonDet List<T> list)}
-\end{itemize}
+The correct type for \<size> is
+
+$\<size> : \forallt{\kappa} \kappa\ \<Collection> \rightarrow \down{\kappa} \<Int>$
+
+This can be instantiated at all three type qualifiers without creating any
+invalid types, and the instantiations implement the semantics of \cref{sec:ond-behavior}:
+
+$\<size> : \<NonDet>\ \<Collection> \rightarrow \<NonDet> \<Int>$
+
+$\<size> : \<OrderNonDet>\ \<Collection> \rightarrow \<Det> \<Int>$
+
+$\<size> : \<Det>\ \<Collection> \rightarrow \<Det> \<Int>$
+
+An example use of $\uparrow$ is the \<first> operation.  A simplified
+version of its type is
+
+$\<first> : \forallt{\kappa\ \beta} \kappa\ \<List>\angles{\kappa\ \beta} \rightarrow \up{\kappa}\ \beta$
+
+whose type qualifier can be instantiated as
+
+$\<first> : \forallt{\beta} \<NonDet>\ \<List>\angles{\<NonDet>\ \beta} \rightarrow \<NonDet>\ \beta$
+
+$\<first> : \forallt{\beta} \<OrderNonDet>\ \<List>\angles{\<OrderNonDet>\ \beta} \rightarrow \<NonDet>\ \beta$
+
+$\<first> : \forallt{\beta} \<Det>\ \<List>\angles{\<Det>\ \beta} \rightarrow \<Det>\ \beta$
+
+The actual type of \<first> accounts for more possible types for the type arguments.
+
 
 %\begin{figure}
-%    $\infer[\rulename{poly resolution}]{\pi_r \ \beta_r\ \<m>(\overline{\pi_i \ \beta_i})\{\ \}}{\forall \kappa \in \{\|NonDet, OrderNonDet, Det|\} : \kappa \ \beta_r\ \<m>(\overline{K \ \beta_i})\{\ \} & \pi_r, \pi_i \in \{\|PolyDet|, \PolyDetUp, \PolyDetDown    \}}$
+%    $\infer[\rulename{poly resolution}]{\pi_r \ \beta_r\ \<m>(\overline{\pi_i \ \beta_i})\{\ \}}{\forallt{\kappa \in \{\|NonDet, OrderNonDet, Det|\}} \kappa \ \beta_r\ \<m>(\overline{K \ \beta_i})\{\ \} & \pi_r, \pi_i \in \{\|PolyDet|, \PolyDetUp, \PolyDetDown    \}}$
 %    \caption{Polymorphic resolution rule}
 %    \todo{I'm not sure what this is doing.  What code does it reject?}
 %    \todo{This suggests that \PolyDetUp is a qualifier, rather than
@@ -637,16 +664,16 @@ Annotating \<size()> as \codeid{PolyDet$\downarrow$ int size(PolyDet List<T> lis
 
 \begin{figure}
     $\infer[\rulename{ordernondet polyup}]
-    {\tau \uparrow \ = \|NonDet \ \beta|}
-    {\tau \ = \|OrderNonDet \ \beta|
+    {\up{\tau} = \|NonDet \ \beta|}
+    {\tau = \|OrderNonDet \ \beta|
         & \wellformed{\tau}
     }$
 
     \bigskip
     
     $\infer[\rulename{polyup}]
-    {\tau \uparrow \ = \kappa \ \beta}
-    {\tau \ =\kappa \ \beta
+    {\up{\tau} = \kappa \ \beta}
+    {\tau =\kappa \ \beta
         & \kappa \in \{\|Det, NonDet|\}
         & \wellformed{\tau}
     }$
@@ -654,16 +681,16 @@ Annotating \<size()> as \codeid{PolyDet$\downarrow$ int size(PolyDet List<T> lis
     \bigskip
 
     $\infer[\rulename{ordernondet polydown}]
-    {\tau \downarrow \ = \|Det \ \beta|}
-    {\tau \ = \|OrderNonDet \ \beta|
+    {\down{\tau} = \|Det \ \beta|}
+    {\tau = \|OrderNonDet \ \beta|
         & \wellformed{\tau}
     }$
     
     \bigskip
     
     $\infer[\rulename{polydown}]
-    {\tau \downarrow \ = \kappa \ \beta}
-    {\tau \ =\kappa \ \beta
+    {\down{\tau} = \kappa \ \beta}
+    {\tau =\kappa \ \beta
         & \kappa \in \{\|Det, NonDet|\}
         & \wellformed{\tau}
     }$
@@ -673,8 +700,56 @@ Annotating \<size()> as \codeid{PolyDet$\downarrow$ int size(PolyDet List<T> lis
 
 \subsubsection{Differentiating binding and use}\label{bindings-uses}
 
-In order to provide soundness guarantees, we must ensure that a collection that is
-declared as \<Det> is not side-effected in non-deterministic ways. Consider the following qualifier 
+A simplified type for the list \<get> method for lists of strings is
+
+$\<get> : \forallt{\kappa} \kappa\ \<List>\angles{\kappa\ \<String>} \times \kappa\ \<Int> \rightarrow \up{\kappa}\ \<String>$
+
+(The actual typing permits the qualifier on the type argument to differ
+from the type qualifier on the list, and it handles arbitrary basetypes
+including collections that may themselves be order-nondeterministic.)
+
+Instantiations are:
+
+$\<get> : \forallt{\kappa\ \beta} \<List>\angles{\kappa\ \beta} \times \kappa\ \<Int> \rightarrow \up{\kappa}\ \beta$
+
+$\<get> : \forallt{\kappa\ \beta} \<List>\angles{\kappa\ \beta} \times \kappa\ \<Int> \rightarrow \up{\kappa}\ \beta$
+
+$\<get> : \forallt{\kappa\ \beta} \<List>\angles{\kappa\ \beta} \times \kappa\ \<Int> \rightarrow \up{\kappa}\ \beta$
+
+\todo{We don't need the OrderNonDet instantiation.  The other two
+  instantiations are enough.
+  We don't need the following instantiation:}
+\begin{Verbatim}
+   // instantiation: OrderNonDet List<Det String> x _ Int -> NonDet String 
+\end{Verbatim}
+
+If either the list or the index is non-deterministic, then the result is
+nondeterministic:
+
+\begin{Verbatim}
+NonDet Int ni;
+   Det Int di;
+NonDet List<NonDet String> nl;
+OrderNonDet List<Det String> ol;
+Det List<Det String> dl;
+
+get(nl, ni) : NonDet String // instantiation: NonDet List<NonDet String> x NonDet Int -> NonDet String
+get(nl, di) : NonDet String
+get(ol, ni) : NonDet String
+get(ol, di) : NonDet String
+get(dl, ni) : NonDet String
+get(dl, di) : Det String    // instantiation: NonDet List<Det String> x Det Int -> Det String
+\end{Verbatim}
+
+
+A similar typing does \emph{not} work for the \<set> function that sets an
+element of a list, because it would permit a deterministic collection must
+not be side-effected in non-deterministic ways.  Consider the following
+type for
+
+$\<set> : \forall \forallt{\tau}$
+
+qualifier 
 on the List add method: \codeid{public void add(PolyDet ArrayList<E> this, PolyDet int index, E element)}.
 Suppose a client calls this method as follows:
 \begin{verbatim}

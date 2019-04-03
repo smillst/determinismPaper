@@ -2,7 +2,7 @@
 %%% Do NOT edit. File created by BibTeX with style
 %%% ACM-Reference-Format-Journals [18-Jan-2012].
 
-\begin{thebibliography}{4}
+\begin{thebibliography}{6}
 
 %%% ====================================================================
 %%% NOTE TO THE USER: you can override these defaults by providing
@@ -37,6 +37,23 @@
 \providecommand\natexlab[1]{#1}
 \providecommand\showeprint[2][]{arXiv:#2}
 
+\bibitem[\protect\citeauthoryear{Abadi, Pierce, and Plotkin}{Abadi
+  et~al\mbox{.}}{1989}]%
+        {Abadi:1989:FIM:77350.77373}
+\bibfield{author}{\bibinfo{person}{M. Abadi}, \bibinfo{person}{B. Pierce},
+  {and} \bibinfo{person}{G. Plotkin}.} \bibinfo{year}{1989}\natexlab{}.
+\newblock \showarticletitle{Faithful Ideal Models for Recursive Polymorphic
+  Types}. In \bibinfo{booktitle}{\emph{Proceedings of the Fourth Annual
+  Symposium on Logic in Computer Science}}. \bibinfo{publisher}{IEEE Press},
+  \bibinfo{address}{Piscataway, NJ, USA}, \bibinfo{pages}{216--225}.
+\newblock
+\showISBNx{0-8186-1954-6}
+\urldef\tempurl%
+\url{http://dl.acm.org/citation.cfm?id=77350.77373}
+\showURL{%
+\tempurl}
+
+
 \bibitem[\protect\citeauthoryear{Bell, Legunsen, Hilton, Eloussi, Yung, and
   Marinov}{Bell et~al\mbox{.}}{2018}]%
         {deflaker}
@@ -54,6 +71,23 @@
 \urldef\tempurl%
 \url{https://doi.org/10.1145/3180155.3180164}
 \showDOI{\tempurl}
+
+
+\bibitem[\protect\citeauthoryear{Plotkin and Abadi}{Plotkin and Abadi}{1993}]%
+        {Plotkin:1993:LPP:645891.671433}
+\bibfield{author}{\bibinfo{person}{Gordon~D. Plotkin} {and}
+  \bibinfo{person}{Mart\'{\i}n Abadi}.} \bibinfo{year}{1993}\natexlab{}.
+\newblock \showarticletitle{A Logic for Parametric Polymorphism}. In
+  \bibinfo{booktitle}{\emph{Proceedings of the International Conference on
+  Typed Lambda Calculi and Applications}} \emph{(\bibinfo{series}{TLCA '93})}.
+  \bibinfo{publisher}{Springer-Verlag}, \bibinfo{address}{London, UK, UK},
+  \bibinfo{pages}{361--375}.
+\newblock
+\showISBNx{3-540-56517-5}
+\urldef\tempurl%
+\url{http://dl.acm.org/citation.cfm?id=645891.671433}
+\showURL{%
+\tempurl}
 
 
 \bibitem[\protect\citeauthoryear{Randoop}{Randoop}{2019}]%

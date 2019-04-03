@@ -76,7 +76,7 @@ class ChooseableSet<T> implements Set<T> {
 \item
 Java does not provide a syntax that can be used for qualifier polymorphism,
 so we use a special type qualifier name, \<@PolyDet>.
-A qualifier-polymorphic method \<m> with signature $\forall \kappa . \kappa\ \<int> \times \<Det boolean> \rightarrow
+A qualifier-polymorphic method \<m> with signature $\forallt{\kappa} \kappa\ \<int> \times \<Det boolean> \rightarrow
 \kappa\ \<String>$ would be written in our dialect of Java as
 \begin{Verbatim}
 @PolyDet String m(@PolyDet int, @Det boolean)
@@ -155,7 +155,7 @@ class ChooseableSet<T> implements Set<T> {
 \item
 Java does not provide a syntax that can be used for qualifier polymorphism,
 so we use a special type qualifier name, \<@PolyDet>.
-A qualifier-polymorphic method \<m> with signature $\forall \kappa . \kappa\ \<int> \times \<Det boolean> \rightarrow
+A qualifier-polymorphic method \<m> with signature $\forallt{\kappa} \kappa\ \<int> \times \<Det boolean> \rightarrow
 \kappa\ \<String>$ would be written in our dialect of Java as
 \begin{Verbatim}
 @PolyDet String m(@PolyDet int, @Det boolean)
@@ -168,3 +168,29 @@ polymorphism on methods but not on classes.
 Therefore, \<@PolyDet> may be written in methods (signatures and bodies)
 but not on fields.
 \end{itemize}
+
+
+
+
+
+When a user writes a polymorphic qualifier on a method signature or a type parameter,
+it indicates that it could be instantiated
+%\todo{Should all occurrences of ``resolve'' be ``can be instantiated''} 
+to any type in the type system depending on how it is used.
+In \theDeterminismChecker, we define a polymorphic qualifier \<PolyDet>.
+One of the most common locations for a polymorphic qualifier is at a method signature.
+Consider the following declaration of addition:
+\begin{verbatim}
+@PolyDet int plus(@PolyDet int a, @PolyDet int b) { return a+b; }
+\end{verbatim}
+\todo{It has the standard meaning.  There are two ways to interpret this.}
+There are two valid instantiations for this declaration:
+\begin{Verbatim}
+  @NonDet int plus(@NonDet int a, @NonDet int b) { return a+b; }
+  @Det int plus(@Det int a, @Det int b) { return a+b; }
+\end{Verbatim}
+This indicates that method \<foo> can be called with arguments having any of the \codeid{Det or NonDet} type qualifiers.
+%   (\<@OrderNonDet> is not allowed because it is invalid on primitive types).
+ \<PolyDet> gets instantiated to the least upper bound of
+the actual types on arguments. For instance, if this method is called as \codeid{foo(@Det String arg1, @NonDet boolean arg2)}, \theDeterminismChecker instantiates the method declaration as \codeid{@NonDet int foo(@NonDet String param1, @NonDet boolean param2)}
+causing the return type to have the type qualifier \<NonDet>.
