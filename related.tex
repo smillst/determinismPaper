@@ -24,7 +24,24 @@ caveat of producing higher false positives compared to NonDex.
 %that have been already fixed by the open-source software
 %developers."}
 
+DeFlaker~\cite{deflaker} is another approach for flake test detection. It relies on
+version control history to detect tests that behave differently. It computes a diff of the code covered
+in the current version and the previous one. If there exists a tests case whose code coverage does not include
+this diff but still produces different results on the two versions being compared, it is flagged as being flaky.
+This approach doesn't require JVM modifications
+and integrates easily with a production software. DeFlaker reported 19 previously unknown bugs
+in open source projects, 7 of which were addressed by the developers of these projects.
 
+~\cite{LuoHEM2014} study 51 open source projects and analyze the most common root causes of
+test flakiness. The findings in the paper suggest that most of the flakiness in tests is caused by
+the use of async away, concurrency, or due to test order dependency.~\cite{Plotkin:1993:LPP:645891.671433}
+performs an empirical study on open source benchmarks that concur with the results of~\cite{LuoHEM2014}.
+Additionally, the authors of this paper study the effects of removing these test smells. Their results suggest that
+refactoring the test code smells fixed more than half of the identified flaky tests.
+
+~\cite{Jin:2012:UDR:2254064.2254075} study the effect of inefficient code sequences on the performance of software.
+Their findings suggest that incorrect understanding of performance specifications of APIs is a very common root cause for
+performance bugs. 
 
 \todo{A NonDet annotation:
   \url{http://www.swi-prolog.org/pldoc/man?section=modes}}
