@@ -255,7 +255,7 @@ We noticed the following properties with respect to determinism regarding the mo
     \item \<HashMap> can never guarantee fully deterministic iteration over its entries. A \codeid{Det HashMap} does not exist.
     \item \<LinkedHashMap> can have any of \<Det>, \<OrderNonDet>, or \<NonDet> types. Iterating over a \<LinkedHashMap> returns
     its entries in the order of their insertion. An \<OrderNonDet LinkedHashMap> can be created by calling its constructor with a \<HashMap>.
-    \item \<TreeMap> can either be \<Det> or \<NonDet>. An \<OrderNonDet TreeMap> doesn't exist because the entries always ordered.
+    \item \<TreeMap> can either be \<Det> or \<NonDet>. An \<OrderNonDet TreeMap> doesn't exist because the entries are always ordered.
 \end{itemize}
 
 We prohibit the creation of a \codeid{Det HashMap} or an \codeid{OrderNonDet TreeMap} in our determinism checker.
