@@ -30,8 +30,8 @@ and coin-flipping
 (calls to a \<random> API\@).
 It may be surprising that nondeterminism is common even in sequential
 programs that do not flip coins.
-For example, any program that iterates over a set or map, and that uses the
-results to affect the output, may produce different output on different runs.
+For example, a program that iterates over a hash table
+may produce different output on different runs.
 So may any program that uses default formatting, such as Java's
 \<Object.toString()> which includes an address or hash code.
 Other nondeterministic APIs include date-and-time functions and
