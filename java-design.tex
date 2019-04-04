@@ -263,19 +263,19 @@ We prohibit the creation of a \codeid{Det HashMap} or an \codeid{OrderNonDet Tre
 also expressed by the last two rules of \cref{fig-creation-rules}.
 
 \begin{figure}
-    $\infer[\rulename{hashmap creation}]{\|new \ \kappa\ HashMap()|}{\kappa \in \{ \<OrderNonDet>, \<NonDet> \}}$
+    $\infer[\rulename{valid hashmap}]{\vdash: \|\kappa\ HashMap()|}{\kappa \in \{ \<OrderNonDet>, \<NonDet> \}}$
     
     \bigskip
     
-    $\infer[\rulename{treemap creation}]{\|new \ \kappa\ TreeMap()|}{\kappa \in \{ \<Det>, \<NonDet> \}}$
+    $\infer[\rulename{valid treemap}]{\vdash: \|\kappa\ TreeMap()|}{\kappa \in \{ \<Det>, \<NonDet> \}}$
     
     \bigskip
     
-    $\infer[\rulename{hashset creation}]{\|new \ \kappa\ HashSet()|}{\kappa \in \{ \<OrderNonDet>, \<NonDet> \}}$
+    $\infer[\rulename{valid hashset}]{\vdash: \|\kappa\ HashSet()|}{\kappa \in \{ \<OrderNonDet>, \<NonDet> \}}$
     
     \bigskip
     
-    $\infer[\rulename{treeset creation}]{\|new \ \kappa\ TreeSet()|}{\kappa \in \{ \<Det>, \<NonDet> \}}$
+    $\infer[\rulename{valid treeset}]{\vdash: \|\kappa\ TreeSet()|}{\kappa \in \{ \<Det>, \<NonDet> \}}$
     \caption{\<Map> and \<Set> creation rules}
     \todo{Are these type well-formedness rules?}
 \todo{What about \<new TreeSet(myOrderedCollection<Det ...>)> which yields a
