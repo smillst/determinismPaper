@@ -290,7 +290,7 @@ In the JDK, \<LinkedHashSet> is implemented as a subclass of \<HashMap>.
 
 \subsection{Precision improvements}\label{sec:precision-java}
 
-The return type of \<System.getenv}, which reads an operating system
+The return type of \<System.getenv>, which reads an operating system
 environment variable, is always \<NonDet>.
 The return type of \codeid{System.getProperty} is usually \<NonDet>. However,
 the result is \<Det> if the argument is \codeid{"line.separator"}; although
