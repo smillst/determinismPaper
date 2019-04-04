@@ -622,38 +622,23 @@ return type at that call site would be \<NonDet Int> rather than the
 desired \<Det Int>.
 
 \begin{figure}
-    $\infer[\rulename{ordernondet polyup}]
-    {\up{\tau} = \<NonDet> \ \beta}
-    {\tau = \<OrderNonDet> \ \beta
-        & \wellformed{\tau}
-    }$
+    $\infer{\up{\<NonDet>} = \<NonDet>}{}
+    \quad
+    \infer{\up{\<OrderNonDet>} = \<NonDet>}{}
+    \quad
+    \infer[\rulename{polyup}]{\up{\<Det>} = \<Det>}{}
+    $
 
     \bigskip
     
-    $\infer[\rulename{polyup}]
-    {\up{\tau} = \kappa \ \beta}
-    {\tau =\kappa \ \beta
-        & \kappa \in \{\<Det>, \<NonDet>\}
-        & \wellformed{\tau}
-    }$
+    $\infer{\down{\<NonDet>} = \<NonDet>}{}
+    \quad
+    \infer{\down{\<OrderNonDet>} = \<Det>}{}
+    \quad
+    \infer[\rulename{polydown}]{\down{\<Det>} = \<Det>}{}
+    $
 
-    \bigskip
-
-    $\infer[\rulename{ordernondet polydown}]
-    {\down{\tau} = \<Det> \ \beta}
-    {\tau = \<OrderNonDet> \ \beta
-        & \wellformed{\tau}
-    }$
-    
-    \bigskip
-    
-    $\infer[\rulename{polydown}]
-    {\down{\tau} = \kappa \ \beta}
-    {\tau =\kappa \ \beta
-        & \kappa \in \{\<Det>, \<NonDet>\}
-        & \wellformed{\tau}
-    }$
-\caption{Polymorphic resolution of $\uparrow$ and $\downarrow$ operators ($\uparrow$ is overloaded for types and qualifiers)}
+\caption{Polymorphic resolution of $\uparrow$ and $\downarrow$ operators.  $\uparrow$ is overloaded for types and qualifiers.}
 \label{fig:poly-resolutions}
 \end{figure}
 
@@ -786,6 +771,15 @@ found this to be a problem in our case studies.
 
 \subsubsection{Differentiating binding and use}\label{bindings-uses}
 
+\todo{TODO: Need to work on this section.}
+
+In the annotated JDK, the type of get is:
+
+\begin{Verbatim}
+    @PolyDet("up") E get(@PolyDet List<E> this, @PolyDet int index);
+\end{Verbatim}
+
+
 A simplified type for the list \<get> method for lists of strings is
 
 $\<get> : \forallt{\kappa} \kappa\ \<List>\angles{\kappa\ \<String>} \times \kappa\ \<Int> \rightarrow \kappa\ \<String>$
@@ -857,7 +851,14 @@ will result in the method declaration being instantiated as \codeid{public void 
 irrespective of the type of \<index>, thereby preventing undesired side-effects.
 
 
-\subsection{Dataflow analysis and type refinement}\label{dataflow}
+\subsection{Type inference, dataflow analysis, and type refinement}\label{dataflow}
+
+\todo{Move all of this to Section 3 since the core calculus has no type
+  inference?
+  But we do want to discuss \<sort>.  So maybe just move the discussion of type inference?}
+
+\todo{The core calculus requires a qualifier on every type.}
+
 \TheDeterminismChecker performs local type inference within method bodies.
 It does not perform whole-program type inference.
 This makes separate compilation possible.
@@ -870,6 +871,7 @@ assignments to the variable.  The inferred type always respects any
 declared type:  that is, it is always a refinement (a subtype) of the
 declared type, if any.
 
+
 In addition to assignments, some method calls refine the types of their
 arguments.  One example is the \<sort> routine, as shown in 
 as shown in \cref{fig-sorting}.  One notable fact about the \rulename{sort}
@@ -877,12 +879,7 @@ rule is that it requires the type argument to be deterministic (type
 qualifier \<Det>).  This is necessary because of two constraints.
 First, refinement must not change the type argument, because of invariant
 type argument subtyping.
-Second, the only possible type argument for a \<Det> collection is \<Det>.
-
-
-It is not permitted to 
-
-
+Second, the only possible element type for a \<Det> collection is \<Det>.
 
 
 \TheDeterminismChecker has additional type refinement rules for the sorting
@@ -893,22 +890,38 @@ methods of \<List>, \<Collections>, and \<Arrays> classes
 %     \bigskip
     
   $\infer[\rulename{sort}]
-  {\Gamma \vdash x : \<Det List>\angles{\<Det>\ \beta}}
-  {\Gamma \vdash x : \<OrderNonDet List>\angles{\<Det>\ \beta} & \<sort(x)>}$
+  {\Gamma \vdash x_{\mathrm{post}} : \<Det List>\angles{\<Det>\ \beta}}
+  {\Gamma \vdash x_{\mathrm{pre}} : \<OrderNonDet List>\angles{\<Det>\ \beta} & \<sort(>x_{\mathrm{pre}}\<)>}$
     
 %     \bigskip
 %     
 %     $\infer[\rulename{arrays sort}]{\Gamma \vdash x : \|Det \ \beta \ Det[]| }{\Gamma \vdash x : \|Det \ \beta \ OrderNonDet[]| & \|Arrays.sort( \ x)|}$
     
     \caption{Sorting type refinement rules.  \<sort> is a method that works
-    by side effect and changes the value---and the type---of its receiver.}
-\todo{These don't capture the notion of ``the type \emph{after} the sort call''.}
+      by side effect and changes the value---and the type---of its receiver.
+    ``$x_{\mathrm{pre}}$ stands for a value before the call to \<sort>, and
+      ``$x_{\mathrm{post}}$ stands for the value after the call.
+    }
     \label{fig-sorting}
 \end{figure}
-\TheDeterminismChecker type refines a receiver of type \codeid{OrderNonDet List} to a \codeid{Det List} if all the
-type argument of this \codeid{List} have the type qualifier \codeid{Det} (Rule \rulename{sort} in \cref{fig-sorting}).
-As per these rules, if \codeid{sort()} is called on a receiver of type \codeid{OrderNonDet List<Det Set<Det String>>}, it will
-be type refined to \codeid{Det List<Det Set<Det String>>}. However a receiver of type \codeid{OrderNonDet List<OrderNonDet Set<Det String>>} will not be type refined.
+As an example, if \codeid{sort()} is called on a receiver of type
+\codeid{OrderNonDet List<Det Set<Det String>>}, it will be type refined to
+\codeid{Det List<Det Set<Det String>>}. However, it is not permitted to
+call \<sort> on a receiver of type \codeid{OrderNonDet List<OrderNonDet
+  Set<Det String>>}.  The rule is not applicable, because doing so would
+instantiate invalid types.
+
+
+As another example, it is only sometimes permitted to call \<shuffle> on a receiver of
+type \ptype{Det List}{Det String}.  It is illegal to call \<shuffle> on a
+receiver of \emph{declared} type \ptype{Det List}{Det String}, because doing so would change
+the receiver's type to be inconsistent with its declaration.  However, it
+is permitted to call \<shuffle> on a receiver of type \ptype{Det List}{Det
+  String} that was declared as \ptype{OrderNonDet List}{Det
+  String} but then refined to \ptype{Det List}{Det String}, for example by
+calling \<sort> or via assignment.
+
+
 
 %\subsection{CLIMB-to-top and collection, array locals}\label{climb-rules}
 %
@@ -960,28 +973,40 @@ be type refined to \codeid{Det List<Det Set<Det String>>}. However a receiver of
 %all local variables that are collections to reduce false positives. The same reasoning and recommendation applies to arrays.
 
 \subsection{Maps}\label{maps}
-A map is a collection of keys--value pairs.
-Like other collections, a map can be nondeterministic,
+A map is a collection of key--value pairs.
+Like other collections, a map or set can be nondeterministic,
 order-nondeterministic, or deterministic.
+
+It might seem that the notion of an order-nondeterministic set or map is
+nonsensical, since the set and map specifications make no promises about
+iteration order.  However, some subtypes do.
+We explain why each of these is possible by considering three common
+implementation strategies.
+
+\begin{itemize}
+\item
+A hash table is order-nondeterministic, because hash codes are
+nondeterministic in general.
+\item
+A hash table can be augmented by a linked list recording insertion order,
+so that iteration order is deterministic.
+\item
+A map or set can be backed by a sorted collection, such as a tree.  Such a map is
+either \<NonDet> (if \<NonDet> keys or values are inserted into it) or
+\<Det>, but never \<OrderNonDet>.
+\end{itemize}
+
 Analogously to set membership, lookups are deterministic in
 order-nondeterministic and deterministic maps; in addition, the iteration
 order is fixed in a deterministic map.
 
-We explain why each of these is possible by considering three common
-implementation strategies.
-
-A hash table is order-nondeterministic, because hash codes are
-nondeterministic in general.
-
-A hash table can be augmented by a linked list recording insertion order,
-so that iteration order is deterministic.
-
-A map can be backed by a sorted collection, such as a tree.  Such a map is
-either \<NonDet> (if \<NonDet> keys or values are inserted into it) or
-\<Det>, but never \<OrderNonDet>.
-
 
 \subsection{Determinism checker specific rules for precision}\label{precision}
+
+\todo{Sets vs lists.  Set equality is independent of order.}
+An order nondeterministic list does not provide any guarantee on the
+equality as it is dependent on the iteration order
+
 We annotated the \codeid{equals()} method of the \<Set> class in the JDK as
 \begin{verbatim}
 PolyDet("down") boolean equals(PolyDet Set<E> this, PolyDet Object o)
@@ -997,7 +1022,7 @@ While this is sound, it is imprecise in the case of \codeid{OrderNonDet
     
     $\infer[\rulename{map precision}]{\Gamma \vdash \|x.get(y)| : \<Det>}{\Gamma \vdash \|x : \<OrderNonDet> \ \<Map>\angles{ \<Det> \ \beta_k, \kappa_v\ \beta_v }, y : \<Det> \ \beta|}$
     
-    \caption{Improving precision}
+    \caption{Special rules for set equality and map lookup.}
 \todo{In the \rulename{map precision} rule, should the \<Det> in the
   conclusion be $\beta_v$?}
     \label{fig-precision-rules}
@@ -1006,19 +1031,10 @@ According to this rule, if the \<Set> receiver has type \codeid{@OrderNonDet Set
 also of the same type, the return type gets the qualifier \<Det>. Without this precision rule, the return type would have been instantiated as \<NonDet> which
 is sound but imprecise. This rule is careful enough to not annotate the return type of \<equals()> as \<Det> if a type argument to either the
 receiver or the argument happens to be an \codeid{OrderNonDet List}.
-\todo{The following is the key!  Put in earlier.}(An order nondeterministic list does not provide any guarantee on the
-equality as it is dependent on the iteration order). 
 
-Similarly, the \codeid{get()} method in the \<Map> class is annotated with polymorphic qualifiers and the rule \rulename{map precision}\ in \cref{fig-precision-rules} improves precision for \<OrderNonDet> receivers.
+Similarly, the rule \rulename{map precision}\ in \cref{fig-precision-rules}
+improves precision for \<OrderNonDet> receivers.
 
-\subsection{Extending \ourTypeSystem}\label{extending-det-checker}
-We have primarily focused on collections and annotated the corresponding classes in the JDK.
-These qualifiers provide machine verifiable specifications of determinism properties.
-Another source of nondeterminism that we haven't analyzed closely is the File system methods.
-A program analysis developer interested in verifying determinism guarantees with respect to 
-the File system can easily do so by annotating the parameter and return types of those methods in the JDK.
-Alternatively, a user can write these qualifiers in a \textit{stub} file and supply it to the type checker. A \textit{stub}
-only needs to contain method declarations along with their qualifiers.
 
 % LocalWords:  basetypes NonDet OrderNonDet Det Iterable formedness param1
 % LocalWords:  PolyDet boolean param2 arg1 arg2 localList entrySet keySet
