@@ -973,28 +973,40 @@ calling \<sort> or via assignment.
 %all local variables that are collections to reduce false positives. The same reasoning and recommendation applies to arrays.
 
 \subsection{Maps}\label{maps}
-A map is a collection of keys--value pairs.
-Like other collections, a map can be nondeterministic,
+A map is a collection of key--value pairs.
+Like other collections, a map or set can be nondeterministic,
 order-nondeterministic, or deterministic.
+
+It might seem that the notion of an order-nondeterministic set or map is
+nonsensical, since the set and map specifications make no promises about
+iteration order.  However, some subtypes do.
+We explain why each of these is possible by considering three common
+implementation strategies.
+
+\begin{itemize}
+\item
+A hash table is order-nondeterministic, because hash codes are
+nondeterministic in general.
+\item
+A hash table can be augmented by a linked list recording insertion order,
+so that iteration order is deterministic.
+\item
+A map or set can be backed by a sorted collection, such as a tree.  Such a map is
+either \<NonDet> (if \<NonDet> keys or values are inserted into it) or
+\<Det>, but never \<OrderNonDet>.
+\end{itemize}
+
 Analogously to set membership, lookups are deterministic in
 order-nondeterministic and deterministic maps; in addition, the iteration
 order is fixed in a deterministic map.
 
-We explain why each of these is possible by considering three common
-implementation strategies.
-
-A hash table is order-nondeterministic, because hash codes are
-nondeterministic in general.
-
-A hash table can be augmented by a linked list recording insertion order,
-so that iteration order is deterministic.
-
-A map can be backed by a sorted collection, such as a tree.  Such a map is
-either \<NonDet> (if \<NonDet> keys or values are inserted into it) or
-\<Det>, but never \<OrderNonDet>.
-
 
 \subsection{Determinism checker specific rules for precision}\label{precision}
+
+\todo{Sets vs lists.  Set equality is independent of order.}
+An order nondeterministic list does not provide any guarantee on the
+equality as it is dependent on the iteration order
+
 We annotated the \codeid{equals()} method of the \<Set> class in the JDK as
 \begin{verbatim}
 PolyDet("down") boolean equals(PolyDet Set<E> this, PolyDet Object o)
@@ -1010,7 +1022,7 @@ While this is sound, it is imprecise in the case of \codeid{OrderNonDet
     
     $\infer[\rulename{map precision}]{\Gamma \vdash \|x.get(y)| : \<Det>}{\Gamma \vdash \|x : \<OrderNonDet> \ \<Map>\angles{ \<Det> \ \beta_k, \kappa_v\ \beta_v }, y : \<Det> \ \beta|}$
     
-    \caption{Improving precision}
+    \caption{Special rules for set equality and map lookup.}
 \todo{In the \rulename{map precision} rule, should the \<Det> in the
   conclusion be $\beta_v$?}
     \label{fig-precision-rules}
@@ -1019,19 +1031,10 @@ According to this rule, if the \<Set> receiver has type \codeid{@OrderNonDet Set
 also of the same type, the return type gets the qualifier \<Det>. Without this precision rule, the return type would have been instantiated as \<NonDet> which
 is sound but imprecise. This rule is careful enough to not annotate the return type of \<equals()> as \<Det> if a type argument to either the
 receiver or the argument happens to be an \codeid{OrderNonDet List}.
-\todo{The following is the key!  Put in earlier.}(An order nondeterministic list does not provide any guarantee on the
-equality as it is dependent on the iteration order). 
 
-Similarly, the \codeid{get()} method in the \<Map> class is annotated with polymorphic qualifiers and the rule \rulename{map precision}\ in \cref{fig-precision-rules} improves precision for \<OrderNonDet> receivers.
+Similarly, the rule \rulename{map precision}\ in \cref{fig-precision-rules}
+improves precision for \<OrderNonDet> receivers.
 
-\subsection{Extending \ourTypeSystem}\label{extending-det-checker}
-We have primarily focused on collections and annotated the corresponding classes in the JDK.
-These qualifiers provide machine verifiable specifications of determinism properties.
-Another source of nondeterminism that we haven't analyzed closely is the File system methods.
-A program analysis developer interested in verifying determinism guarantees with respect to 
-the File system can easily do so by annotating the parameter and return types of those methods in the JDK.
-Alternatively, a user can write these qualifiers in a \textit{stub} file and supply it to the type checker. A \textit{stub}
-only needs to contain method declarations along with their qualifiers.
 
 % LocalWords:  basetypes NonDet OrderNonDet Det Iterable formedness param1
 % LocalWords:  PolyDet boolean param2 arg1 arg2 localList entrySet keySet
