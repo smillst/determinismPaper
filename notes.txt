@@ -16,19 +16,53 @@ We did not do any proofs about the implementation.
 ===========================================================================
 
 
-One thing to mention is that in the Randoop case study, there were many places where I might have had to suppress warnings because of iterating over a @PolyDet collection where the looping variable would be @PolyDet("up"). For example, the copyList method we've discussed would require
-suppressing warnings. However, for methods like that I took the approach of making all the parameters @Det, which allowed the method to type check. I wouldn't have done this in a library where we would want most of the signatures to be general and take @PolyDet parameters. In Randoop,
-however, the approach I took simply increased the number of annotations written while decreasing the number of @SuppressWarnings used.
+One thing to mention is that in the Randoop case study, there were many
+places where I might have had to suppress warnings because of iterating
+over a @PolyDet collection where the looping variable would be
+@PolyDet("up"). For example, the copyList method we've discussed would
+require suppressing warnings. However, for methods like that I took the
+approach of making all the parameters @Det, which allowed the method to
+type check. I wouldn't have done this in a library where we would want most
+of the signatures to be general and take @PolyDet parameters. In Randoop,
+however, the approach I took simply increased the number of annotations
+written while decreasing the number of @SuppressWarnings used.
 
 
-* The biggest thing is mentioning our issues with conditionals and control flow. This is an example of unsoundness in the checker that we are allowing by default, and an interesting challenge we didn't expect at the start (it was a while before we realized this was a problem).
-* In addition to doing type refinement for the sort method, we also refine collections after calling "shuffle". A comment in our source code indicates this doesn't currently work, but it is officially part of our type system.
-* Our type refinement for sorting also refines PolyDet List<Det T> to PolyDet("down") List<Det T>, so the sorting rule might be better expressed in terms of the "down" operator.
-* Mike mentioned a while ago it might be good to talk about things we tried that didn't work out. One major instance was allowing @NonDet collections of @Det elements. These types were very prevalent. After disallowing them, I had to delete a lot of tests and many of the examples in the
- manual.
-* Originally, exceptions in catch blocks were @NonDet. This caused a huge amount of errors and so we eventually decided to remove this and default exceptions in catch blocks to deterministic. This caused some unsoundness, but only in the case exceptions are thrown. It also made the checker
- much more usable.
-* Finally, one major issue we have with our checker is mixing class level fields and type parameters with polymorphic qualifiers. First, the fact that fields cannot be assigned to a @PolyDet value is a big deal. It's what caused me to write most of the annotations that I did in randoop. The issue with
- type parameters is that it's illegal to have a parameter "@PolyDet List<T> list" where <T extends @NonDet Object> (because the upper bound of T must be a subtype of @PolyDet). This was actually an issue in plume-util when we wanted generality. In Randoop I simply changed the upper
- bound of the type parameters to @Det. A more important consequence is that I don't think our JDK annotations for collections would type check at all because PolyDet List<T> where <T extends @NonDet Object> is the receiver for many of these methods, and it's illegal to write this. Note, both
- of these problems would be solved by @ThisDet.
+* The biggest thing is mentioning our issues with conditionals and control
+  flow. This is an example of unsoundness in the checker that we are
+  allowing by default, and an interesting challenge we didn't expect at the
+  start (it was a while before we realized this was a problem).
+
+* In addition to doing type refinement for the sort method, we also refine
+  collections after calling "shuffle". A comment in our source code
+  indicates this doesn't currently work, but it is officially part of our
+  type system.
+
+* Our type refinement for sorting also refines PolyDet List<Det T> to
+  PolyDet("down") List<Det T>, so the sorting rule might be better
+  expressed in terms of the "down" operator.
+
+* Mike mentioned a while ago it might be good to talk about things we tried
+ that didn't work out. One major instance was allowing @NonDet collections
+ of @Det elements. These types were very prevalent. After disallowing them,
+ I had to delete a lot of tests and many of the examples in the manual.
+
+* Originally, exceptions in catch blocks were @NonDet. This caused a huge
+ amount of errors and so we eventually decided to remove this and default
+ exceptions in catch blocks to deterministic. This caused some unsoundness,
+ but only in the case exceptions are thrown. It also made the checker much
+ more usable.
+
+* Finally, one major issue we have with our checker is mixing class level
+ fields and type parameters with polymorphic qualifiers. First, the fact
+ that fields cannot be assigned to a @PolyDet value is a big deal. It's
+ what caused me to write most of the annotations that I did in randoop. The
+ issue with type parameters is that it's illegal to have a parameter
+ "@PolyDet List<T> list" where <T extends @NonDet Object> (because the
+ upper bound of T must be a subtype of @PolyDet). This was actually an
+ issue in plume-util when we wanted generality. In Randoop I simply changed
+ the upper bound of the type parameters to @Det. A more important
+ consequence is that I don't think our JDK annotations for collections
+ would type check at all because PolyDet List<T> where <T extends @NonDet
+ Object> is the receiver for many of these methods, and it's illegal to
+ write this. Note, both of these problems would be solved by @ThisDet.
