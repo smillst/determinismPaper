@@ -429,6 +429,9 @@ and our typing must have that as a special case, which is the first line above.
 
 
 \begin{figure}
+\todo{Give the types for get and set, which are more basic list/array operations,
+  at the beginning before iteration.}
+
 %    $\infer[\rulename{iteration}]
 %    {\Gamma \vdash \|y| : \|OrderNonDet\ Iterator|\angles{\tau}}
 %    {\Gamma \vdash \|x| : \|OrderNonDet \ C\angles{\tau}|
@@ -454,7 +457,7 @@ and our typing must have that as a special case, which is the first line above.
 
     \rulename{next element}:
     $
-    \forallt{kappa\ \beta} \<OrderNonDet>\ \<Iterator>\angles{\kappa \ \beta} \rightarrow
+    \forallt{\kappa\ \beta} \<OrderNonDet>\ \<Iterator>\angles{\kappa \ \beta} \rightarrow
     \<NonDet>\ \beta
     $
     
@@ -488,7 +491,11 @@ and our typing must have that as a special case, which is the first line above.
     \<Det> \ \<int>
     $
     
-\caption{\<OrderNonDet> Collection rules}
+\caption{\<OrderNonDet> Collection rules.  $C$ is a collection class.
+    These are partial types indicating the methods' behavior on
+    \<OrderNonDet> arguments.  Full types are given in \cref{polymorphism}.}
+\todo{These should be method names, not rule names, right?  The figure is
+  just giving the types of methods.}
 \label{fig-ordernondet-rules}
 \end{figure}
 
@@ -501,7 +508,7 @@ One extension resolves \<OrderNonDet> to \<NonDet> or \<Det> where
 needed (\cref{polymorphism-up-down}).
 The other extension permits use of polymorphic (type) variables without
 affecting binding of those variables --- that is, it affects which
-instantiation of an abstraction is chosen at a use site 
+instantiation of a (method) abstraction is chosen at a use site
 (\cref{bindings-uses}).
 
 \todo{Can we come up with more examples of interesting functions to
@@ -516,8 +523,8 @@ over both classes and methods.
 A polymorphic abstraction (a class or method) is written and
 typechecked once.
 It acts as if it has multiple different types, and each use site is
-typechecked using the most specific applicable (instantiated,
-non-polymorphic) type.
+typechecked using the most specific applicable instantiated
+non-polymorphic type.
 
 
 
@@ -525,7 +532,6 @@ non-polymorphic) type.
 When both are applied, it gives the effect of type polymorphism.
 Polymorphism applies to both classes and methods.
 
-\todo{Greekify the following}
 \begin{itemize}
 \item
 Type polymorphism has the usual semantics.  For example, the type of the
