@@ -545,22 +545,19 @@ $\forallt{\kappa \ \beta} \kappa \ \beta \rightarrow \kappa \ \beta$.
   qualifier, which might be fixed or might be polymorphic.
   An example is a nondeterministic \<choose> function, which might have type
 
-  $\forallt{\beta} \<Set>\angles{\<Det>\ \beta} \rightarrow \<NonDet>\ \beta$
+  $\<choose> : \forallt{\beta} \<Set>\angles{\<Det>\ \beta} \rightarrow \<NonDet>\ \beta$
 
   Basetype polymorphism is rarely used on its own.  Full type polymorphism is more
   common, even if the type is decomposed and the parts used independently,
-  as in this more general signature for the \<choose> function:
+  as in this more general type for the \<choose> function:
 
-  $\forallt{\kappa\ \beta} \<Set>\angles{\kappa\ \beta} \rightarrow \<NonDet>\ \beta$
+  $\<choose> : \forallt{\kappa\ \beta} \<Set>\angles{\kappa\ \beta} \rightarrow \<NonDet>\ \beta$
 
 \item
-Qualifier polymorphism is common.  For example, here is the signature for
-the \<length> method on strings:
+Qualifier polymorphism is common.  For example, here are types for
+the \<length> method on strings and the addition operation:
 
 $\<length>\ :\ \forallt{\kappa} \kappa\ \<String> \rightarrow \kappa\ \<Int>$
-
-\noindent
-and here is that for the addition operation:
 
 $\<plus>\ :\ \forallt{\kappa} \kappa\ \<Int> \times \kappa\ \<Int> \rightarrow \kappa\ \<Int>$
 
@@ -569,28 +566,38 @@ $\<plus>\ :\ \forallt{\kappa} \kappa\ \<Int> \times \kappa\ \<Int> \rightarrow \
 Informally, the \<length> method above acts as if it had multiple
 (overloaded) definitions
 
-$\<NonDet>\ \<String> \rightarrow \<NonDet> \<Int>$
+$\<length>\ : \<NonDet>\ \<String> \rightarrow \<NonDet> \<Int>$
 
-$\<Det>\ \<String> \rightarrow \<Det> \<Int>$
+$\<length>\ :\<Det>\ \<String> \rightarrow \<Det> \<Int>$
 
 The body of \<length> must typecheck at every possible instantiation of its
 polymorphic function type.  At a use site of \<length>,
 the most specific applicable instantiation is chosen.
 Here is an example:
-\todo{(put it in a table)}
 
-\begin{Verbatim}
-NonDet Int ni;
-   Det Int di;
+Suppose we have two variables $\<ni> : \<NonDet Int>$ and $\<di> : \<Det Int>$.
+This table shows, for several method invocations, the 
+most specific applicable instantiation for that invocation and the type of
+the call expression:
 
-plus(ni, ni)  // has type NonDet Int; most specific applicable instantiation is NonDet Int -> NonDet Int
-plus(di, di)  // has type Det Int; most specific applicable instantiation is Det Int -> Det Int
-plus(ni, di)  // has type NonDet Int; most specific applicable instantiation is NonDet Int -> NonDet Int
-\end{Verbatim}
+\begin{tabular}{lll}
+  Expression & instantiation & type \\
+\<plus(ni, ni)> & $\<NonDet>\ \<String> \rightarrow \<NonDet> \<Int>$ & \<NonDet> \\
+\<plus(di, di)> & $\<Det>\ \<String> \rightarrow \<Det> \<Int>$ & \<Det> \\
+\<plus(ni, di)> & $\<NonDet>\ \<String> \rightarrow \<NonDet> \<Int>$ & \<NonDet> \\
+\<plus(di, ni)> & $\<NonDet>\ \<String> \rightarrow \<NonDet> \<Int>$ & \<NonDet> \\
+\end{tabular}
+
+\smallskip
 
 We adopt the convention that  polymorphism is not instantiated in ways
-that would create invalid types.  For example, the \<plus> polymorphic
-function would not be instantiated at $\kappa = \<OrderNonDet>.$
+that would create invalid types.  For example, the \<length> and \<plus> polymorphic
+functions would not be instantiated at $\kappa = \<OrderNonDet>.$
+This makes no difference for these particular functions:  such an
+instantiation would never be the most specific applicable one.
+This is important for some of the type rules given in this paper, which
+would otherwise need complex preconditions that recapitulate the type
+well-formedness rules.
 
 
 \subsubsection{Polymorphism rules for collections}\label{polymorphism-up-down}
@@ -611,17 +618,15 @@ because such an instantiation would include the invalid return type \<OrderNonDe
 This means that the only two instantiations are at 
 $\kappa = \<NonDet>$ and $\kappa = \<Det>$.  An invocation on a
 \<OrderNonDet> collection would choose the \<NonDet> instantiation and the
-size would be \<NonDet Int>.
-%
-A similar problem occurs for the \<first> operation that returns the first
-element of a list.
+return type at that call site would be \<NonDet Int> rather than the
+desired \<Det Int>.
 
 \OurTypeSystem resolves this problem by introducing two operators over
 polymorhic (type) variables, $\uparrow$ and $\downarrow$.
 The $\uparrow$ operator converts \<OrderNonDet> to \<NonDet> and leaves the
 other qualifiers unchanged.  The upward-pointing arrow is mnemonic for replacing
 \<OrderNonDet> by something higher in the type hierarchy.
-The $\downarrow$ operator is analogous, but converts \<OrderNonDet> to
+The $\downarrow$ operator is analogous, but it converts \<OrderNonDet> to
 \<Det>, which is lower in the type hierarchy.
 \Cref{fig:poly-resolutions} formalizes their behavior.
 
@@ -673,11 +678,50 @@ $\<first> : \<OrderNonDet>\ \ListKB \rightarrow \<NonDet>\ \beta_e$
 
 $\<first> : \<Det>\ \ListKB \rightarrow \<Det>\ \beta_e$
 
-\todo{As I mentioned in email, $\<NonDet>\ \beta_e$ looks wrong to me,
-  because $\beta_e$ may be a collection whose type arguments are not
-  compatible with \<NonDet>.  Maybe just remark that the instantiation does
-  not happen in that case.  If we try to adjust the type arguments to fit
-  \<NonDet>, then unsoundness occurs.}
+\paragraph{Discussion of the type of \<length>}
+
+In the type of \<first>, the $\uparrow$ is not strictly necessary.
+
+Suppose that $\<myStrings> : \ptype{OrderNonDet List}{Det String}$.
+The type of \<first(myStrings)> should be \<NonDet String>.
+
+If the type of \<first> were 
+
+$\<first> : \forallt{\kappa} \kappa\ \ListKB \rightarrow \kappa\ \beta_e$
+
+\noindent
+then the instantiation 
+
+$\<first> : \<OrderNonDet>\ \ptype{List}{$\kappa$ String} \rightarrow \<OrderNonDet>\ \<String>$
+
+\noindent
+would be invalid.
+At the call \<first(myStrings)>, the most specific instantiation would be
+
+$\<first> : \<NonDet>\ \ptype{List}{$\kappa$ String} \rightarrow \<NonDet>\ \<String>$
+
+\noindent making the type of the expression \<NonDet String> as desired.
+We prefer the type 
+
+$\<first> : \forallt{\kappa} \kappa\ \ListKB \rightarrow \up{\kappa}\ \beta_e$
+
+\noindent
+because it is more explicit about the method's effect and more
+instantiations, rather than requiring
+a reader to reason about valid types.
+
+
+The rules prevent some invocations.  Suppose we have the following variable:
+
+$\<listOfLists> : \ptype{OND List}{\ptype{Det List}{Det String}}$
+
+\noindent
+Then the invocation \<first(listOfLists)> is illegal.
+Its type would be \ptype{NonDet List}{Det String}, which is an invalid
+type.
+
+This restriction prevents programmers from writing some code, but we never
+found this to be a problem in our case studies.
 
 
 %\begin{figure}
