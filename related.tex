@@ -32,16 +32,28 @@ This approach doesn't require JVM modifications
 and integrates easily with a production software. DeFlaker reported 19 previously unknown bugs
 in open source projects, 7 of which were addressed by the developers of these projects.
 
-~\cite{LuoHEM2014} study 51 open source projects and analyze the most common root causes of
+\cite{LuoHEM2014} study 51 open source projects and analyze the most common root causes of
 test flakiness. The findings in the paper suggest that most of the flakiness in tests is caused by
 the use of async away, concurrency, or due to test order dependency.~\cite{Plotkin:1993:LPP:645891.671433}
 performs an empirical study on open source benchmarks that concur with the results of~\cite{LuoHEM2014}.
 Additionally, the authors of this paper study the effects of removing these test smells. Their results suggest that
 refactoring the test code smells fixed more than half of the identified flaky tests.
 
-~\cite{Jin:2012:UDR:2254064.2254075} study the effect of inefficient code sequences on the performance of software.
+\cite{Jin:2012:UDR:2254064.2254075} study the effect of inefficient code sequences on the performance of software.
 Their findings suggest that incorrect understanding of performance specifications of APIs is a very common root cause for
-performance bugs. 
+performance bugs. ~\cite{Rui:2013:180377} analyze the APIs related to security such as authorization and authentication.
+These APIs which come as a part of the SDKs provided by online providers are used by application developers to 
+build secure apps. The paper discovers that the security guarantees provided by these SDKs are violated due to
+the implicit assumptions made by the APIs that the users are unaware of. \cite{Xiao:2014:NMC:2591062.2591177}
+study the effect of nondeterminism in MapReduce programs with a specific focus on nondeterminism caused by
+non-commutative reducers. While they found bugs that violated correctness due to this bug pattern,
+the authors reported that several of these were harmless as they relied on an implicit assumption on data
+which ensured correctness. 
+
+\cite{Petrenko1996,Petrenko:1993:NSM:648128.761244,Savor:1997:639710,Hierons:2004:TCD:1040993.1040998} propose several techniques to test whether a
+deterministic implementation conforms to its non-deterministic finite state machine.
+\cite{Cook:2013:RNP:2491956.2491969} present an approach that can automatically verify properties
+in branching time temporal logic systems that are inherently non-deterministic.
 
 \todo{A NonDet annotation:
   \url{http://www.swi-prolog.org/pldoc/man?section=modes}}
