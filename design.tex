@@ -621,6 +621,42 @@ $\kappa = \<NonDet>$ and $\kappa = \<Det>$.  An invocation on a
 return type at that call site would be \<NonDet Int> rather than the
 desired \<Det Int>.
 
+\begin{figure}
+    $\infer[\rulename{ordernondet polyup}]
+    {\up{\tau} = \<NonDet> \ \beta}
+    {\tau = \<OrderNonDet> \ \beta
+        & \wellformed{\tau}
+    }$
+
+    \bigskip
+    
+    $\infer[\rulename{polyup}]
+    {\up{\tau} = \kappa \ \beta}
+    {\tau =\kappa \ \beta
+        & \kappa \in \{\<Det>, \<NonDet>\}
+        & \wellformed{\tau}
+    }$
+
+    \bigskip
+
+    $\infer[\rulename{ordernondet polydown}]
+    {\down{\tau} = \<Det> \ \beta}
+    {\tau = \<OrderNonDet> \ \beta
+        & \wellformed{\tau}
+    }$
+    
+    \bigskip
+    
+    $\infer[\rulename{polydown}]
+    {\down{\tau} = \kappa \ \beta}
+    {\tau =\kappa \ \beta
+        & \kappa \in \{\<Det>, \<NonDet>\}
+        & \wellformed{\tau}
+    }$
+\caption{Polymorphic resolution of $\uparrow$ and $\downarrow$ operators ($\uparrow$ is overloaded for types and qualifiers)}
+\label{fig:poly-resolutions}
+\end{figure}
+
 \OurTypeSystem resolves this problem by introducing two operators over
 polymorhic (type) variables, $\uparrow$ and $\downarrow$.
 The $\uparrow$ operator converts \<OrderNonDet> to \<NonDet> and leaves the
@@ -747,45 +783,6 @@ found this to be a problem in our case studies.
 %\label{tab-poly-resolutions}
 %\end{table}
 
-\begin{figure}
-    $\infer[\rulename{ordernondet polyup}]
-    {\up{\tau} = \<NonDet> \ \beta}
-    {\tau = \<OrderNonDet> \ \beta
-        & \wellformed{\tau}
-    }$
-
-    \bigskip
-    
-    $\infer[\rulename{polyup}]
-    {\up{\tau} = \kappa \ \beta}
-    {\tau =\kappa \ \beta
-        & \kappa \in \{\<Det>, \<NonDet>\}
-        & \wellformed{\tau}
-    }$
-
-    \bigskip
-
-    $\infer[\rulename{ordernondet polydown}]
-    {\down{\tau} = \<Det> \ \beta}
-    {\tau = \<OrderNonDet> \ \beta
-        & \wellformed{\tau}
-    }$
-    
-    \bigskip
-    
-    $\infer[\rulename{polydown}]
-    {\down{\tau} = \kappa \ \beta}
-    {\tau =\kappa \ \beta
-        & \kappa \in \{\<Det>, \<NonDet>\}
-        & \wellformed{\tau}
-    }$
-\caption{Polymorphic resolution of $\uparrow$ and $\downarrow$ operators ($\uparrow$ is overloaded for types and qualifiers)}
-\todo{I think this needs to do something to nested collections.  Or maybe
-  just clarify that if there is a nested collection such that this would
-  yield an invalid type, then the instantiation does not apply.  That might
-  be cleanest.}
-\label{fig:poly-resolutions}
-\end{figure}
 
 \subsubsection{Differentiating binding and use}\label{bindings-uses}
 
