@@ -2,6 +2,7 @@
 
 Found by the Determinism Checker:
 
+----------------
 
 commit c975a9f7d862b97064c0559875e6e2a65510e92b
 Author: Michael Ernst <mernst@cs.washington.edu>
@@ -14,6 +15,8 @@ diff:
 +    Set<TypeVariable> parameters = new LinkedHashSet<>(super.getTypeParameters());
 There could be trouble if a type parameter's lower or upper bounds has a parameter that it does not have.  That situation does happen.  I don't know why trouble does not result.
 
+----------------
+
 commit 661a49700fefbd78ef9cb71b89e0be0d4235a7bd
 Author: Michael Ernst <mernst@cs.washington.edu>
 Date:   Fri Mar 8 15:26:17 2019 -0800
@@ -24,6 +27,8 @@ Date:   Fri Mar 8 15:26:17 2019 -0800
     This method isn't currently called, but it is still a source of nondeterminism.
 
 diff: print toString() instead of hashCode()
+
+----------------
 
 commit 330e3c56fbde89ff70354e81b2004a3135374780
 Author: Michael Ernst <mernst@alum.mit.edu>
@@ -37,6 +42,8 @@ diff:
 Don't use System.getProperty("java.class.path")
 Add junit.jar to classpath in tests.
 
+----------------
+
 commit a460df97fde401646c58001d241d912f10464ea5
 Author: Michael Ernst <mernst@cs.washington.edu>
 Date:   Wed Apr 3 14:27:16 2019 -0700
@@ -46,6 +53,8 @@ Date:   Wed Apr 3 14:27:16 2019 -0700
     Bug found by Determinism Checker
 
 Diff: test command-line argument, and print timestamp or not
+
+----------------
 
 ===========================================================================
 

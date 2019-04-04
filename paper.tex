@@ -68,12 +68,48 @@
 \usepackage{cleveref}
 \usepackage{hyperref}
 
+% \usepackage[svgnames]{xcolor}
+%   \definecolor{diffstart}{named}{Grey}
+%   \definecolor{diffincl}{named}{Green}
+%   \definecolor{diffrem}{named}{OrangeRed}
+
+% \usepackage{listings}
+%   \lstdefinelanguage{diff}{
+%     basicstyle=\ttfamily\small,
+%     morecomment=[f][\color{Dark gray}]{@@},
+%     morecomment=[f][\color{Forest green}]{+\ },
+%     morecomment=[f][\color{Firebrick}]{-\ },
+%   }
+% % \lstset{numbers=left,numberblanklines=false,escapeinside=||}
+% \lstset{escapeinside=||}
+% \let\origthelstnumber\thelstnumber
+% \makeatletter
+% \newcommand*\Suppressnumber{%
+%   \lst@AddToHook{OnNewLine}{%
+%     \let\thelstnumber\relax%
+%      \advance\c@lstnumber-\@ne\relax%
+%     }%
+% }
+% 
+% % This causes line numbers to increment by 2 every time!
+% \newcommand*\Reactivatenumber[1]{%
+%   \setcounter{lstnumber}{\numexpr#1-1\relax}
+%   \lst@AddToHook{OnNewLine}{%
+%    \let\thelstnumber\origthelstnumber%
+%    \refstepcounter{lstnumber}%
+%   }%
+% }
+
+
 \input{macros.tex}
 
 \begin{document}
 
 %% Title information
 % \title{Compile Time Verification of Deterministic properties for Sequential Programs}
+% \todo{The title ``Making Sequential Programs Deterministic'' is misleading
+%   because our tool doesn't transform programs, though it does help
+%   programmers transform programs.}
 \title{Making Sequential Programs Deterministic}
          %% [Short Title] is optional;
                                         %% when present, will be used in
@@ -147,10 +183,6 @@
 %% Note: \begin{abstract}...\end{abstract} environment must come
 %% before \maketitle command
 \begin{abstract}
-\todo{The title ``Making Sequential Programs Deterministic'' is misleading
-  because our tool doesn't transform programs, though it does help
-  programmers transform programs.}
-
 When a program is nondeterministic, it is difficult to test and debug.
 Nondeterminism can occur even in sequential programs, for example as a
 result of iterating over the elements of a hash table.
@@ -234,7 +266,7 @@ non-concurrency-related nondeterminism that was found by other tools.
 %% Bibliography
 %\bibliographystyle{ACM-Reference-Format.bst}
 \clearpage
-\bibliography{paper,bibstring-unabbrev,testing,crossrefs}
+\bibliography{paper,bibstring-unabbrev,ernst,testing,crossrefs}
 
 
 %% Appendix

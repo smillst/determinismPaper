@@ -103,6 +103,49 @@ two bugs, this one is not serious.
 
 \end{itemize}
 
+\begin{figure}
+
+\noindent
+In \<Minimize.java>:
+
+\begin{Verbatim}
+151:-  private static final String SYSTEM_CLASS_PATH = System.getProperty("java.class.path");
+
+913:-    String command = "javac -classpath " + SYSTEM_CLASS_PATH + PATH_SEPARATOR + ".";
+913:+    String command = "javac -classpath .";
+914:     if (classpath != null) {
+915:       // Add specified classpath to command.
+916:       command += PATH_SEPARATOR + classpath;
+917:     }
+
+948:-    String classpath = SYSTEM_CLASS_PATH + PATH_SEPARATOR + dirPath;
+948:+    String classpath = dirPath;
+949:     if (userClassPath != null) {
+950:       classpath += PATH_SEPARATOR + userClassPath;
+951:     }
+\end{Verbatim}
+
+\noindent
+In \<MinimizerTests.java>:
+
+\begin{Verbatim}
+55:-    String classPath = "";
+55:+    String classPath = JUNIT_JAR;
+56:     if (dependencies != null) {
+57:       for (String s : dependencies) {
+58:         Path file = Paths.get(s);
+59:         classPath += (pathSeparator + file.toAbsolutePath().toString());
+60:       }
+61:     }
+\end{Verbatim}
+
+\caption{Fixes made by the Randoop developers in response to our bug report
+  about use of environment variables.  Lines starting with ``\<->'' were
+  removed and those starting with ``\<+>'' were added.}
+\label{fig:randoop-bug-getenv}
+\end{figure}
+
+
 We reported another suspicious case of order-nondeterminism, in the
 \<SpecificationCollection>\-\<.findOverridden> method.  The Randoop developers explained it was
 acceptable, after tracing the flow through the program.  (One said, ``This
