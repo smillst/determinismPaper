@@ -190,7 +190,7 @@ There are two valid instantiations for this declaration:
   @NonDet int plus(@NonDet int a, @NonDet int b) { return a+b; }
   @Det int plus(@Det int a, @Det int b) { return a+b; }
 \end{Verbatim}
-This indicates that method \<foo> can be called with arguments having any of the \codeid{Det or NonDet} type qualifiers.
+This indicates that method \<foo> can be called with arguments having any of the \codeid{@Det} or \codeid{@NonDet} type qualifiers.
 %   (\<@OrderNonDet> is not allowed because it is invalid on primitive types).
  \<PolyDet> gets instantiated to the least upper bound of
 the actual types on arguments. For instance, if this method is called as \codeid{foo(@Det String arg1, @NonDet boolean arg2)}, \theDeterminismChecker instantiates the method declaration as \codeid{@NonDet int foo(@NonDet String param1, @NonDet boolean param2)}
@@ -258,7 +258,7 @@ We noticed the following properties with respect to determinism regarding the mo
     \item \<TreeMap> can either be \<Det> or \<NonDet>. An \<OrderNonDet TreeMap> doesn't exist because the entries are always ordered.
 \end{itemize}
 
-We prohibit the creation of a \codeid{Det HashMap} or an \codeid{OrderNonDet TreeMap} in our determinism checker.
+We prohibit the creation of a \codeid{@Det HashMap} or an \codeid{@OrderNonDet TreeMap} in our determinism checker.
 \Cref{fig-creation-rules} formalizes these rules. Similar constraints apply to \<HashSet>s and \<TreeSet>s which are
 also expressed by the last two rules of \cref{fig-creation-rules}.
 

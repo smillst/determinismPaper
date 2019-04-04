@@ -1,6 +1,6 @@
 \section{A type system for determinism}\label{design}
 
-This section presents the key aspects of the design of our type system,
+This section presents the key aspects of our type system,
 called \ourTypeSystem, in the context of a core calculus for an
 object-oriented language.
 
@@ -98,29 +98,57 @@ A polymorphic type abstraction such as \<List> can be instantiated by a type arg
 as in \ptype{List}{Positive Int}.
 
 \Cref{fig:grammar} formalizes these notions.
-\Cref{fig:grammar}'s $\beta$ is not a basetype as described above:  $\beta$
+For simplicity of exposition,
+\cref{fig:grammar}'s $\beta$ is not a basetype as described above:  $\beta$
 lacks a top-level type, but any type arguments are full types
-$\tau$.  This paper does not formally define basetype, and uses $\beta$,
-for simplicity of exposition.
+$\tau$.
 In our core calculus, a type $\tau$ always has a qualifier.
-Our implementation, \theDeterminismChecker, uses inference and defaults to
-permit users to omit type qualifiers\todo{Forward reference}.
+Our implementation, \theDeterminismChecker, uses inference (\cref{sec:dataflow-java}) and
+defaults (\cref{defaulting}) to
+permit users to omit type qualifiers.
 
 
 A type checker verifies the types written in a program.
-A type qualifier constrain the set of possible run-time values, that is,
-$\kappa \ /beta \sqsubseteq \beta$.
-As a result, a qualifier type system does not allow any behavior that the
+\OurTypeSystem checks all the standard typing rules including the ones
+shown in \cref{typecheck-rules-standard}.  For \ourTypeSystem, $\tau$
+represents a qualified type rather than a basetype.
+
+A type qualifier constrains the set of possible run-time values, that is,
+$\kappa \ \beta \sqsubseteq \beta$.
+As a result, a qualifier type system does not allow any values that the
 original type system does not.
 However, the qualifier type system may reject more programs, and thus
 affords stronger guarantees.
-(Our implementation \theDeterminismChecker runs the underlying base type
-system, then issues additional errors and warnings.)
-\todo{Some qualifier type systems can be defined independently of the underlying
-type system.  We don't do that because there are interactions between the
-basetypes and the type qualifiers.  This allows greater precision, which
-is important in practice.}
+% (Our implementation \theDeterminismChecker runs the underlying base type
+% system, then issues additional errors and warnings.)
 
+Type qualifier systems are sometimes defined independently of the
+underlying type system.  Because there are interactions between the
+basetypes and the type qualifiers, defining them together improves
+precision, which is important in practice.
+
+
+\begin{figure}
+    \bigskip
+
+    $\infer{\tau_1 \sqsubseteq \tau_3}{\tau_1 \sqsubseteq \tau_2 \quad \tau_2 \sqsubseteq \tau_3}
+    \quad\quad
+    \infer[\rulename{subtyping}]{\Gamma \vdash x : \tau_2}{\Gamma \vdash x : \tau_1 & \tau_1 \sqsubseteq \tau_2}$
+    
+    \bigskip
+    
+    $\infer[\rulename{call}]{\Gamma \vdash f(\overline{a_i}) : \tau_r}
+    {\Gamma \vdash f : \overline{\tau_i} \rightarrow \tau_r & \Gamma \vdash \overline{a_i : \tau_i}}$
+    
+    \bigskip
+    
+    $\infer[\rulename{invariant type arg}]{C_1\angles{\overline{\tau_i}}
+      \sqsubseteq C_2\angles{\overline{\tau_i}}}{C_1 \sqsubseteq C_2}$
+    
+    \caption{A sampling of standard typing rules.  We omit other standard rules,
+    for brevity.}
+    \label{typecheck-rules-standard}
+\end{figure}
 
 \begin{figure}
     \bigskip
@@ -133,34 +161,14 @@ is important in practice.}
 
     $\infer{\kappa_1 \beta \sqsubseteq \kappa_2 \beta}{\kappa_1 \sqsubseteq \kappa_2}
     \quad\quad
-    \infer{\kappa \beta_1 \sqsubseteq \kappa \beta_2}{\beta_1 \sqsubseteq \beta_2}$
+    \infer{\kappa\ \beta_1 \sqsubseteq \kappa\ \beta_2}{\beta_1 \sqsubseteq \beta_2}$
     
     
-    \caption{Subtyping rules for \ourTypeSystem.  $\sqsubseteq$ is overloaded for classes,
+    \caption{Subtyping rules for \ourTypeSystem's type qualifiers.  $\sqsubseteq$ is overloaded for classes,
     type qualifiers, types, and unqualified types $\beta$.}
     \label{fig:typecheck-rules}
 \end{figure}
 
-\begin{figure}
-    \bigskip
-
-    $\infer{\tau_1 \sqsubseteq \tau_3}{\tau_1 \sqsubseteq \tau_2 \quad \tau_2 \sqsubseteq \tau_3}
-    \quad\quad
-    \infer[\rulename{subtyping}]{\Gamma \vdash x : \tau_2}{\Gamma \vdash x : \tau_1 & \tau_1 \sqsubseteq \tau_2}$
-    
-    \bigskip
-    
-    $\infer[\rulename{method call}]{\|method|(\overline{a_i}) : \tau_r}{\tau_r \  \|method|(\overline{\tau_i \  p_i}) & \overline{a_i : \tau_i}}$
-    
-    \bigskip
-    
-    $\infer[\rulename{invariant type arg}]{C_1\angles{\overline{\tau_i}}
-      \sqsubseteq C_2\angles{\overline{\tau_i}}}{C_1 \sqsubseteq C_2}$
-    
-    \caption{A sampling of standard typing rules.  We omit other standard rules,
-    for brevity.}
-    \label{typecheck-rules-standard}
-\end{figure}
 
 %\todo{Define the Greek.  For example:
 %
@@ -175,10 +183,6 @@ is important in practice.}
 \Cref{typecheck-rules-standard} shows a sample of standard typing rules for
 an object-oriented programming language.
 
-
-
-\OurTypeSystem checks all the standard typing rules including the ones shown in \cref{typecheck-rules-standard} with
-the only difference of having an additional type qualifier on each of the basetypes.
 
 
 \subsection{Determinism types}\label{type-hierarchy}
@@ -196,7 +200,6 @@ the only difference of having an additional type qualifier on each of the basety
 % \end{wrapfigure}
 
 The core of the determinism type system is the following type qualifiers:
-%\todo{introduce just @Det and @NonDet first, and then @OrderNonDet after polymorphism.}
 \begin{itemize}
     \item \<NonDet> indicates
     that the expression might have different values in two different executions.
@@ -204,16 +207,15 @@ The core of the determinism type system is the following type qualifiers:
       map that contains the same elements in every execution, but possibly
       in a different order.
     \item \<Det> indicates that the expression evaluates to equal values in
-      all executions; for an unordered collection such as a set, iteration
+      all executions; for a collection, iteration
       also yields the values in the same order.
 \end{itemize}
-\Cref{fig:typecheck-rules,fig:determinism-hierarchy} show their subtyping relationship.
+\Cref{fig:typecheck-rules,fig:determinism-hierarchy} show the subtyping
+relationship among the qualifiers.
 
 \<OrderNonDet> may only be written on collections and maps.
-
 A map is a dictionary or associative array, such as a hash table.
 \OurTypeSystem largely treats a map as a collection of key--value pairs.
-
 Both collections and maps may be \<Det>, \<OrderNonDet>, or \<NonDet>, and
 the element types can be specified independently of the collection type,
 including qualifiers.
@@ -238,32 +240,34 @@ including qualifiers.
     \bigskip
     
     $\infer[\rulename{ordernondet collection}]
-    {\wellformed{\kappa_c \  \beta_c \angles{\kappa_e \ \beta_e}}}
-    {\kappa_c \sqsubseteq \|OrderNonDet| & \kappa_e \sqsubseteq \kappa_c &
-      \beta_c \sqsubseteq \<Collection> & \wellformed{\kappa_e \ \beta_e}}$
+    {\wellformed{\kappa_c \  C \angles{\kappa_e \ \beta_e}}}
+    {\kappa_c \sqsubseteq \<OrderNonDet> &
+      C \sqsubseteq \<Collection> &
+      \kappa_e \sqsubseteq \kappa_c &
+      \wellformed{\kappa_e \ \beta_e}}$
     
     \bigskip
     
     $\infer[\rulename{nondet collection}]
-    {\wellformed{\|NonDet| \ C\angles{\|NonDet| \ \beta_e}}}
-    {C \sqsubseteq \<Collection> & \wellformed{\|NonDet| \ \beta_e}}$
+    {\wellformed{\<NonDet> \ C\angles{\<NonDet> \ \beta_e}}}
+    {C \sqsubseteq \<Collection> & \wellformed{\<NonDet> \ \beta_e}}$
     
     \bigskip
     
-%      $\infer[\rulename{ordernondet array}]{\wellformed{\kappa_e \ \beta_e \ \  \kappa_a []}}{\kappa_a \sqsubseteq \|OrderNonDet| & \kappa_e \sqsubseteq \kappa_a }$
+%      $\infer[\rulename{ordernondet array}]{\wellformed{\kappa_e \ \beta_e \ \  \kappa_a []}}{\kappa_a \sqsubseteq \<OrderNonDet> & \kappa_e \sqsubseteq \kappa_a }$
 %     
 %     \bigskip
 %     
-%     $\infer[\rulename{nondet array}]{\wellformed{\|NonDet| \ \beta_e \ \  \|NonDet| []}}{}$
+%     $\infer[\rulename{nondet array}]{\wellformed{\<NonDet> \ \beta_e \ \  \<NonDet> []}}{}$
 %     
 %     \bigskip
     
     $\infer[\rulename{ordernondet map}]
-    {\wellformed{\kappa_m \  \beta_m \angles{\kappa_k \ \beta_k, \kappa_v \ \beta_v}}}
-    {\kappa_m \sqsubseteq \|OrderNonDet|
+    {\wellformed{\kappa_m \  C \angles{\kappa_k \ \beta_k, \kappa_v \ \beta_v}}}
+    {\kappa_m \sqsubseteq \<OrderNonDet>
+      & C \sqsubseteq \<Map>
       & \kappa_k \sqsubseteq \kappa_m
       & \kappa_v \sqsubseteq \kappa_m
-      & \beta_m \sqsubseteq \<Map>
       & \wellformed{\kappa_k \ \beta_k}
       & \wellformed{\kappa_v \ \beta_v}
     }$
@@ -271,20 +275,21 @@ including qualifiers.
     \bigskip
     
     $\infer[\rulename{nondet map}]
-    {\wellformed{\|NonDet| \ \beta_m\angles{\|NonDet| \ \beta_k, \|NonDet| \ \beta_v}}}
-    {\beta_m \sqsubseteq \<Map> & \wellformed{\|NonDet| \ \beta_k} & \wellformed{\|NonDet| \ \beta_v}}$
+    {\wellformed{\<NonDet> \ C\angles{\<NonDet> \ \beta_k, \<NonDet> \ \beta_v}}}
+    {C \sqsubseteq \<Map> & \wellformed{\<NonDet> \ \beta_k} & \wellformed{\<NonDet> \ \beta_v}}$
     
     \caption{Type well formedness}
+\todo{What if $\beta$ has \<List> within?  Be sure everything works in that case.}
 
 %\todo{\todo{I think this will be OK, by redefining $\beta$.}
 %  The collection rules do not permit nested collections; similarly, the
 %  (currently commented out) array rules did not permit any two-dimensional
 %  array to be well-formed.  There is a bigger issue here.
-%  Consider the ``nondet collection'' rule.  $\beta_c$ is a class (we need
+%  Consider the ``nondet collection'' rule.  $C_c$ is a class (we need
 %  to use a different symbol for it, probably $c$), but $\beta_e$ should be
 %  a full type, which might contain type qualifiers within it.  (Actually,
-%  $\|NonDet|\ \beta_e$ is a type, not $\beta_e$ itself.)  So, there should
-%  be an antecedent stating that $\|NonDet| \beta_e$ is well-formed, and
+%  $\<NonDet>\ \beta_e$ is a type, not $\beta_e$ itself.)  So, there should
+%  be an antecedent stating that $\<NonDet> \beta_e$ is well-formed, and
 %  for the ``ordernondet collection'' rule stating that $\kappa_e \beta_e$
 %  is well-formed.  Likewise, antecedents are needed for the map rules.
 %  Otherwise, these rules permit construction of $\<Map>\angles{\tau'}$
@@ -308,10 +313,10 @@ can be written on any non-collection Java basetype.
     \begin{tabular}{|l|l|l|l|l|}
         \cline{3-5}
         \multicolumn{2}{c|}{~}  &  \multicolumn{3}{c|}{Element type} \\ \cline{3-5}
-        \multicolumn{2}{c|}{~}  & NonDet     & OrderNonDet & Det \\ \hline
-                        & NonDet      &  valid     &  invalid    & invalid  \\ \cline{2-5}
-        Collection type & OrderNonDet &  invalid   &  valid      & valid    \\ \cline{2-5}
-                        & Det         &  invalid   &  invalid    & valid    \\ \hline
+        \multicolumn{2}{c|}{~}  & \<NonDet>     & \<OrderNonDet> & \<Det> \\ \hline
+                        & \<NonDet>      &  valid     &  invalid    & invalid  \\ \cline{2-5}
+        Collection type & \<OrderNonDet> &  invalid   &  valid      & valid    \\ \cline{2-5}
+                        & \<Det>         &  invalid   &  invalid    & valid    \\ \hline
     \end{tabular}
     \caption{Valid Collection declarations.  The Collection's type qualifier
         must be a supertype or equal to the element type.}
@@ -435,8 +440,8 @@ and our typing must have that as a special case, which is the first line above.
 
     \rulename{iteration}: 
     $
-    \forallt{\tau} \|OrderNonDet \ C| \angles{\tau} \rightarrow 
-    \|OrderNonDet \ Iterator| \angles{\tau}
+    \forallt{\tau} \<OrderNonDet> \ C \angles{\tau} \rightarrow 
+    \<OrderNonDet> \ \<Iterator> \angles{\tau}
     $
     
     \bigskip
@@ -450,8 +455,8 @@ and our typing must have that as a special case, which is the first line above.
 
     \rulename{next element}:
     $
-    \forallt{kappa \beta} \|OrderNonDet \ Iterator|\angles{\kappa \ \beta} \rightarrow
-    \|NonDet|\ \beta
+    \forallt{kappa\ \beta} \<OrderNonDet>\ \<Iterator>\angles{\kappa \ \beta} \rightarrow
+    \<NonDet>\ \beta
     $
     
     \bigskip
@@ -465,8 +470,8 @@ and our typing must have that as a special case, which is the first line above.
 
     \rulename{hasnext element}:
     $
-    \forallt{\tau} \|OrderNonDet \ Iterator|\angles{\tau} \rightarrow
-    \|Det \ boolean|
+    \forallt{\tau} \<OrderNonDet>\ \<Iterator>\angles{\tau} \rightarrow
+    \<Det> \ \<boolean>
     $
     \bigskip
 
@@ -480,8 +485,8 @@ and our typing must have that as a special case, which is the first line above.
 
     \rulename{size}:
     $
-    \forallt{\tau} \|OrderNonDet \ C|\angles{\tau} \rightarrow
-    \|Det \ int|
+    \forallt{\tau} \<OrderNonDet>\ C\angles{\tau} \rightarrow
+    \<Det> \ \<int>
     $
     
 \caption{\<OrderNonDet> Collection rules}
@@ -695,8 +700,8 @@ $\<first> : \<Det>\ \ListKB \rightarrow \<Det>\ \beta_e$
 
 \begin{figure}
     $\infer[\rulename{ordernondet polyup}]
-    {\up{\tau} = \|NonDet \ \beta|}
-    {\tau = \|OrderNonDet \ \beta|
+    {\up{\tau} = \<NonDet> \ \beta}
+    {\tau = \<OrderNonDet> \ \beta
         & \wellformed{\tau}
     }$
 
@@ -705,15 +710,15 @@ $\<first> : \<Det>\ \ListKB \rightarrow \<Det>\ \beta_e$
     $\infer[\rulename{polyup}]
     {\up{\tau} = \kappa \ \beta}
     {\tau =\kappa \ \beta
-        & \kappa \in \{\|Det, NonDet|\}
+        & \kappa \in \{\<Det>, \<NonDet>\}
         & \wellformed{\tau}
     }$
 
     \bigskip
 
     $\infer[\rulename{ordernondet polydown}]
-    {\down{\tau} = \|Det \ \beta|}
-    {\tau = \|OrderNonDet \ \beta|
+    {\down{\tau} = \<Det> \ \beta}
+    {\tau = \<OrderNonDet> \ \beta}
         & \wellformed{\tau}
     }$
     
@@ -722,7 +727,7 @@ $\<first> : \<Det>\ \ListKB \rightarrow \<Det>\ \beta_e$
     $\infer[\rulename{polydown}]
     {\down{\tau} = \kappa \ \beta}
     {\tau =\kappa \ \beta
-        & \kappa \in \{\|Det, NonDet|\}
+        & \kappa \in \{\<Det>, \<NonDet>\}
         & \wellformed{\tau}
     }$
 \caption{Polymorphic resolution of $\uparrow$ and $\downarrow$ operators ($\uparrow$ is overloaded for types and qualifiers)}
@@ -752,7 +757,7 @@ $\<get> : \<NonDet List>\angles{\<NonDet String>} \times \<NonDet Int> \rightarr
 
 $\<get> : \<Det List>\angles{\<Det String>} \times \<Det Int> \rightarrow \<Det String>$
 
-\todo{We don't need the OrderNonDet instantiation.  The other two
+\todo{We don't need the \<OrderNonDet> instantiation.  The other two
   instantiations are enough.
   We don't need the following instantiation:}
 \begin{Verbatim}
@@ -837,7 +842,7 @@ It is not permitted to
 \TheDeterminismChecker has additional type refinement rules for the sorting
 methods of \<List>, \<Collections>, and \<Arrays> classes
 \begin{figure}
-%     $\infer[\rulename{list sort}]{\Gamma \vdash x : \|Det \ List|\angles{\|Det| \ \beta}}{\Gamma \vdash x : \|OrderNonDet \ List|\angles{\|Det| \ \beta} & \|x.sort()|}$
+%     $\infer[\rulename{list sort}]{\Gamma \vdash x : \|Det \ List|\angles{\<Det> \ \beta}}{\Gamma \vdash x : \|OrderNonDet \ List|\angles{\<Det> \ \beta} & \|x.sort()|}$
 %     
 %     \bigskip
     
@@ -940,11 +945,11 @@ While this is sound, it is imprecise in the case of \codeid{OrderNonDet
  We added the following rule shown in \cref{fig-precision-rules} to our checker to improve precision.
 \begin{figure}
     \todo{add line break}
-    $\infer[\rulename{set precision}]{\Gamma \vdash \|x.equals(y) : Det|}{\Gamma \vdash \|x| : \|OrderNonDet| \ \|Set|\angles{ \kappa_{x} \ \beta_{x}}, \|y| : \|OrderNonDet| \ \|Set|\angles{ \kappa_{y} \ \beta_{y}} & \kappa_{x} \ \beta_{x} \nsqsubseteq \|OrderNonDet \ List| & \kappa_{y} \ \beta_{y} \nsqsubseteq \|OrderNonDet \ List| }$
+    $\infer[\rulename{set precision}]{\Gamma \vdash \|x.equals(y)| : \<Det>}{\Gamma \vdash \|x| : \<OrderNonDet> \ \|Set|\angles{ \kappa_{x} \ \beta_{x}}, \|y| : \<OrderNonDet> \ \|Set|\angles{ \kappa_{y} \ \beta_{y}} & \kappa_{x} \ \beta_{x} \nsqsubseteq \<OrderNonDet> \ \<List> & \kappa_{y} \ \beta_{y} \nsqsubseteq \<OrderNonDet> \ \<List> }$
     
     \bigskip
     
-    $\infer[\rulename{map precision}]{\Gamma \vdash \|x.get(y) : Det|}{\Gamma \vdash \|x : OrderNonDet \ Map\angles{ Det \ \beta_k, \kappa_v\ \beta_v }, y : Det \ \beta|}$
+    $\infer[\rulename{map precision}]{\Gamma \vdash \|x.get(y)| : \<Det>}{\Gamma \vdash \|x : \<OrderNonDet> \ \<Map>\angles{ \<Det> \ \beta_k, \kappa_v\ \beta_v }, y : \<Det> \ \beta|}$
     
     \caption{Improving precision}
 \todo{In the \rulename{map precision} rule, should the \<Det> in the
