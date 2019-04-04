@@ -1,0 +1,4 @@
+NonDet	94
+PolyDet	61
+OrderNonDet	64
+Det	2134
