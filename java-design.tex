@@ -91,6 +91,51 @@ Therefore, \<@PolyDet> may be written in methods (signatures and bodies)
 but not on fields.
 \end{itemize}
 
+\subsection{Java collection types}\label{sec:maps-java}
+
+A \<Map> is deterministic if its \<entrySet> is deterministic.
+In other words, iterating over this \<entrySet> is guaranteed to produce the same values in the exact same order across executions.
+The \<Map> interface in Java doesn't define an \<iterator()> interface. Therefore it's sound to equate the determinism of the \<Set>
+returned by \<entrySet()> to the determinism of the \<Map>. Interestingly, we found that every implementation of the \<Map> 
+interface had the following property: if the \<Set> returned by \<entrySet()> has a determinism type $\kappa$, then
+the \<Set>s returned by \<keySet()> and \<values()> also have the exact same determinism type $\kappa$.
+
+We noticed the following properties with respect to determinism regarding the most widely used \<Map> implementations:
+\begin{itemize}
+    \item \<HashMap> can never guarantee fully deterministic iteration over its entries. A \codeid{Det HashMap} does not exist.
+    \item \<LinkedHashMap> can have any of \<Det>, \<OrderNonDet>, or \<NonDet> types. Iterating over a \<LinkedHashMap> returns
+    its entries in the order of their insertion. An \<OrderNonDet LinkedHashMap> can be created by calling its constructor with a \<HashMap>.
+    \item \<TreeMap> can either be \<Det> or \<NonDet>. An \<OrderNonDet TreeMap> doesn't exist because the entries are always ordered.
+\end{itemize}
+
+We prohibit the creation of a \codeid{@Det HashMap} or an \codeid{@OrderNonDet TreeMap} in our determinism checker.
+\Cref{fig-creation-rules} formalizes the type wellformedness rules for maps and sets. Similar constraints apply to \<HashSet>s and \<TreeSet>s which are
+also expressed by the last two rules of \cref{fig-creation-rules}.
+
+\begin{figure}
+    $\infer[\rulename{valid hashmap}]{\vdash: \|\kappa\ HashMap()|}{\kappa \in \{ \<OrderNonDet>, \<NonDet> \}}$
+    
+    \bigskip
+    
+    $\infer[\rulename{valid treemap}]{\vdash: \|\kappa\ TreeMap()|}{\kappa \in \{ \<Det>, \<NonDet> \}}$
+    
+    \bigskip
+    
+    $\infer[\rulename{valid hashset}]{\vdash: \|\kappa\ HashSet()|}{\kappa \in \{ \<OrderNonDet>, \<NonDet> \}}$
+    
+    \bigskip
+    
+    $\infer[\rulename{valid treeset}]{\vdash: \|\kappa\ TreeSet()|}{\kappa \in \{ \<Det>, \<NonDet> \}}$
+    \caption{\<Map> and \<Set> creation rules}
+    \todo{Are these type well-formedness rules?}
+    \todo{What about \<new TreeSet(myOrderedCollection<Det ...>)> which yields a
+        deterministic set?}
+    \label{fig-creation-rules}
+\end{figure}
+
+In the JDK, \<LinkedHashSet> is implemented as a subclass of \<HashMap>.
+\todo{Talk about this design choice. Josh Bloch's book: "If the code surrounding the first declaration depended on LinkedHashSet's ordering policy,
+    then it would be incorrect to substitute HashSet for LinkedHashSet in the declaration, because HashSet makes no guarantee concerning iteration order."} 
 
 \subsection{Defaulting rules}\label{defaulting}
 
@@ -237,56 +282,6 @@ void test(@Det List<@Det String> argList) {
 \codeid{NonDet List<NonDet> String} and since collections types are invariant.
 We therefore recommend that programmers explicitly annotate
 all local variables that are collections to reduce false positives.
-
-
-\subsection{Maps}\label{sec:maps-java}
-
-
-
- A \<Map> is deterministic if its \<entrySet> is deterministic.
-In other words, iterating over this \<entrySet> is guaranteed to produce the same values in the exact same order across executions.
-The \<Map> interface in Java doesn't define an \<iterator()> interface. Therefore it's sound to equate the determinism of the \<Set>
-returned by \<entrySet()> to the determinism of the \<Map>. Interestingly, we found that every implementation of the \<Map> 
-interface had the following property: if the \<Set> returned by \<entrySet()> has a determinism type $\kappa$, then
-the \<Set>s returned by \<keySet()> and \<values()> also have the exact same determinism type $\kappa$.
-
-We noticed the following properties with respect to determinism regarding the most widely used \<Map> implementations:
-\begin{itemize}
-    \item \<HashMap> can never guarantee fully deterministic iteration over its entries. A \codeid{Det HashMap} does not exist.
-    \item \<LinkedHashMap> can have any of \<Det>, \<OrderNonDet>, or \<NonDet> types. Iterating over a \<LinkedHashMap> returns
-    its entries in the order of their insertion. An \<OrderNonDet LinkedHashMap> can be created by calling its constructor with a \<HashMap>.
-    \item \<TreeMap> can either be \<Det> or \<NonDet>. An \<OrderNonDet TreeMap> doesn't exist because the entries are always ordered.
-\end{itemize}
-
-We prohibit the creation of a \codeid{@Det HashMap} or an \codeid{@OrderNonDet TreeMap} in our determinism checker.
-\Cref{fig-creation-rules} formalizes these rules. Similar constraints apply to \<HashSet>s and \<TreeSet>s which are
-also expressed by the last two rules of \cref{fig-creation-rules}.
-
-\begin{figure}
-    $\infer[\rulename{valid hashmap}]{\vdash: \|\kappa\ HashMap()|}{\kappa \in \{ \<OrderNonDet>, \<NonDet> \}}$
-    
-    \bigskip
-    
-    $\infer[\rulename{valid treemap}]{\vdash: \|\kappa\ TreeMap()|}{\kappa \in \{ \<Det>, \<NonDet> \}}$
-    
-    \bigskip
-    
-    $\infer[\rulename{valid hashset}]{\vdash: \|\kappa\ HashSet()|}{\kappa \in \{ \<OrderNonDet>, \<NonDet> \}}$
-    
-    \bigskip
-    
-    $\infer[\rulename{valid treeset}]{\vdash: \|\kappa\ TreeSet()|}{\kappa \in \{ \<Det>, \<NonDet> \}}$
-    \caption{\<Map> and \<Set> creation rules}
-    \todo{Are these type well-formedness rules?}
-\todo{What about \<new TreeSet(myOrderedCollection<Det ...>)> which yields a
-  deterministic set?}
-    \label{fig-creation-rules}
-\end{figure}
-
-In the JDK, \<LinkedHashSet> is implemented as a subclass of \<HashMap>.
-\todo{Talk about this design choice. Josh Bloch's book: "If the code surrounding the first declaration depended on LinkedHashSet's ordering policy,
-    then it would be incorrect to substitute HashSet for LinkedHashSet in the declaration, because HashSet makes no guarantee concerning iteration order."} 
-
 
 \subsection{Precision improvements}\label{sec:precision-java}
 
