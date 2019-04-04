@@ -33,11 +33,6 @@ written while decreasing the number of @SuppressWarnings used.
   allowing by default, and an interesting challenge we didn't expect at the
   start (it was a while before we realized this was a problem).
 
-* In addition to doing type refinement for the sort method, we also refine
-  collections after calling "shuffle". A comment in our source code
-  indicates this doesn't currently work, but it is officially part of our
-  type system.
-
 * Our type refinement for sorting also refines PolyDet List<Det T> to
   PolyDet("down") List<Det T>, so the sorting rule might be better
   expressed in terms of the "down" operator.
