@@ -278,7 +278,7 @@ including qualifiers.
     {\wellformed{\<NonDet> \ C\angles{\<NonDet> \ \beta_k, \<NonDet> \ \beta_v}}}
     {C \sqsubseteq \<Map> & \wellformed{\<NonDet> \ \beta_k} & \wellformed{\<NonDet> \ \beta_v}}$
     
-    \caption{Type well formedness}
+    \caption{Type well-formedness}
 \todo{What if $\beta$ has \<List> within?  Be sure everything works in that case.}
 
 %\todo{\todo{I think this will be OK, by redefining $\beta$.}
@@ -298,15 +298,9 @@ including qualifiers.
   \label{type-validity}
 \end{figure}
 
-\Cref{type-validity} shows the type well formedness
-%\todo{The caption says
-%  ``type well formedness''.  Choose one term and use it consistently
-%  throughout.}
+% "invalid" is easier to read than "non-well-formed".
+\Cref{type-validity} shows the type well-formedness, or type validity,
 rules of \ourTypeSystem. 
-(For brevity, we use ``valid'' synonymously with ``well-formed'' and
-``invalid'' synonymously with ``non-well-formed''.)
-As stated in the rule \rulename{noncollection}, the types \<Det> and \<NonDet>
-can be written on any non-collection Java basetype. 
 
 \begin{figure}
     \centering
@@ -326,7 +320,8 @@ can be written on any non-collection Java basetype.
 The element type of a \<NonDet> collection must be \<NonDet>.
 Otherwise, the type qualifier on a collection's element must be a subtype or equal to
 the collection's type qualifier (\rulename{collection} rules of
-\cref{type-validity}). Note that the \rulename{ordernondet} versions also handle \<Det>,
+\cref{type-validity}). Note that the \rulename{ordernondet} rules also
+permit \<Det> collections,
 because $\<Det> \sqsubseteq \<OrderNonDet>$.
 \Cref{fig:determinism-collections} restates the \rulename{collection} rules
 of
@@ -362,22 +357,26 @@ Det         \lptype{List}{OrderNonDet \lptype{Set}{...}}
 
 
 It is possible to store an expression of type \<Det> in a \<NonDet>
-collection, but all elements retrieved from a \<NonDet> collection have
-type \<NonDet>.  If the type \ptype{NonDet List}{Det String} were
+collection, but any value retrieved from a \<NonDet> collection has
+type \<NonDet>.
+
+If the type \ptype{NonDet List}{Det String} were
 permitted, the following type hole would exist:
 
 \begin{Verbatim}[commandchars=\\\{\}]
 \lptype{Det    List}{Det String} ddlist
-\lptype{NonDet List}{Det String} ndlist = ddlist   // permitted by subtyping rules
+\lptype{NonDet List}{Det String} ndlist = ddlist   // assignment permitted by subtyping rules
 NonDet Int ni = ...
 ndlist[ni] = "anywhere"
 \end{Verbatim}
 
 \noindent
-The deterministic string \<"anywhere"> is placed in the list at an
+In this code snippet,
+the deterministic string \<"anywhere"> is placed in the list at an
 arbitrary (that is, nondeterministic) index.  This must be prohibited,
 because it unsoundly permits the deterministic list \<ddlist> to differ
-from execution to execution.
+from execution to execution.  \OurTypeSystem does so by forbidding the type
+\ptype{NonDet List}{Det String}.
 
 
 \subsubsection{Behavior of order-nondeterministic collections}\label{sec:ond-behavior}
@@ -718,7 +717,7 @@ $\<first> : \<Det>\ \ListKB \rightarrow \<Det>\ \beta_e$
 
     $\infer[\rulename{ordernondet polydown}]
     {\down{\tau} = \<Det> \ \beta}
-    {\tau = \<OrderNonDet> \ \beta}
+    {\tau = \<OrderNonDet> \ \beta
         & \wellformed{\tau}
     }$
     
