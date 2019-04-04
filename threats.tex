@@ -14,7 +14,10 @@ statement or a \<for> or \<while> loop, for example) may behave differently
 from execution to execution.
 These ``implicit flows'' are a well-known challenge for taint analysis.
 Suppose that an expression used in a conditional is tainted.
-A standard approach\todo{Add citations} for a dynamic taint analysis is to taint any value that may
+A standard approach
+\cite{Kang2011DTADT,Arzt:2014:FPC:2594291.2594299}
+%\todo{Add citations}
+ for a dynamic taint analysis is to taint any value that may
 be assigned in either branch of the conditional statement.  This tends to rapidly lead to most of
 the program state being tainted.
 In a static analysis, every possibly-assigned lvalue would be considered
