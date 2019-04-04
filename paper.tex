@@ -151,7 +151,22 @@
   because our tool doesn't transform programs, though it does help
   programmers transform programs.}
 
-\todo{Text of abstract \ldots.}
+When a program is nondeterministic, it is difficult to test and debug.
+Nondeterminism can occur even in sequential programs, for example as a
+result of iterating over the elements of a hash table.
+
+We have created a type system for determinism.  A type checker warns if a
+program is nondeterministic or verifies that the program is deterministic.
+The key ideas in the type system are type qualifiers for nondeterminism,
+order-nondeterminism, and determinism; type well-formedness rules to
+restrict the typings for collections; and enhancements to polymorphism that
+improve precision when analyzing collection operations.
+
+We implemented our type system for Java.  In a case study, it found
+previously-unknown nondeterminism errors in a program that had been heavily
+vetted by its developers.  In an experiment, it found all of the
+non-concurrency-related nondeterminism that was found by other tools.
+
 \end{abstract}
 
 
