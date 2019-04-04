@@ -1,0 +1,44 @@
+\section{Threats to validity}\label{sec:threats}
+
+Our type system and implementation suffer some unsoundness.  The most
+important is that they do not capture all sources of nondeterminism.  One
+important such source is concurrency.
+%
+In addition, our annotations of the JDK (the Java standard library) are incomplete.
+Some of the unannotated parts might introduce nondeterminism without
+the verification tool being aware of it.
+
+The type system presented in this paper does not account for the fact that
+a nondeterministic conditional expression (in an \<if> or \<switch>
+statement or a \<for> or \<while> loop, for example) may behave differently
+from execution to execution.
+These ``implicit flows'' are a well-known challenge for taint analysis.
+Suppose that an expression used in a conditional is tainted.
+A standard approach\todo{Add citations} for a dynamic taint analysis is to taint any value that may
+be assigned in either branch of the conditional statement.  This tends to rapidly lead to most of
+the program state being tainted.
+In a static analysis, every possibly-assigned lvalue would be considered
+possibly tainted; again, this tends to snowball through the program.
+
+Our implementation, \theDeterminismChecker, can enforce that conditional
+expressions are deterministic, but we found this to be too restrictive:  it
+causes \theDeterminismChecker to issue large numbers of false positive
+warnings, or it forces types to be \<Det> unnecessarily.
+We disabled this check in most of our case study.
+
+It our case study, we also disabled a check that required all caught
+exceptions to have \<NonDet> type.  This type is a safe approximation to an
+exception that can be thrown from arbitrary code, including libraries.
+Enabling this check led to many unhelpful false positive warnings.
+
+
+\TheDeterminismChecker only examines the code it is run on.  Unchecked
+libraries and native code with incorrect specifications might introduce
+nondeterminism that it does not check.
+
+
+We have performed only one case study.  This case study found important
+previously-unknown errors, but its results might not carry over to other
+programs or to programs written in other programming lanugages.  We
+mitigated this problem by showing that \theDeterminismChecker finds most or
+all of the sources of nondeterminism identified by other tools.

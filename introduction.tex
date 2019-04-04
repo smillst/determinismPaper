@@ -42,8 +42,9 @@ absence.
 Our analysis permits programmers to specify which parts of their program
 are intentionally nondeterministic, and it verifies that the remainder is deterministic.
 %
-Our analysis is sound:  if it issues no warnings, then the program does not
-suffer nondeterminism of the given types.  (If the program uses concurrency,
+Our analysis is largely sound:  if it issues no warnings, then the program does not
+suffer nondeterminism of the given types, up to the limitations of the
+analysis (see \cref{sec:threats}).  If the program uses concurrency,
 it might still be nondeterministic.)
 %
 Our analysis works at compile time, giving a guarantee over every possible
@@ -94,7 +95,7 @@ might differ from run to run.
 \end{description}
 \noindent
 Programmers can write these to specify their program's behavior.
-\OurTypeSystem contains a variety of other features that increase
+Our type system contains a variety of other features that increase
 expressiveness and reduce false positive alarms.\todo{reference a section}
 
 We have implemented this analysis as a pluggable type system for Java.
@@ -112,7 +113,7 @@ This paper makes the following contributions:
   \item In a case study, we annotated several libraries, including the
     relevant parts of the JDK (Java's standard library).  This provides a
     formal, machine-readable specification for the libraries, and it
-    demonstrates the richness of \ourTypeSystem.
+    demonstrates the richness of our type system.
 
   \item In another case study, we ran our analysis on a 24 KLOC project that
     developers had spent weeks of effort to make deterministic.  Our system

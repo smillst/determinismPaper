@@ -290,7 +290,16 @@ In the JDK, \<LinkedHashSet> is implemented as a subclass of \<HashMap>.
 
 \subsection{Precision improvements}\label{sec:precision-java}
 
-\codeid{System.getProperty()} returns a \<NonDet> type since we can't provide any determinism guarantees for
-executions across machines. However, we make exceptions when the argument to this method is one of 
-\codeid{"line.separator", "path.separator", or "file.separator"} as they return OS dependent values which are guaranteed to be deterministic on that OS.
-
+The return type of \<System.getenv}, which reads an operating system
+environment variable, is always \<NonDet>.
+The return type of \codeid{System.getProperty} is usually \<NonDet>. However,
+the result is \<Det> if the argument is \codeid{"line.separator"}; although
+it varies by operating system, many programs including \<diff> hide those
+differences from the user.
+The result is also deterministic for \codeid{"path.separator"} and
+\codeid{"file.separator"}, because these lead to the same behavior given
+corresponding environments.
+The user can specify input properties that must be passed on the \<java>
+command line and thus act like inputs to the program; these are also
+treated as deterministic.
+The inputs to a program are also treated as \<Det>.
