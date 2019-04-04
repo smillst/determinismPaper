@@ -1,0 +1,29 @@
+Clone https://github.com/jwaataja/randoop.
+
+Check out the determinism branch
+
+In the randoop directory, edit the "checkerframework.gradle" file and in the
+arguments section on line 58 comment out line
+
+'org.checkerframework.checker.determinism.DeterminismChecker',
+
+and remove the comments on these lines:
+
+// 'org.checkerframework.common.util.count.AnnotationStatistics',
+// '-Aannotations',
+
+For annotation counts, run
+
+./gradlew clean
+./gradlew assemble -PcfLocal | grep 'determinism\.qual' | sed 's/^.*determinism\.qual\.//' > annotation_counts.txt
+
+This assumes running a local checker framework that has the Determinism Checker.
+If not local, remove -PcfLocal.
+
+For SuppressWarnings counts run
+
+./gradlew clean
+./gradlew assemble -PcfLocal | grep 'Suppress.*determinism' | wc -l
+
+To calculate lines of code per annotation, divide 24000 by the number of
+annotations and round to the nearest integer.
