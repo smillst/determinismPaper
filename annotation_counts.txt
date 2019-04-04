@@ -1,4 +1,17 @@
+See counting_instructions.txt for how to calculate these.
+
 NonDet	94
 PolyDet	61
 OrderNonDet	64
 Det	2134
+
+SuppressWarnings("determinism"): 110
+
+Lines of code per annotation:
+
+NonDet: 255
+PolyDet: 393
+OrderNonDet: 375
+Det: 11
+All annotations: 10
+SuppressWarnings("determinism") 218
