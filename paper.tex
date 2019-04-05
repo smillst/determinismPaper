@@ -68,12 +68,48 @@
 \usepackage{cleveref}
 \usepackage{hyperref}
 
+% \usepackage[svgnames]{xcolor}
+%   \definecolor{diffstart}{named}{Grey}
+%   \definecolor{diffincl}{named}{Green}
+%   \definecolor{diffrem}{named}{OrangeRed}
+
+% \usepackage{listings}
+%   \lstdefinelanguage{diff}{
+%     basicstyle=\ttfamily\small,
+%     morecomment=[f][\color{Dark gray}]{@@},
+%     morecomment=[f][\color{Forest green}]{+\ },
+%     morecomment=[f][\color{Firebrick}]{-\ },
+%   }
+% % \lstset{numbers=left,numberblanklines=false,escapeinside=||}
+% \lstset{escapeinside=||}
+% \let\origthelstnumber\thelstnumber
+% \makeatletter
+% \newcommand*\Suppressnumber{%
+%   \lst@AddToHook{OnNewLine}{%
+%     \let\thelstnumber\relax%
+%      \advance\c@lstnumber-\@ne\relax%
+%     }%
+% }
+% 
+% % This causes line numbers to increment by 2 every time!
+% \newcommand*\Reactivatenumber[1]{%
+%   \setcounter{lstnumber}{\numexpr#1-1\relax}
+%   \lst@AddToHook{OnNewLine}{%
+%    \let\thelstnumber\origthelstnumber%
+%    \refstepcounter{lstnumber}%
+%   }%
+% }
+
+
 \input{macros.tex}
 
 \begin{document}
 
 %% Title information
 % \title{Compile Time Verification of Deterministic properties for Sequential Programs}
+% \todo{The title ``Making Sequential Programs Deterministic'' is misleading
+%   because our tool doesn't transform programs, though it does help
+%   programmers transform programs.}
 \title{Making Sequential Programs Deterministic}
          %% [Short Title] is optional;
                                         %% when present, will be used in
@@ -147,11 +183,22 @@
 %% Note: \begin{abstract}...\end{abstract} environment must come
 %% before \maketitle command
 \begin{abstract}
-\todo{The title ``Making Sequential Programs Deterministic'' is misleading
-  because our tool doesn't transform programs, though it does help
-  programmers transform programs.}
+When a program is nondeterministic, it is difficult to test and debug.
+Nondeterminism can occur even in sequential programs, for example as a
+result of iterating over the elements of a hash table.
 
-\todo{Text of abstract \ldots.}
+We have created a type system for determinism.  A type checker warns if a
+program is nondeterministic or verifies that the program is deterministic.
+The key ideas in the type system are type qualifiers for nondeterminism,
+order-nondeterminism, and determinism; type well-formedness rules to
+restrict the typings for collections; and enhancements to polymorphism that
+improve precision when analyzing collection operations.
+
+We implemented our type system for Java.  In a case study, it found
+previously-unknown nondeterminism errors in a program that had been heavily
+vetted by its developers.  In an experiment, it found all of the
+non-concurrency-related nondeterminism that was found by other tools.
+
 \end{abstract}
 
 
@@ -219,7 +266,7 @@
 %% Bibliography
 %\bibliographystyle{ACM-Reference-Format.bst}
 \clearpage
-\bibliography{paper,bibstring-unabbrev,testing,crossrefs}
+\bibliography{paper,bibstring-unabbrev,ernst,testing,crossrefs}
 
 
 %% Appendix

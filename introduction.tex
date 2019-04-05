@@ -8,7 +8,9 @@ Nondeterminism is a serious problem for software developers and users.
 \item
   Nondeterminism makes a program difficult to \textbf{test}, because test
   oracles must account for all possible behaviors while still enforcing
-  correct behaviors.  Test oracles that are too strict lead to flaky tests
+  correct behaviors.  Test oracles that are too strict lead to flaky
+% ,Gyori:2015:RTD:2771783.2771793
+  tests~\cite{LuoHEM2014,nondex,deflaker,Rahman:2018:IFF:3236024.3275529}
   that sometimes pass and sometimes fail.  Flaky tests must be re-run, or
   developers ignore them; in either case, their utility to detect defects
   is limited.
@@ -19,7 +21,10 @@ Nondeterminism is a serious problem for software developers and users.
   and prevents use of techniques such as Delta Debugging~\cite{Zeller1999}.
 \item
   Nondeterminism may make outputs incompatible with previous outputs relied
-  on by users or by other systems~\cite{Herzig:2015:EDF:2819009.2819018,Huo:2014:IOQ:2635868.2635917,Zhang:2014:ERT:2610384.2610404,BellKMD2015,Fowler,Gyori:2015:RTD:2771783.2771793,Dan:2013:10.1007/978-3-642-39038-8_25,Vahabzadeh:2015:7332456,Sudarshan}.
+  on by users or by other systems~\todo{These do not seem to be supporting
+    the claim about bugs related to incompatibilities between outputs.
+    These seem to be general citations about test flakiness or dependence.
+    Readers will be unhappy if we make a claim but then do not support it.}\cite{Herzig:2015:EDF:2819009.2819018,Huo:2014:IOQ:2635868.2635917,ZhangJWMLEN2014,BellKMD2015,Fowler,Gyori:2015:RTD:2771783.2771793,Dan:2013:10.1007/978-3-642-39038-8_25,Vahabzadeh:2015:7332456,Sudarshan}.
 %  \todo{Citations about bugs related to this?}
 \item
   Nondeterminism reduces users' and developers' \textbf{trust} in a program's output.
@@ -34,19 +39,19 @@ programs that do not flip coins.
 For example, a program that iterates over a hash table
 may produce different output on different runs.
 So may any program that uses default formatting, such as Java's
-\<Object.toString()> which includes an address or hash code.
+\<Object.toString()> which includes a memory address.
 Other nondeterministic APIs include date-and-time functions and
 accessing system properties such as the file system or environment variables.
 
 We have created an analysis that detects nondeterminism or verifies its
-absence.
-Our analysis permits programmers to specify which parts of their program
+absence in sequential programs.
+Our analysis permits a programmer to specify which parts of their program
 are intentionally nondeterministic, and it verifies that the remainder is deterministic.
 %
-Our analysis is largely sound:  if it issues no warnings, then the program does not
-suffer nondeterminism of the given types, up to the limitations of the
-analysis (see \cref{sec:threats}).  If the program uses concurrency,
-it might still be nondeterministic.)
+If our analysis issues no warnings, then the program produces the same
+output when executed twice on the same inputs.  This guarantee is modulo
+the limitations of the
+analysis, notably concurrency, implicit control flow, and unanalyzed libraries (see \cref{sec:threats}).
 %
 Our analysis works at compile time, giving a guarantee over every possible
 execution of the program, by contrast to unsound dynamic tools that attempt
@@ -66,19 +71,20 @@ sound analysis, it can issue false positive warnings.
 
 The high-level goal of our work is to provide programmers with a tool for
 specifying deterministic properties in a program and verifying them
-at compile time.
-
-
-Other researchers have also recognized the importance of this problem.
+statically.
+%
+Other researchers have also recognized the importance of the problem of nondeterminism.
 Previous work in program analysis for nondeterminism has focused on unsound dynamic
 approaches that identify flaky test cases.
-The authors of~\cite{nondex} manually identify methods in the JDK that have nondeterministic specifications and build models for
-these methods. They  modified that JVM so that it runs the test suite multiple times.
+NonDex~\cite{nondex} uses a modified JVM that returns different results on different
+executions, for a few key JDK methods with loose specifications.  Running a
+test suite multiple times can reveal unwarranted dependence on those
+methods.
 %NonDex~\cite{nondex} is a tool that manually\todo{This is confusing:  the
 %  tool can't manually identify.  Do you mean that the developers manually
 %  identified, then the tool uses those models?}
 %identifies 
-Diverging test results in this setting indicate a flaky test. DeFlaker~\cite{deflaker} looks at a range of commit versions
+DeFlaker~\cite{deflaker} looks at a range of commit versions
 of a code, and marks a test as flaky if it doesn't execute any modified code but still fails in the newer version. These techniques
 have been able to identify issues in real-world programs, some of which
 have been fixed by the developers. We believe that identifying and
@@ -88,44 +94,73 @@ developers.
 
 Our analysis uses three main abstractions, or approximations to run-time values:
 \begin{description}
+\item[\<NonDet>] represents values that might differ from run to run.
+\item[\<OrderNonDet>] represents collections that are guaranteed to contain
+  the same elements, albeit in possibly different iteration order.
 \item[\<Det>] represents values that will be the same across executions.
-\item[\<OrderNonDet>] represents collections that are guaranteed to contain the same elements albeit in possibly
-different iteration order.
-\item[\<NonDet>] represents values that
-might differ from run to run.
 \end{description}
 \noindent
 Programmers can write these to specify their program's behavior.
-Our type system contains a variety of other features that increase
-expressiveness and reduce false positive alarms.\todo{reference a section}
+Our full analysis contains other features that increase
+expressiveness.
 
-We have implemented this analysis as a pluggable type system for Java.
+\begin{figure}
 
-We have run experiments\todo{describe them}.
-We found this type hierarchy
-is expressive enough to identify nondeterministic behaviors in production software.
+\noindent
+In \<TypeVariable.java>:
+
+\begin{Verbatim}
+160:   public List<TypeVariable> getTypeParameters() {
+161:-    Set<TypeVariable> parameters = new HashSet<>(super.getTypeParameters());
+161:+    Set<TypeVariable> parameters = new LinkedHashSet<>(super.getTypeParameters());
+162:     parameters.add(this);
+163:     return new ArrayList<>(parameters);
+164:   }
+\end{Verbatim}
+
+\caption{Fixes made by the Randoop developers in response to our bug report
+  about improper use of a HashSet.  Lines starting with ``\<->'' were
+ removed and those starting with ``\<+>'' were added.
+ Our tool, \theDeterminismChecker, confirmed that 
+25 other uses of \<new HashSet> were acceptable, as were 15 uses of \<new HashMap>.}
+\label{fig:randoop-bug-hashset}
+\end{figure}
+
+We implemented \TheDeterminismChecker as a pluggable type checker on top of the checker-framework available at \href{https://checkerframework.org/}{https://checkerframework.org/}. \TheDeterminismChecker is written in Java and
+spans approximately 1.2K lines of code.
 
 This paper makes the following contributions:
 \begin{enumerate}
-  \item We designed a type type system for expressing determinism properties.
+  \item We designed a type system, named \ourTypeSystem, for expressing determinism properties.
 
-  \item We implemented the type system for Java.
+  \item We implemented the analysis, as a pluggable type system for Java, in a
+    tool called \theDeterminismChecker.
 
-  \item In a case study, we annotated several libraries, including the
-    relevant parts of the JDK (Java's standard library).  This provides a
-    formal, machine-readable specification for the libraries, and it
-    demonstrates the richness of our type system.
+  \item
+  \todo{It's a bit weird that we call this a contribution but it is never
+    explicitly discussed in the paper.  I think it's probably OK.}
+  In a case study, we annotated several libraries, including the collection
+    classes and other parts of the JDK (Java's standard library).  This
+    provides a formal, machine-readable specification for the libraries, and
+    it demonstrates the expressiveness of our type system.
 
   \item In another case study, we ran our analysis on a 24 KLOC project that
-    developers had spent weeks of effort to make deterministic.  Our system
-    discovered nondeterminism that the developers had overlooked, and they
-    accepted our patches.
+    developers had already spent weeks of testing and inspection effort to
+    make deterministic.  \TheDeterminismChecker
+    discovered 5 instances of nondeterminism that the developers had
+    overlooked.
+    The developers fixed all these issues when we reported them.
+    \Cref{fig:randoop-bug-hashset,fig:randoop-bug-getenv} show two examples.
 
-  \item We compared our tool against state-of-the-art flaky test
-    detectors.\todo{Say something about the results.}
+  \item We compared our tool, \theDeterminismChecker, against state-of-the-art flaky test
+    detectors, on their benchmarks.
+    \TheDeterminismChecker found all the non-concurrency nondeterminism
+    found by the other tools.
+
 \end{enumerate}
 
-\todo{It is essential that the introduction includes an example real-world
-  defect that \theDeterminismChecker found.}
+%\todo{It is essential that the introduction includes an example real-world
+%  defect that \theDeterminismChecker found.}
+
 
 % LocalWords:  NonDex DeFlaker Det OrderNonDet NonDet

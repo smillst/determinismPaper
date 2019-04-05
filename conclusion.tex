@@ -2,7 +2,13 @@
 
 \todo{TODO}
 
-
-\todo{\TheDeterminismChecker found errors that the
-  Randoop developers had missed, despite spending over 100 hours on the
-  problem of nondeterminism.}
+We designed a type system that helps programmers express determinism specifications
+in sequential programs. To the best of our knowledge, ours is the
+first compile time verification approach addressing the problem of nondeterminism.
+We implemented our type system in Java, applied it to real world 
+software and found it to be effective in finding previously unknown determinism bugs. 
+\TheDeterminismChecker found errors that the
+Randoop developers had missed, despite spending over 100 hours on the
+problem of nondeterminism. We compared our tool with existing state of the art flake test detectors
+and found that \TheDeterminismChecker found all the bugs arising due to nondeterminism
+in sequential programs that were used for evaluation in NonDex~\cite{nondex} and DeFlaker~\cite{deflaker}.

@@ -44,7 +44,7 @@ the sources of flakiness as reported in~\cite{nondex} anywhere in the respective
 All these benchmarks and instructions to reproduce our results can be found at \href{https://github.com/t-rasmud/determinismCaseStudies}{https://github.com/t-rasmud/determinismCaseStudies}.
 
 All the flakiness that NonDex found was due to 7 methods in 3 classes. We enumerate all the methods corresponding to
-each class in Figure~\ref{fig:flaky-sources}.
+each class in \cref{fig:flaky-sources}.
 \begin{figure}
     \begin{tabular}{lll}
         \<Class> & : \<getDeclaredFields>, \<getDeclaredMethods>, \<getFields> \\
@@ -56,7 +56,7 @@ each class in Figure~\ref{fig:flaky-sources}.
 \end{figure}
 
 We provide samples of the annotated source code from these benchmarks and the errors as reported by \TheDeterminismChecker 
-in Figure~\ref{fig:nondex-source}.
+in \cref{fig:nondex-source}.
 \begin{figure}
     \centering
     \begin{subfigure}[b]{0.95\textwidth}
@@ -126,14 +126,19 @@ empirical evidence of the ease of extensibility of our tool.
   maintained (it has recent commits), so we can communicate with the authors.}
 
 \section{Comparison to Deflaker}
-Deflaker~\cite{deflaker}, like NonDex, reports tests that could be flaky. Ideally, we would have 
-liked to run all three tools (NonDex, DeFlaker, and \TheDeterminismChecker) on an open source project
-that wasn't explored by any of the tool for a fair comparison. Unfortunately, there are issues with the
-DeFlaker plugin and we weren't able to run it on any project. We have created a Github issue for the same
-in its repository.
-\todo{Deflaker works now. Tried on retrofit: only works where there is sufficient change in code coverage between head and its parent.
-Looked throught= about 10 commits, didn't find differential code coverage and therefore no flakes}
-\todo{Deflaker requires maven build. Randoop is on gradle.}
+Deflaker~\cite{deflaker}, like NonDex, reports tests that could be flaky. 
+While we would have like to run DeFlaker on Randoop for a fair comparison of the tools,
+we were unable to do so because Deflaker works with projects built with maven and Randoop
+uses gradle for its build system. We plan to convert Randoop's build system to maven and 
+perform this case study.
+%Ideally, we would have 
+%liked to run all three tools (NonDex, DeFlaker, and \TheDeterminismChecker) on an open source project
+%that wasn't explored by any of the tool for a fair comparison. Unfortunately, there are issues with the
+%DeFlaker plugin and we weren't able to run it on any project. We have created a Github issue for the same
+%in its repository.
+%\todo{Deflaker works now. Tried on retrofit: only works where there is sufficient change in code coverage between head and its parent.
+%Looked throught= about 10 commits, didn't find differential code coverage and therefore no flakes}
+%\todo{Deflaker requires maven build. Randoop is on gradle.}
 
 \subsection{\TheDeterminismChecker on DeFlaker benchmarks}\label{sec:deflaker-benchmarks}
 DeFlaker found 87 previously unknown flaky tests in 93 projects that were being actively developed at the the time
