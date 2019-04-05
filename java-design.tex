@@ -3,10 +3,11 @@
 We have implemented our type system for Java, in a tool named \theDeterminismChecker.
 The implementation consists of 1200 lines of Java
 code, plus 1800 lines of tests (all line measurements are non-comment,
-non-blank lines), a manual, examples, etc.  It is publicly available at
+non-blank lines), a manual, examples, etc.
+\TheDeterminismChecker requires Java version 8.
+It is publicly available at
 \myurl{URL for \theDeterminismChecker}.
 
-\TheDeterminismChecker requires Java version 8.
 
 \subsection{Determinism type qualifiers}
 
@@ -16,6 +17,10 @@ Java basetype, as in \<@Positive int> or \codeid{@NonEmpty List<@NonNull String>
 
 \TheDeterminismChecker supports the type qualifiers \<@NonDet>,
 \<@OrderNonDet>, and \<@Det> (and others described below).
+The meaning of \<@Det> is with respect to value
+equality, not reference equality; that is,
+values on different executions are the same with respect to \<.equals()>,
+not \<==>.
 
 Our implementation treats arrays analogously to collections:
 the semantics and rules are similar even though the syntax varies.
@@ -194,36 +199,40 @@ in order to inherit parts of \<HashMap>'s implementation.
 use (except uses of type variables, which already stand for a type that was
 defaulted at the instantiation site).
 This does not change the expressivity of the type system; it merely makes
-the system more convenient to use.
+the system more convenient to use by reducing programmer effort and code clutter.
 
-In \theDeterminismChecker, we chose \<PolyDet> as the default for all 
-method parameters and return types including constructors.
-The rationale for this design choice was to not make \theDeterminismChecker too restrictive by making everything \<Det>.  This implies that
-\theDeterminismChecker still allows some non-determinism as long as it doesn't break any determinism specifications explicitly written by the programmer.
+The default annotation for most unannotated types is \<@Det>, because
+programmers generally expect their programs to behave the same when re-run
+on the same inputs.
 
-\begin{verbatim}
-@PolyDet int foo(@PolyDet int x) { ... }
+Formal parameter and return types default to \<@PolyDet>.  That is, a
+programmer-written method
 
-void bar(@NonDet int random, @Det int value) {
-    @NonDet int x = foo(random);      // No error.
-    @Det int y = foo(value);          // No error.
-    System.out.println(foo(random));  // Error.
-}
-\end{verbatim}
-In the example above, the method \codeid{foo} is annotated with the \<PolyDet> type qualifier which allows
-the caller method \codeid{bar} to invoke it with both \<Det> and \<NonDet> arguments. \TheDeterminismChecker flags an error 
-only when the returned value is used in a way that breaks any deterministic specification (Printing a \<NonDet> value
-breaks our determinism guarantees).
+\begin{Verbatim}
+  int plus(int a, int b) { ... }
+\end{Verbatim}
+
+\noindent
+is treated as if the programmer had written
+
+\begin{Verbatim}
+  @PolyDet int plus(@PolyDet int a, @PolyDet int b) { ... }
+\end{Verbatim}
+
+\noindent
+and its function type is
+
+$\forallt{\kappa}  \kappa\ \<int> \times \kappa\ \<int> \rightarrow \kappa\ \<int>$
+
+\noindent
+This choice type-checks if the method body does not make calls to any
+interfaces that require \<@Det> arguments or produce \<@NonDet> results.
 
 
-\<@Det> equality is with respect to \<.equals()>.
 
-\todo{
-The default annotation for most unannotated types is \<@Det>.
+
 
 \begin{itemize}
-\item
-  Formal parameter and return types default to \<@PolyDet>.
 \item
   If a formal parameter/return type is an array, its component type defaults to
   \<@PolyDet>.
@@ -234,7 +243,28 @@ The default annotation for most unannotated types is \<@Det>.
 \end{itemize}
 
 These choices permit all possible arguments to an unannotated method.
+
+In \theDeterminismChecker, we chose \<PolyDet> as the default for all 
+method parameters and return types including constructors.
+The rationale for this design choice was to not make \theDeterminismChecker too restrictive by making everything \<Det>.
+
+\begin{verbatim}
+@PolyDet int foo(@PolyDet int x) { ... }
+
+void bar(@NonDet int random, @Det int value) {
+    @NonDet int x = foo(random);      // no error
+    @Det int y = foo(value);          // no error
+    System.out.println(foo(random));  // error
 }
+\end{verbatim}
+In the example above, the method \codeid{foo} is annotated with the \<PolyDet> type qualifier which allows
+the caller method \codeid{bar} to invoke it with both \<Det> and \<NonDet> arguments. \TheDeterminismChecker flags an error 
+only when the returned value is used in a way that breaks any deterministic specification (Printing a \<NonDet> value
+breaks our determinism guarantees).
+
+
+
+
 
 \subsection{Polymorphism}\label{java-polymorphism}
 
