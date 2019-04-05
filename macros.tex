@@ -30,10 +30,16 @@
 
 %%% Types and type rules
 
+% These are for use in text.  They permit line breaks.
+% You need to use an explicit space after them, when \<SomeType> follows.
 \newcommand{\Det}{\text{\<Det>}\xspace}
-\newcommand{\OrderNonDet}{\text{\<OrderNonDet>}\xspace}
-\newcommand{\NonDet}{\text{\<NonDet>}\xspace}
+\newcommand{\OrderNonDet}{\text{\<Order>\-\<Non>\-\<Det>}\xspace}
+\newcommand{\NonDet}{\text{\<Non>\-\<Det>}\xspace}
 \newcommand{\Ond}{\OrderNonDet}
+\newcommand{\aDet}{\text{\<@Det>}\xspace}
+\newcommand{\aOrderNonDet}{\text{\<@Order>\-\<Non>\-\<Det>}\xspace}
+\newcommand{\aNonDet}{\text{\<@Non>\-\<Det>}\xspace}
+\newcommand{\aOnd}{\aOrderNonDet}
 
 \newcommand{\up}[1]{\ifmmode #1\mathord{\uparrow} \else #1$\uparrow$\fi}
 \newcommand{\down}[1]{\ifmmode #1\mathord{\downarrow} \else #1$\downarrow$\fi}

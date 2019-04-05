@@ -100,25 +100,29 @@ client code that would produce errors at compile time.
 \subsection{Java collection types}\label{sec:maps-java}
 
 A \<Map> is deterministic if its \<entrySet> is deterministic.
-In other words, iterating over this \<entrySet> is guaranteed to produce the same values in the exact same order across executions.
-The \<Map> interface in Java doesn't define an \<iterator()> interface. Therefore it's sound to equate the determinism of the \<Set>
-returned by \<entrySet()> to the determinism of the \<Map>. Interestingly, we found that every implementation of the \<Map> 
-interface had the following property: if the \<Set> returned by \<entrySet()> has a determinism type $\kappa$, then
-the \<Set>s returned by \<keySet()> and \<values()> also have the exact same determinism type $\kappa$.
+In other words, iterating over this \<entrySet> produces the same values in the same order across executions.
+\Cref{code-determinism} shows that the determinism qualifier on the return type of \<entrySet()> is the
+same as that on the receiver.  That is, its type (ignoring type arguments) is
+$\forallt{\kappa} \kappa\ \<Map> \rightarrow \kappa\ \<Set>$\ .
+
+We have not yet found any implementation of the \<Map>
+interface in which \<entrySet()> \<keySet()>, and \<values()> behave
+differently with respect to determinacy:  either all, or none, or deterministic.
 
 The most widely used \<Map> implementations have the following properties:
 \begin{itemize}
     \item \<HashMap> is implemented in terms of a hash table, which never
       guarantees deterministic iteration over its entries. A \codeid{@Det
         HashMap} does not exist.
-    \item \<LinkedHashMap>, like \<List>, can have any of the \<@NonDet>,
-      \<@OrderNonDet>, or \<@Det> type qualifiers. Iterating over a
+    \item \<LinkedHashMap>, like \<List>, can have any of the \aNonDet,
+      \aOrderNonDet, or \aDet type qualifiers. Iterating over a
       \<LinkedHashMap> returns
-    its entries in the order of their insertion. An \<OrderNonDet
-    LinkedHashMap> can be created by calling its constructor with a
-    \<@OrderNonDet HashMap>.
+    its entries in the order of their insertion. An \aOrderNonDet\
+    \<LinkedHashMap> can be created by passing an
+    \aOrderNonDet\ \<HashMap> to its constructor, as in \<new
+    LinkedHashMap(myOndHashMap)>.
     \item \<TreeMap> can either be \<@Det> or \<@NonDet>. An \<@OrderNonDet
-      TreeMap> doesn't exist because the entries are always ordered.
+      TreeMap> doesn't exist because the entries are always sorted.
 \end{itemize}
 
 \TheDeterminismChecker prohibits the creation of a \codeid{@Det HashMap} or an \codeid{@OrderNonDet TreeMap}.
@@ -199,7 +203,7 @@ Each use of \<@PolyDet> stands for a use of the qualifier variable
 $\kappa$, and there is no need to declare the qualifier variable $\kappa$.
 \TheDeterminismChecker currently supports
 qualifier
-polymorphism on methods but not on classes.
+polymorphism on methods but \emph{not} on classes.
 Therefore, \<@PolyDet> may be written in methods (signatures and bodies)
 but not on fields.
 \end{itemize}
