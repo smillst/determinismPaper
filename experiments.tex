@@ -183,10 +183,13 @@ Four of the seven flaky tests (two in \<achilles>, one each in \<jackrabbit-oak>
 were caused by a race condition, which \theDeterminismChecker
 cannot detect.  (This is a strength of DeFlaker over \theDeterminismChecker.)
 We were unable to build \<togglz> and \<nutz> which had one flakiness issue each.
-However, we extracted the source code causing the flakiness in \<togglz> into a test case 
-after looking at the issue on Github. This bug was caused by a copy method that iterated over
+However, we extracted the source code causing the flakiness in these repositories into test cases
+after looking at the corresponding issues on Github. The bug in \<togglz> was caused by a copy method that iterated over
 an \<OrderNonDet Set> and expected it to be deterministic. \TheDeterminismChecker correctly flagged
 an error in the loop that iterated over the \<Set>.
+The flakiness in \<nutz> was a result of printing a response received over http.
+Since network operations are nondeterministic, we annotated the method in \<nutz> that
+returns this response as \<NonDet> which lead \TheDeterminismChecker to report an error at the print statement. 
 \TheDeterminismChecker was able to find the source of flakiness in \<checkstyle>. This bug was in a test
 case that treated an array returned by \<Class.getDeclaredConstructors()>
 as deterministic.
