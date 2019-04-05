@@ -30,71 +30,7 @@ collections and arrays.
 Collections include any type (including user-defined classes) that
 implements the \<Iterable> or \<Iterator> interfaces; this includes all
 Java collections such as \<List>s and \<Set>s.
-Our implementation also supports any type that implements the \<Map>
-interface.
 
-
-\Cref{code-determinism} presents some of the JDK methods that we have annotated with our determinism types and give examples of
-client code that would produce errors at compile time.
-
-%\begin{figure}
-%    \begin{verbatim}
-%    // Annotated JDK methods
-%    public class Random implements java.io.Serializable {
-%        public @NonDet Random() {}
-%    }
-%    public class PrintStream extends FilterOutputStream 
-%        implements Appendable, Closeable {
-%        public void println(@Det Object x) {}
-%    }
-%    
-%    // Client code
-%    class Client {
-%        void test() {
-%            @Det double d = Math.random(); // Error - subtyping rules violated.
-%            @NonDet double nd = Math.random(); // No error.
-%            System.out.println(nd); // Error - println takes @Det arguments.
-%        }
-%    }
-%    \end{verbatim}
-%    \caption{Example: Errors detected by \theDeterminismChecker.}
-%\todo{Use real examples of bugs from case studies, throughout.  Artificial
-%  examples are less compelling (and lead the reader to wonder whether no
-%  real example exist).  Put the first example of an error in a figure in
-%  Section 1, to help with motivating the problem.}
-%    \label{code-determinism}
-%\end{figure}
-
-\begin{figure}
-    \begin{verbatim}
-    // Annotated JDK methods
-    public interface Map<K,V> {
-        @PolyDet Set<Map.Entry<K, V>> entrySet(@PolyDet Map<K,V> this);
-    }
-    public interface Iterator<E> {
-        @PolyDet("up") E next(@PolyDet Iterator<E> this);
-    }
-    
-    // Client code
-    public class MapUtils {
-        public static <K extends @PolyDet Object, V extends @PolyDet Object> 
-                                @Det String toString(@PolyDet Map<K,V> map) {
-            ...
-            for(Map. @Det Entry<K,V> entry : map.entrySet()) { ... }
-        }
-    }
-    [ERROR] MapUtils.java:[20,50] [enhancedfor.type.incompatible] 
-    incompatible types in enhanced for loop.
-    found : @PolyDet Entry<K extends @PolyDet Object,V extends @PolyDet Object>
-    required: @Det Entry<K extends @PolyDet Object,V extends @PolyDet Object>
-    \end{verbatim}
-    \caption{Example: Error detected by \theDeterminismChecker in \<scribe-java>~\cite{nondex}.}
-%    \todo{Use real examples of bugs from case studies, throughout.  Artificial
-%        examples are less compelling (and lead the reader to wonder whether no
-%        real example exist).  Put the first example of an error in a figure in
-%        Section 1, to help with motivating the problem.}
-    \label{code-determinism}
-\end{figure}
 
 
 \subsection{Java collection types}\label{sec:maps-java}
@@ -231,6 +167,68 @@ $\down{\kappa}$ is written as \<@PolyDet("down")>.  An occurrence of a
 qualifier variable that does not affect the binding of that variable
 (\cref{bindings-uses}) is written \<@PolyDet("use")>.
 
+
+\Cref{code-determinism} presents some of the JDK methods that we have annotated with our determinism types and give examples of
+client code that would produce errors at compile time.
+
+%\begin{figure}
+%    \begin{verbatim}
+%    // Annotated JDK methods
+%    public class Random implements java.io.Serializable {
+%        public @NonDet Random() {}
+%    }
+%    public class PrintStream extends FilterOutputStream 
+%        implements Appendable, Closeable {
+%        public void println(@Det Object x) {}
+%    }
+%    
+%    // Client code
+%    class Client {
+%        void test() {
+%            @Det double d = Math.random(); // Error - subtyping rules violated.
+%            @NonDet double nd = Math.random(); // No error.
+%            System.out.println(nd); // Error - println takes @Det arguments.
+%        }
+%    }
+%    \end{verbatim}
+%    \caption{Example: Errors detected by \theDeterminismChecker.}
+%\todo{Use real examples of bugs from case studies, throughout.  Artificial
+%  examples are less compelling (and lead the reader to wonder whether no
+%  real example exist).  Put the first example of an error in a figure in
+%  Section 1, to help with motivating the problem.}
+%    \label{code-determinism}
+%\end{figure}
+
+\begin{figure}
+    \begin{verbatim}
+    // Annotated JDK methods
+    public interface Map<K,V> {
+        @PolyDet Set<Map.Entry<K, V>> entrySet(@PolyDet Map<K,V> this);
+    }
+    public interface Iterator<E> {
+        @PolyDet("up") E next(@PolyDet Iterator<E> this);
+    }
+    
+    // Client code
+    public class MapUtils {
+        public static <K extends @PolyDet Object, V extends @PolyDet Object> 
+                                @Det String toString(@PolyDet Map<K,V> map) {
+            ...
+            for (Map. @Det Entry<K,V> entry : map.entrySet()) { ... }
+        }
+    }
+    [ERROR] MapUtils.java:[20,50] [enhancedfor.type.incompatible] 
+    incompatible types in enhanced for loop.
+    found : @PolyDet Entry<K extends @PolyDet Object,V extends @PolyDet Object>
+    required: @Det Entry<K extends @PolyDet Object,V extends @PolyDet Object>
+    \end{verbatim}
+    \caption{Example: Error detected by \theDeterminismChecker in \<scribe-java>~\cite{nondex}.}
+%    \todo{Use real examples of bugs from case studies, throughout.  Artificial
+%        examples are less compelling (and lead the reader to wonder whether no
+%        real example exist).  Put the first example of an error in a figure in
+%        Section 1, to help with motivating the problem.}
+    \label{code-determinism}
+\end{figure}
 
 
 \subsection{Defaulting}\label{defaulting}

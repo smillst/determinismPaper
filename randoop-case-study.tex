@@ -150,13 +150,13 @@ properties did not lead to nondeterministic behavior.
 \strut
 \begin{description}
  
-\item \bugHashcodeOutput:
+\item[\bugHashcodeOutput]
   Diagnostic output printed a hash code for brevity.
   The developers changed it to have deterministic output (commit 661a4970).
   Although the Randoop developers classified this issue as minor, it is
   very similar to ones they fixed during their two-week coding sprint.
 
-\item \bugTimestampOutput:
+\item[\bugTimestampOutput]
   Diagnostic output printed a timestamp.
   The developers fixed it by making it obey an
   option about whether to print timestamps (commit a460df97).
