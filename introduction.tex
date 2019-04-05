@@ -19,12 +19,12 @@ Nondeterminism is a serious problem for software developers and users.
   program on different data, or to compare a run of a slightly modified
   program to an original program.  This hinders debugging and maintenance,
   and prevents use of techniques such as Delta Debugging~\cite{Zeller1999}.
-\item
-  Nondeterminism may make outputs incompatible with previous outputs relied
-  on by users or by other systems~\todo{These do not seem to be supporting
-    the claim about bugs related to incompatibilities between outputs.
-    These seem to be general citations about test flakiness or dependence.
-    Readers will be unhappy if we make a claim but then do not support it.}\cite{Herzig:2015:EDF:2819009.2819018,Huo:2014:IOQ:2635868.2635917,ZhangJWMLEN2014,BellKMD2015,Fowler,Gyori:2015:RTD:2771783.2771793,Dan:2013:10.1007/978-3-642-39038-8_25,Vahabzadeh:2015:7332456,Sudarshan}.
+%\item
+%  Nondeterminism may make outputs incompatible with previous outputs relied
+%  on by users or by other systems~\todo{These do not seem to be supporting
+%    the claim about bugs related to incompatibilities between outputs.
+%    These seem to be general citations about test flakiness or dependence.
+%    Readers will be unhappy if we make a claim but then do not support it.}\cite{Herzig:2015:EDF:2819009.2819018,Huo:2014:IOQ:2635868.2635917,ZhangJWMLEN2014,BellKMD2015,Fowler,Gyori:2015:RTD:2771783.2771793,Dan:2013:10.1007/978-3-642-39038-8_25,Vahabzadeh:2015:7332456,Sudarshan}.
 %  \todo{Citations about bugs related to this?}
 \item
   Nondeterminism reduces users' and developers' \textbf{trust} in a program's output.
@@ -127,8 +127,8 @@ In \<TypeVariable.java>:
 \end{figure}
 
 
-\todo{Remove this? We implemented \TheDeterminismChecker as a pluggable type checker on top of the checker-framework available at \href{https://checkerframework.org/}{https://checkerframework.org/}. \TheDeterminismChecker is written in Java and
-    spans approximately 1.2K lines of code.}
+%\todo{Remove this? We implemented \TheDeterminismChecker as a pluggable type checker on top of the checker-framework available at \href{https://checkerframework.org/}{https://checkerframework.org/}. \TheDeterminismChecker is written in Java and
+%    spans approximately 1.2K lines of code.}
 
 This paper makes the following contributions:
 \begin{enumerate}
