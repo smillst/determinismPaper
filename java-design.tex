@@ -340,11 +340,11 @@ differences from the user.
 The result is also deterministic for \codeid{"path.separator"} and
 \codeid{"file.separator"}, because these lead to the same behavior given
 corresponding environments.
-The user can specify input properties that must be passed on the \<java>
-command line and thus act like inputs to the program; these are also
-treated as deterministic.
+A user of \theDeterminismChecker can specify Java properties that must be passed on the \<java>
+command line and thus act like inputs to the program;
+\theDeterminismChecker treats these as deterministic.
 
-The inputs to a program are also treated as \<Det>.  That is, the type of
+The inputs to a program are also treated as deterministic.  That is, the type of
 the formal parameter to \<main> is
 \<@Det String @Det []>, a deterministic array of deterministic strings.
 
