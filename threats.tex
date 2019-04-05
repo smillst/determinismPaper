@@ -32,16 +32,17 @@ We disabled this check in most of our case study.
 It our case study, we also disabled a check that required all caught
 exceptions to have \<NonDet> type.  This type is a safe approximation to an
 exception that can be thrown from arbitrary code, including libraries.
-Enabling this check led to many unhelpful false positive warnings.
+Enabling this check led to many unhelpful false positive warnings, which
+are only relevant if unverified libraries throw nondeterministic exceptions.
 
 
 \TheDeterminismChecker only examines the code it is run on.  Unchecked
 libraries and native code with incorrect specifications might introduce
-nondeterminism that it does not check.
+nondeterminism even if \theDeterminismChecker issues no warnings.
 
 
 We have performed only one case study.  This case study found important
 previously-unknown errors, but its results might not carry over to other
 programs or to programs written in other programming lanugages.  We
-mitigated this problem by showing that \theDeterminismChecker finds most or
-all of the sources of nondeterminism identified by other tools.
+mitigated this problem by showing that \theDeterminismChecker finds many
+of the sources of nondeterminism identified by other tools.

@@ -154,7 +154,8 @@ to the \<assert>* methods.
 
 \section{Comparison to Deflaker}
 Deflaker~\cite{deflaker}, like NonDex, reports tests that could be flaky. 
-We were unable to run DeFlaker on Randoop, because Deflaker works with projects built with Maven and Randoop
+We were unable to run DeFlaker on Randoop, because Deflaker works with
+projects built with Maven, but Randoop
 uses Gradle for its build system. We plan to convert Randoop's build system to Maven and
 perform this case study.
 %Ideally, we would have 
@@ -169,14 +170,17 @@ perform this case study.
 \subsection{\TheDeterminismChecker on DeFlaker benchmarks}\label{sec:deflaker-benchmarks}
 DeFlaker found 87 previously unknown flaky tests in 93 projects that were being actively developed at the the time
 the paper was written. The authors reported 19 of these tests, out of which 7 were addressed by the maintainers of
-those projects. Since we can only verify if \TheDeterminismChecker finds the same bugs by looking at the source code
-locations, we ran our tool on the benchmarks where the reported bug was fixed. We again defer the reader to~\cite{deflaker}
-for a complete list of the open source projects and their details.
+those projects~\cite{deflaker}.
+We ran \theDeterminismChecker on the part of each of these
+codebases where the reported bug was fixed, as in \cref{sec:nondex-benchmarks}.
+% The DeFlaker authors graciously fixed problems we discovered while using
+% their tool.
 
-Two of the seven flaky tests (in \<achilles> and \<jackrabbit-oak>) that DeFlaker reported were caused by a race condition. \TheDeterminismChecker
-is designed for sequential programs and hence cannot detect this category of bugs.  
-We couldn't find the link to one of the issues in the issue tracker of \<jackrabbit-oak>
-We ran into build issues
-for \<tigglz> and \<nutz> which had two and one flakiness issues respectively. 
+Two of the seven flaky tests (in \<achilles> and \<jackrabbit-oak>)
+were caused by a race condition, which \theDeterminismChecker
+cannot detect.  (This is a strength of DeFlaker over \theDeterminismChecker.)
+We couldn't find the link to one of the issues in the issue tracker of \<jackrabbit-oak>.
+We were unable to build \<tigglz> and \<nutz> which had two and one flakiness issues respectively.
 \TheDeterminismChecker was able to find the source of flakiness in \<checkstyle>. This bug was in a test
-case that deterministically accessed an \<OrderNonDet> array returned by \<Class.getDeclaredConstructors()>.
+case that treated an array returned by \<Class.getDeclaredConstructors()>
+as deterministic.
