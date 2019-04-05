@@ -16,27 +16,26 @@ and remove the comments on these lines:
 
 Run
 
-./gradlew clean
-./gradlew assemble -PcfLocal | grep 'determinism\.qual' | sed 's/^.*determinism\.qual\.//'
+./gradlew clean compileJava -PcfLocal | grep 'determinism\.qual' | sed 's/^.*determinism\.qual\.//' | sort
 
 This assumes running a local checker framework that has the Determinism Checker.
 If not local, remove -PcfLocal.
 
 Current output:
 
-NonDet	94
-PolyDet	61
+Det	1626
+NonDet	95
 OrderNonDet	64
-Det	2134
+PolyDet	64
 
 Lines of code per annotation, divide 24000 by the number of
 annotations and round to the nearest integer.
 
-NonDet: 255
-PolyDet: 393
-OrderNonDet: 375
-Det: 11
-All annotations: 10
+Det	14
+NonDet	255
+OrderNonDet	375
+PolyDet	375
+All annotations: 12
 
 
 For @SuppressWarnings counts, see file randoop_suppress_warnings_information.txt
