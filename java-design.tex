@@ -1,26 +1,30 @@
 \section{Determinism types for Java}\label{sec:java-types}
 
 We have implemented our type system for Java, in a tool named \theDeterminismChecker.
+The implementation consists of 1200 lines of Java
+code, plus 1800 lines of tests (all line measurements are non-comment,
+non-blank lines), a manual, examples, etc.  It is publicly available at
+\myurl{URL for \theDeterminismChecker}.
 
 \TheDeterminismChecker requires Java version 8.
 
+\subsection{Determinism type qualifiers}
 
-In Java, a type qualifier is written as a type annotation (which has a leading \<@>), as in
-\<@Positive int>.
+A type qualifier is written in Java source code as a type annotation.
+A type annotation has a leading ``\<@>'' and is written immediately before a
+Java basetype, as in \<@Positive int> or \codeid{@NonEmpty List<@NonNull String>}.
 
-Our implementation
-handles array types, and any class (including user-defined classes) that
-implements the \<Iterable> or \<Iterator> interfaces; this includes all
-Java collections such as \<List>s and \<Set>s.  For simplicity, and because
-the semantics and rules are similar even though the syntax varies, this
+\TheDeterminismChecker supports the type qualifiers \<@NonDet>,
+\<@OrderNonDet>, and \<@Det> (and others described below).
+
+Our implementation treats arrays analogously to collections:
+the semantics and rules are similar even though the syntax varies.
+For simplicity this
 paper uses the term ``collection'' and the type \<Collection> to represent
-all these types.
-
-
-(In Java,
-\<HashMap> cannot be deterministic, but \<TreeMap> and \<LinkedHashMap>
-can.\todo{forward reference?})
-
+collections and arrays.
+Collections include any class (including user-defined classes) that
+implements the \<Iterable> or \<Iterator> interfaces; this includes all
+Java collections such as \<List>s and \<Set>s.
 
 
 \Cref{code-determinism} presents some of the JDK methods that we have annotated with our determinism types and give examples of
