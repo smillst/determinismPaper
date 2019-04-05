@@ -367,10 +367,11 @@ all local variables that are collections to reduce false positives.
 \subsection{Precision improvements}\label{sec:precision-java}
 
 The return type of \<System.getenv>, which reads an operating system
-environment variable, is always \<NonDet>.
-The return type of \codeid{System.getProperty} is usually \<NonDet>. However,
-the result is \<Det> if the argument is \codeid{"line.separator"}; although
-it varies by operating system, many programs including \<diff> hide those
+environment variable, is always \<@NonDet>.
+
+The return type of \codeid{System.getProperty} is usually \<@NonDet>. However,
+the result is \<@Det> if the argument is \codeid{"line.separator"}; although
+it varies by operating system, many programs including \<diff> and editors hide those
 differences from the user.
 The result is also deterministic for \codeid{"path.separator"} and
 \codeid{"file.separator"}, because these lead to the same behavior given
@@ -378,7 +379,8 @@ corresponding environments.
 The user can specify input properties that must be passed on the \<java>
 command line and thus act like inputs to the program; these are also
 treated as deterministic.
-The inputs to a program are also treated as \<Det>.  That is, the parameter
-type of the \<main> method is implicitly annotated as
+
+The inputs to a program are also treated as \<Det>.  That is, the type of
+the formal parameter to \<main> is
 \<@Det String @Det []>, a deterministic array of deterministic strings.
 
