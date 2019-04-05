@@ -126,6 +126,8 @@ In \<TypeVariable.java>:
 \label{fig:randoop-bug-hashset}
 \end{figure}
 
+We implemented \TheDeterminismChecker as a pluggable type checker on top of the checker-framework available at \href{https://checkerframework.org/}{https://checkerframework.org/}. \TheDeterminismChecker is written in Java and
+spans approximately 1.2K lines of code.
 
 This paper makes the following contributions:
 \begin{enumerate}
@@ -156,8 +158,6 @@ This paper makes the following contributions:
     found by the other tools.
 
 \end{enumerate}
-
-\todo{1211 LOC of Java in the determinism checker}
 
 %\todo{It is essential that the introduction includes an example real-world
 %  defect that \theDeterminismChecker found.}
