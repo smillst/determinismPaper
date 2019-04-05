@@ -356,9 +356,9 @@ Det         \lptype{List}{OrderNonDet \lptype{Set}{...}}
 \smallskip
 
 
-It is possible to store an expression of type \<Det> in a \<NonDet>
-collection, but any value retrieved from a \<NonDet> collection has
-type \<NonDet>.
+%It is possible to store an expression of type \<Det> in a \<NonDet>
+%collection, but any value retrieved from a \<NonDet> collection has
+%type \<NonDet>.
 
 If the type \ptype{NonDet List}{Det String} were
 permitted, the following type hole would exist:
@@ -419,7 +419,7 @@ and no type introduced so far can express this polymorphism.
 argument to \<get> is \<OrderNonDet> or \<NonDet>, then the
 result is \<NonDet>.  The above examples only show the case where the index
 is deterministic.)
-The typical type fro the list access operation only applies if both
+The typical type for the list access operation only applies if both
 arguments are \<Det>,
 and our typing must have that as a special case, which is the first line above.
 
@@ -616,7 +616,7 @@ $\<size>\ :\ \<OrderNonDet>\ \CollectionE \rightarrow \<OrderNonDet>\ \<Int>$
 \noindent
 because such an instantiation would include the invalid return type \<OrderNonDet Int>.
 This means that the only two instantiations are at 
-$\kappa = \<NonDet>$ and $\kappa = \<Det>$.  An invocation on a
+$\kappa = \<NonDet>$ and $\kappa = \<Det>$.  An invocation on an
 \<OrderNonDet> collection would choose the \<NonDet> instantiation and the
 return type at that call site would be \<NonDet Int> rather than the
 desired \<Det Int>.
@@ -734,7 +734,7 @@ a reader to reason about valid types.
 
 The rules prevent some invocations.  Suppose we have the following variable:
 
-$\<listOfLists> : \ptype{OND List}{\ptype{Det List}{Det String}}$
+$\<listOfLists> : \ptype{OrderNonDet List}{\ptype{Det List}{Det String}}$
 
 \noindent
 Then the invocation \<first(listOfLists)> is illegal.
@@ -883,7 +883,7 @@ Second, the only possible element type for a \<Det> collection is \<Det>.
 
 
 \TheDeterminismChecker has additional type refinement rules for the sorting
-methods of \<List>, \<Collections>, and \<Arrays> classes
+methods of \<List>, \<Collections>, and \<Arrays> classes.
 \begin{figure}
 %     $\infer[\rulename{list sort}]{\Gamma \vdash x : \|Det \ List|\angles{\<Det> \ \beta}}{\Gamma \vdash x : \|OrderNonDet \ List|\angles{\<Det> \ \beta} & \|x.sort()|}$
 %     
@@ -1013,7 +1013,7 @@ PolyDet("down") boolean equals(PolyDet Set<E> this, PolyDet Object o)
 \end{verbatim}
 While this is sound, it is imprecise in the case of \codeid{OrderNonDet
   Set}s.\todo{Explain why.}
- We added the following rule shown in \cref{fig-precision-rules} to our checker to improve precision.
+ We added the rule shown in \cref{fig-precision-rules} to our checker to improve precision.
 \begin{figure}
     \todo{add line break}
     $\infer[\rulename{set precision}]{\Gamma \vdash \|x.equals(y)| : \<Det>}{\Gamma \vdash \|x| : \<OrderNonDet> \ \|Set|\angles{ \kappa_{x} \ \beta_{x}}, \|y| : \<OrderNonDet> \ \|Set|\angles{ \kappa_{y} \ \beta_{y}} & \kappa_{x} \ \beta_{x} \nsqsubseteq \<OrderNonDet> \ \<List> & \kappa_{y} \ \beta_{y} \nsqsubseteq \<OrderNonDet> \ \<List> }$
