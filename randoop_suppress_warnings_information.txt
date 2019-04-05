@@ -6,17 +6,17 @@ grep -r --include='*.java' -n -e '"determinism"' | sed 's/^.*\/\/ //' | sed 's/:
 
 Current output:
 
-     26 https://github.com/t-rasmud/checker-framework/issues/84
-     23 constructors guarantee all instances of this class are @Det:
      20 https://github.com/t-rasmud/checker-framework/issues/93
-     10 this type can't be @OrderNonDet
-      6 expected nondeterminism
+     10 https://github.com/t-rasmud/checker-framework/issues/96
+      6 constructors guarantee all instances of this class are @Det:
+      5 expected nondeterminism
       5 actual type toString returns @PolyDet
       3 program specific properties are considered deterministic
       2 iterating over @OrderNonDet collection to modify another:
       2 enum classes of a @Det Class<?> are @Det, but the checker
       2 constructors guarantee all instances of this class are @Det
       2 combining elements of @OrderNonDet collection for @Det result
+      1 this is code randoop is run on
       1 this converts what was written to the stream to a String,
       1 https://github.com/t-rasmud/checker-framework/issues/95
       1 https://github.com/t-rasmud/checker-framework/issues/94
