@@ -1,5 +1,9 @@
 \section{Case study}\label{sec:randoop-case-study}
 
+%% This is not relevant in this section of the paper, where no times are given.
+% We ran all our
+% experiments on a 2.3 GHz Intel Core i5 processor with 8 GB of RAM.
+
 As a case study, we applied \theDeterminismChecker to the Randoop test
 generation tool~\ifanonymous\citepalias{randoop-tool}\else\cite{PachecoLEB2007}\fi.
 We chose Randoop because 
@@ -69,6 +73,17 @@ contains 24K non-comment, non-blank lines of code.
 % (41 KLOC including blanks and comments).
 % [Maybe we will add 1600 LOC of agent code.]
 We did not annotate Randoop's test suite.
+
+% run: ./gradlew clean compileJava;./gradlew clean compileJava;./gradlew clean compileJava;./gradlew clean compileJava;./gradlew clean compileJava
+% then read the times reported by Gradle.
+% javac 5 trials:   31, 19, 18, 18, 18.
+% \theDeterminismChecker 5 trials: 45s 39s 32s 31s 31s
+\<javac> takes 18 seconds to compile all files of Randoop.
+While also running \theDeterminismChecker as a compiler plugin, \<javac> takes 32 seconds to verify determinism and compile all files of Randoop.
+% godwit.  Info comes from `cat /proc/cpuinfo` and from `top`.
+These numbers are the median of 5 trials on an 8-core Intel i7-3770 CPU running at 3.40GHz with 
+32GB of memory.
+
 
 \todo{Report the number of annotations required, and say a few words about
   the process and the effort required.}
@@ -141,7 +156,8 @@ In \<MinimizerTests.java>:
 
 \caption{Fixes made by the Randoop developers in response to our bug report
   about use of environment variables.  Lines starting with ``\<->'' were
-  removed and those starting with ``\<+>'' were added.}
+  removed and those starting with ``\<+>'' were added.
+  \TheDeterminismChecker verified all other uses of system and Java properties.}
 \label{fig:randoop-bug-getenv}
 \end{figure}
 
