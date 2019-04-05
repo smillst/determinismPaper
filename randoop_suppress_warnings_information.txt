@@ -4,6 +4,9 @@ For the total number of @SuppressWarnings, run this command:
 grep -r --include='*.java' -n -e '"determinism"' | wc -l
 Current output:
 67
+Divide into 2400 to determine lines of code per annotation:
+358
+
 
 For a classification of the most important reasons for @SuppressWarnings, run this command:
 

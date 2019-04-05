@@ -1,17 +1,42 @@
-See counting_instructions.txt for how to calculate these.
+Clone https://github.com/jwaataja/randoop.
+
+Check out the determinism branch
+
+For counts of annotations:
+
+In the randoop directory, edit the "checkerframework.gradle" file and in the
+arguments section on line 58 comment out line
+
+'org.checkerframework.checker.determinism.DeterminismChecker',
+
+and remove the comments on these lines:
+
+// 'org.checkerframework.common.util.count.AnnotationStatistics',
+// '-Aannotations',
+
+Run
+
+./gradlew clean
+./gradlew assemble -PcfLocal | grep 'determinism\.qual' | sed 's/^.*determinism\.qual\.//'
+
+This assumes running a local checker framework that has the Determinism Checker.
+If not local, remove -PcfLocal.
+
+Current output:
 
 NonDet	94
 PolyDet	61
 OrderNonDet	64
 Det	2134
 
-SuppressWarnings("determinism"): 110
-
-Lines of code per annotation:
+Lines of code per annotation, divide 24000 by the number of
+annotations and round to the nearest integer.
 
 NonDet: 255
 PolyDet: 393
 OrderNonDet: 375
 Det: 11
 All annotations: 10
-SuppressWarnings("determinism") 218
+
+
+For @SuppressWarnings counts, see file randoop_suppress_warnings_information.txt
