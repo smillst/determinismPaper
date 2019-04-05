@@ -37,13 +37,14 @@ Java collections such as \<List>s and \<Set>s.
 
 A \<Map> is deterministic if its \<entrySet> is deterministic.
 In other words, iterating over this \<entrySet> produces the same values in the same order across executions.
-\Cref{code-determinism} shows that the determinism qualifier on the return type of \<entrySet()> is the
-same as that on the receiver.  That is, its type (ignoring type arguments) is
+The determinism qualifier on the return type of \<entrySet()> is the
+same as that on the receiver (\cref{code-determinism}).
+That is, its type (ignoring type arguments) is
 $\forallt{\kappa} \kappa\ \<Map> \rightarrow \kappa\ \<Set>$\ .
 
 We have not yet found any implementation of the \<Map>
 interface in which \<entrySet()> \<keySet()>, and \<values()> behave
-differently with respect to determinacy:  either all, or none, or deterministic.
+differently with respect to determinacy:  either all three methods, or none, are deterministic.
 
 The most widely used \<Map> implementations have the following properties:
 \begin{itemize}
@@ -61,6 +62,7 @@ The most widely used \<Map> implementations have the following properties:
       TreeMap> doesn't exist because the entries are always sorted.
 \end{itemize}
 
+\noindent
 \TheDeterminismChecker prohibits the creation of a \codeid{@Det HashMap} or an \codeid{@OrderNonDet TreeMap}.
 \Cref{fig-creation-rules} formalizes the type well-formedness rules for
 Java \<Map>s and \<Set>s.
@@ -83,17 +85,6 @@ Java \<Map>s and \<Set>s.
     \label{fig-creation-rules}
 \end{figure}
 
-The JDK implements \<LinkedHashMap> as a subclass of \<HashMap>
-in order to inherit parts of \<HashMap>'s implementation.
-%\todo{Talk about this design choice. Josh Bloch's book: "If the code surrounding the first declaration depended on LinkedHashSet's ordering policy, then it would be incorrect to substitute HashSet for LinkedHashSet in the declaration, because HashSet makes no guarantee concerning iteration order."} 
-%\todo{The above is not clear.  What are the consequences for our
-%  implementation.  What goes wrong or is hard to annotate or is surprising?
-%  I'm not sure what is the point of this paragraph.}
-\todo{From the discussion in this section, it is clear that \<LinkedHashMap> and \<HashMap> do not
-have a subtyping relationship with respect to their determinism types. We looked at the implementation of
-these two classes in the JDK and found that \<LinkedHashMap> doesn't reuse code that corresponds to 
-iterating over its keys or values with \<HashMap>.}
-
 
 \subsection{Polymorphism}\label{java-polymorphism}
 
@@ -109,11 +100,11 @@ type polymorphism is handled by Java's generics mechanism, which
 inference, etc.
 Given the Java declaration
 \begin{Verbatim}
-<T> T identity(T arg) { return arg; }
+<T> T identity(T param) { return param; }
 \end{Verbatim}
 the type of \<identity> is $\forallt{\tau} \tau \rightarrow \tau$, and
-the type of \<identity(arg)> is the same as the type of
-\<arg>.  A programmer can also write a type qualifier on a type argument,
+the type of \<identity(x)> is the same as the type of
+\<x>.  A programmer can also write a type qualifier on a type argument,
 as in \codeid{@NonDet List<@NonDet Integer>}.
 \item
 Basetype polymorphism is enabled by writing a type qualifier on a use of a
@@ -129,9 +120,10 @@ interface ChooseableSet<T> implements Set<T> {
 \item
 Java does not provide a syntax that can be used for qualifier polymorphism,
 so \theDeterminismChecker uses a special type qualifier name, \<@PolyDet>.  (\<@PolyDet> stands
-for ``polymorphic determinism qualifier.)
-A qualifier-polymorphic method \<m> with signature $\forallt{\kappa} \kappa\ \<int> \times \<Det boolean> \rightarrow
-\kappa\ \<String>$ would be written in our dialect of Java as
+for ``polymorphic determinism qualifier''.)
+A qualifier-polymorphic method \<m> with signature
+$\forallt{\kappa} \kappa\ \<int> \times \<Det boolean>
+\rightarrow \kappa\ \<String>$ would be written as
 \begin{Verbatim}
 @PolyDet String m(@PolyDet int, @Det boolean)
 \end{Verbatim}
@@ -145,12 +137,13 @@ but not on fields.
 \end{itemize}
 
 Qualifier  polymorphism is common on methods that a programmer might think
-of as deterministic.  For example, an addition method could be defined as
+of as deterministic.  For example, an addition method should be defined as
 
 \begin{verbatim}
     @PolyDet int plus(@PolyDet int a, @PolyDet int b) { return a+b; }
 \end{verbatim}
 
+\noindent
 This can be used in more contexts than
 
 \begin{verbatim}
@@ -166,6 +159,10 @@ source code, $\up{\kappa}$ is written as \<@PolyDet("up")>, and
 $\down{\kappa}$ is written as \<@PolyDet("down")>.  An occurrence of a
 qualifier variable that does not affect the binding of that variable
 (\cref{bindings-uses}) is written \<@PolyDet("use")>.
+
+
+All of our syntax is legal Java code that can be compiled with any Java 8
+or later compiler.
 
 
 \Cref{code-determinism} presents some of the JDK methods that we have annotated with our determinism types and give examples of
@@ -234,8 +231,8 @@ client code that would produce errors at compile time.
 \subsection{Defaulting}\label{defaulting}
 
 \TheDeterminismChecker applies a default qualifier at each unqualified Java
-basetype (except uses of type variables, which already stand for a type that was
-defaulted at the instantiation site).
+basetype (except uses of type parameters, which already stand for a type that was
+defaulted at the instantiation site where a type argument was supplied).
 This does not change the expressivity of the type system; it merely makes
 the system more convenient to use by reducing programmer effort and code clutter.
 Defaulted type qualifiers are not trusted:  they are type-checked just as
@@ -263,7 +260,8 @@ $\forallt{\kappa}  \kappa\ \<int> \times \kappa\ \<int> \rightarrow \kappa\ \<in
 \noindent
 This choice type-checks if the method body does not make calls to any
 interfaces that require \<@Det> arguments or produce \<@NonDet> results.
-Otherwise, the programmer must write an explicit type qualifier.
+Otherwise, the programmer must write explicit type qualifiers in the method
+signature.
 
 If a formal parameter or return type is a collection, its element type
 defaults to \<@PolyDet>.  No other choice would result in a valid type
@@ -274,12 +272,12 @@ parameters (including the receiver) are all \<@Det> --- that is, there are
 no unannotated or \<@PolyDet> formal parameters --- then an unannotated
 return type defaults to \<@Det>.  This is particularly useful for methods
 that take no formal parameters.  A type like $\forallt{\kappa} ()
-\rightarrow \kappa int$ does not make sense, becauses there is no way to
-instantiate the type argument $\kappa$.  Treating the type as $()
-\rightarrow \<Det> int$ permits just as many uses.
+\rightarrow \kappa\ \<int>$ does not make sense, because there is no basis
+on which to choose an
+instantiation for the type argument $\kappa$.  Treating the type as $()
+\rightarrow \<Det>\ \<int>$ permits just as many uses.
 
-The default annotation for local variables is \<@NonDet>, which is the top
-qualifier in the hierarchy.  \Cref{sec:dataflow-java} explains why.
+Types are inferred for unannotated local variables; see \cref{sec:dataflow-java}.
 
 The default annotation for other unannotated types is \<@Det>, because
 programmers generally expect their programs to behave the same when re-run
@@ -289,16 +287,35 @@ on the same inputs.
 
 \subsection{Dataflow analysis and type refinement}\label{sec:dataflow-java}
 
-\todo{Relate this to defaulting.}
+\OurTypeSystem is
+flow-sensitive~\cite{Hunt:2006:FST:1111037.1111045,Adams:2011:FTR:2048066.2048105,Sui:2016:OSU:2950290.2950296}.
+That is, an expression may have
+a different type on every line of the program, based on assignments and
+side effects.  The current type must always be consistent with the declared
+type, if any.
+Consider the example below:
 
-It also performs dataflow analysis and refines the types of these locals, thereby reducing the qualifier burden 
-on the programmer. Consider the example below:
 \begin{verbatim}
-void foo(@Det int x) {
-    @NonDet int y = x;    // Type of y gets refined to @Det.
-    @Det int z = y;       // No error here.
-}
+  @NonDet int x = ...;
+                          // The type of x is @NonDet int
+  x = 42;
+                          // The type of x is @Det int
+  @Det int y = x;
+  x = random();
+                          // The type of x is @NonDet int
+  y = random();           // Error: y is declared as @Det int
 \end{verbatim}
+
+Arbitrary expressions can be given more specific types, including fields
+and pure method calls.  A type refinement is lost whenever a side effect
+might affect the value.  For example, type refinements to all fields are
+lost whenever a non-pure method is called.
+
+This flow-sensitive type refinement achieves local variable inference,
+freeing progammers from writing many local variable types.
+
+\todo{Mike doesn't understand the below.  An example would help clarify it.}
+
 In the example above, even though the local variable \codeid{y} was declared to be \codeid{NonDet}, it gets
 type refined to \codeid{Det} after the first assignment statement. As the result, the assignment of \codeid{y}
 to a \codeid{Det} variable \codeid{z} is sound. In the following example,
@@ -310,24 +327,8 @@ void foo(@NonDet Object x, @Det Object y) {
 \end{verbatim}
 \theDeterminismChecker reports a warning at the second assignment statement of \codeid{foo}. Type refinement only applies to locals. Refining non-locals can result in side effects making the analysis unsound.
 
-With the above rules, \theDeterminismChecker will automatically annotate a local collection with type \<NonDet> and its
-type arguments will get the type qualifier \<Det>. For example, a locally declared \codeid{List} of \codeid{Strings} will be automatically annotated
-as \codeid{NonDet List<Det String>}. Recall from~\cref{collection-rules} that \theDeterminismChecker does not allow this type on
-any collection. While this is still sound, it will result in \theDeterminismChecker reporting a lot of errors because every locally declared 
-collection gets annotated with this invalid type. To avoid this situation, we make an exception to the defaulting rules for local collections
-and annotate their type parameters also with \<NonDet>. So a local list of Strings gets the default qualifier of \codeid{NonDet List<NonDet String>}. While this defaulting eliminates the possibility of automatically annotating locals collections with an invalid
-type, it could result in a high number of false positives. In the following code snippet,
-\begin{verbatim}
-void test(@Det List<@Det String> argList) {
-    List<String> localList = argList;
-}    
-\end{verbatim}
-\theDeterminismChecker would report an error at the assignment statement since the inferred type for \codeid{localList} is 
-\codeid{NonDet List<NonDet> String} and since collections types are invariant.
-We therefore recommend that programmers explicitly annotate
-all local variables that are collections to reduce false positives.
 
-\subsection{Precision improvements}\label{sec:precision-java}
+\subsection{The environment}\label{sec:environment-java}
 
 The return type of \<System.getenv>, which reads an operating system
 environment variable, is always \<@NonDet>.
