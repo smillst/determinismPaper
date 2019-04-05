@@ -3,7 +3,7 @@
 We have implemented our type system for Java, in a tool named \theDeterminismChecker.
 The implementation consists of 1200 lines of Java
 code, plus 1800 lines of tests (all line measurements are non-comment,
-non-blank lines), a manual, examples, etc.
+non-blank lines), a manual, etc.
 \TheDeterminismChecker requires Java version 8.
 It is publicly available at
 \myurl{URL for \theDeterminismChecker}.
@@ -22,7 +22,7 @@ equality, not reference equality; that is,
 values on different executions are the same with respect to \<.equals()>,
 not \<==>.
 
-Our implementation treats arrays analogously to collections:
+\TheDeterminismChecker treats arrays analogously to collections:
 the semantics and rules are similar even though the syntax varies.
 For simplicity this
 paper uses the term ``collection'' and the type \<Collection> to represent
@@ -36,6 +36,7 @@ interface.
 
 \Cref{code-determinism} presents some of the JDK methods that we have annotated with our determinism types and give examples of
 client code that would produce errors at compile time.
+
 %\begin{figure}
 %    \begin{verbatim}
 %    // Annotated JDK methods
@@ -95,47 +96,6 @@ client code that would produce errors at compile time.
     \label{code-determinism}
 \end{figure}
 
-\begin{itemize}
-\item
-In \theDeterminismCheckerImplementation,
-type polymorphism is handled by Java's generics mechanism, which
-\theDeterminismChecker fully supports, including class and method generics,
-inference, etc.
-Given the Java declaration
-\begin{Verbatim}
-<T> T identity(T arg) { return arg; }
-\end{Verbatim}
-the type of \<identity(arg)> is the same as the type of
-\<arg>, and a programmer can write a type such as \codeid{List<@NonDet
-  Integer>} (but see below for details about collections).
-\item
-Basetype polymorphism is enabled by writing a type qualifier on a use of a
-type variable, which overrides the type qualifier at the instantiation
-site.
-For example, a \<choose> operation on sets could be defined in Java as
-\begin{Verbatim}
-class ChooseableSet<T> implements Set<T> {
-  // return an arbitrary element from the set
-  @NonDet T choose();
-}
-\end{Verbatim}
-\item
-\todo{We do not support qualifier polymorphism on classes, only on methods.}
-Java does not provide a syntax that can be used for qualifier polymorphism,
-so we use a special type qualifier name, \<@PolyDet>.
-A qualifier-polymorphic method \<m> with signature $\forallt{\kappa} \kappa\ \<int> \times \<Det boolean> \rightarrow
-\kappa\ \<String>$ would be written in our dialect of Java as
-\begin{Verbatim}
-@PolyDet String m(@PolyDet int, @Det boolean)
-\end{Verbatim}
-Each use of \<@PolyDet> stands for a use of the qualifier variable
-$\kappa$, and there is no need to declare the qualifier variable $\kappa$.
-\TheDeterminismChecker currently supports
-qualifier
-polymorphism on methods but not on classes.
-Therefore, \<@PolyDet> may be written in methods (signatures and bodies)
-but not on fields.
-\end{itemize}
 
 \subsection{Java collection types}\label{sec:maps-java}
 
