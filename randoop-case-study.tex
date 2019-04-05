@@ -42,7 +42,7 @@ object of a type a unique ID that counts up from 1 rather than using a
 memory address as \<Object.hashCode> does.
 They wrote specialized tools to preprocess output and logs to make them easier
 to compare, such as by removing or canonicalizing hash codes, dates, and
-other nondeterministing output (commits e15f9155--b473fd14).
+other nondeterministing output (commits e15f9155--32f72234).
 Each of these efforts was helpful, but they were not enough to solve the problem.
 
 In July 2017, the Randoop developers spent two weeks of full-time work to
@@ -60,7 +60,7 @@ before iterating over them.
 The developers did not make every \<Set> and \<Map> a \<LinkedHashSet> or \<LinkedHashMap>, because that
 would have increased memory and CPU costs.  They chose not to make every
 order-nondeterministic \<List> a \<Set>, for similar reasons:  deduplication was
-not always needed and would have increased costs.
+not always desired, and even where it was acceptable, it would have increased costs.
 
 That coding sprint did not find all the problems.
 The developers debugged and fixed 5 additional determinism defects over the
@@ -88,7 +88,7 @@ contains 24K non-comment, non-blank lines of code.
 % [Maybe we will add 1600 LOC of agent code.]
 We did not annotate Randoop's test suite.
 
-We annotated one package at a time, starting with the most central packges
+We annotated one package at a time, starting with the most central packages
 that are most depended upon.  Within a package, we followed a similar
 strategy, annotating supertypes first.  If the determinism of classes and methods had been
 documented, then our annotation effort
@@ -237,7 +237,7 @@ It's higher than we would prefer.
 The large number of \<@Det> annotations has two main reasons.
 
 One is that we annotated some core components of Randoop to require all
-boolean expressions used in conditionals to be deterministic.  (This is an
+Boolean expressions used in conditionals to be deterministic.  (This is an
 option in \theDeterminismCheckerImplementation, which increases soundness;
 see \cref{sec:threats}.)  This forced
 their clients --- transitively, much of the Randoop codebase --- to be
@@ -265,3 +265,8 @@ implementation than we would prefer, it still compares favorably to the
 extensive effort by the Randoop developers (\cref{sec:subject-program}),
 especially given that that \theDeterminismChecker found issues that the
 developers had not.
+
+% LocalWords:  linters preprocess canonicalizing nondeterministing bdeebd
+% LocalWords:  e15f9155 b473fd14 deduplication c15ccbf2 ff5b4c4 eda87f src
+% LocalWords:  f72234 a8e63fb c975a9f7 e3c56 a4970 a460df97 postprocessing
+% LocalWords:  MinimizerTests SpecificationCollection findOverridden Det

@@ -44,7 +44,7 @@ $\forallt{\kappa} \kappa\ \<Map> \rightarrow \kappa\ \<Set>$\ .
 
 We have not yet found any implementation of the \<Map>
 interface in which \<entrySet()> \<keySet()>, and \<values()> behave
-differently with respect to determinacy:  either all three methods, or none, are deterministic.
+differently with respect to determinism:  either all three methods, or none, are deterministic.
 
 The most widely used \<Map> implementations have the following properties:
 \begin{itemize}
@@ -312,7 +312,7 @@ might affect the value.  For example, type refinements to all fields are
 lost whenever a non-pure method is called.
 
 This flow-sensitive type refinement achieves local variable inference,
-freeing progammers from writing many local variable types.
+freeing programmers from writing many local variable types.
 
 \todo{Mike doesn't understand the below.  An example would help clarify it.}
 
@@ -348,3 +348,7 @@ The inputs to a program are also treated as deterministic.  That is, the type of
 the formal parameter to \<main> is
 \<@Det String @Det []>, a deterministic array of deterministic strings.
 
+
+% LocalWords:  basetype NonEmpty NonDet OrderNonDet Det Iterable entrySet
+% LocalWords:  keySet LinkedHashMap myOndHashMap formedness PolyDet getenv
+% LocalWords:  expressivity getProperty
