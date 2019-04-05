@@ -183,14 +183,16 @@ Java \<Map>s and \<Set>s.
     \label{fig-creation-rules}
 \end{figure}
 
-The JDK implements \<LinkedHashSet> as a subclass of \<HashMap>\todo{should
-  this be HashSet?  It's not true as written.}
+The JDK implements \<LinkedHashMap> as a subclass of \<HashMap>
 in order to inherit parts of \<HashMap>'s implementation.
-\todo{Talk about this design choice. Josh Bloch's book: "If the code surrounding the first declaration depended on LinkedHashSet's ordering policy,
-    then it would be incorrect to substitute HashSet for LinkedHashSet in the declaration, because HashSet makes no guarantee concerning iteration order."} 
-\todo{The above is not clear.  What are the consequences for our
-  implementation.  What goes wrong or is hard to annotate or is surprising?
-  I'm not sure what is the point of this paragraph.}
+%\todo{Talk about this design choice. Josh Bloch's book: "If the code surrounding the first declaration depended on LinkedHashSet's ordering policy, then it would be incorrect to substitute HashSet for LinkedHashSet in the declaration, because HashSet makes no guarantee concerning iteration order."} 
+%\todo{The above is not clear.  What are the consequences for our
+%  implementation.  What goes wrong or is hard to annotate or is surprising?
+%  I'm not sure what is the point of this paragraph.}
+\todo{From the discussion in this section, it is clear that \<LinkedHashMap> and \<HashMap> do not
+have a subtyping relationship with respect to their determinism types. We looked at the implementation of
+these two classes in the JDK and found that \<LinkedHashMap> doesn't reuse code that corresponds to 
+iterating over its keys or values with \<HashMap>.}
 
 
 \subsection{Polymorphism}\label{java-polymorphism}
