@@ -39,7 +39,7 @@ programs that do not flip coins.
 For example, a program that iterates over a hash table
 may produce different output on different runs.
 So may any program that uses default formatting, such as Java's
-\<Object.toString()> which includes a memory address.
+\<Object.toString()>, which includes a memory address.
 Other nondeterministic APIs include date-and-time functions and
 accessing system properties such as the file system or environment variables.
 
@@ -126,8 +126,9 @@ In \<TypeVariable.java>:
 \label{fig:randoop-bug-hashset}
 \end{figure}
 
-We implemented \TheDeterminismChecker as a pluggable type checker on top of the checker-framework available at \href{https://checkerframework.org/}{https://checkerframework.org/}. \TheDeterminismChecker is written in Java and
-spans approximately 1.2K lines of code.
+
+\todo{Remove this? We implemented \TheDeterminismChecker as a pluggable type checker on top of the checker-framework available at \href{https://checkerframework.org/}{https://checkerframework.org/}. \TheDeterminismChecker is written in Java and
+    spans approximately 1.2K lines of code.}
 
 This paper makes the following contributions:
 \begin{enumerate}
