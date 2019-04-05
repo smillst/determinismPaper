@@ -1,6 +1,11 @@
 In https://github.com/jwaataja/randoop, checkout the "determinism" branch
 
-Run this command:
+For the total number of @SuppressWarnings, run this command:
+grep -r --include='*.java' -n -e '"determinism"' | wc -l
+Current output:
+67
+
+For a classification of the most important reasons for @SuppressWarnings, run this command:
 
 grep -r --include='*.java' -n -e '"determinism"' | sed 's/^.*\/\/ //' | sed 's/: .*//' | sort | uniq -c | sort -n -r
 
@@ -26,3 +31,5 @@ Current output:
       1 constructors guarantee all instances of this class are @NonDet:
       1 comparing hash codes is deterministic, even if the codes
       1 assert guarantees this is deterministic
+
+
