@@ -209,23 +209,25 @@ Given the Java declaration
 \begin{Verbatim}
 <T> T identity(T arg) { return arg; }
 \end{Verbatim}
+the type of \<identity> is $\forallt{\tau} \tau \rightarrow \tau$, and
 the type of \<identity(arg)> is the same as the type of
-\<arg>, and a programmer can write a type such as \codeid{List<@NonDet
-  Integer>} (but see below for details about collections).
+\<arg>.  A programmer can also write a type qualifier on a type argument,
+as in \codeid{@NonDet List<@NonDet Integer>}.
 \item
 Basetype polymorphism is enabled by writing a type qualifier on a use of a
 type variable, which overrides the type qualifier at the instantiation
 site.
 For example, a \<choose> operation on sets could be defined in Java as
 \begin{Verbatim}
-class ChooseableSet<T> implements Set<T> {
+interface ChooseableSet<T> implements Set<T> {
   // return an arbitrary element from the set
   @NonDet T choose();
 }
 \end{Verbatim}
 \item
 Java does not provide a syntax that can be used for qualifier polymorphism,
-so we use a special type qualifier name, \<@PolyDet>.
+so \theDeterminismChecker uses a special type qualifier name, \<@PolyDet>.  (\<@PolyDet> stands
+for ``polymorphic determinism qualifier.)
 A qualifier-polymorphic method \<m> with signature $\forallt{\kappa} \kappa\ \<int> \times \<Det boolean> \rightarrow
 \kappa\ \<String>$ would be written in our dialect of Java as
 \begin{Verbatim}
@@ -240,31 +242,28 @@ Therefore, \<@PolyDet> may be written in methods (signatures and bodies)
 but not on fields.
 \end{itemize}
 
-\todo{Explain @PolyDet("up"), "down", "use".}
+Qualifier  polymorphism is common on methods that a programmer might think
+of as deterministic.  For example, an addition method could be defined as
 
-
-
-When a user writes a polymorphic qualifier on a method signature or a type parameter,
-it indicates that it could be instantiated
-%\todo{Should all occurrences of ``resolve'' be ``can be instantiated''} 
-to any type in the type system depending on how it is used.
-In \theDeterminismChecker, we define a polymorphic qualifier \<PolyDet>.
-One of the most common locations for a polymorphic qualifier is at a method signature.
-Consider the following declaration of addition:
 \begin{verbatim}
-@PolyDet int plus(@PolyDet int a, @PolyDet int b) { return a+b; }
+    @PolyDet int plus(@PolyDet int a, @PolyDet int b) { return a+b; }
 \end{verbatim}
-\todo{It has the standard meaning.  There are two ways to interpret this.}
-There are two valid instantiations for this declaration:
-\begin{Verbatim}
-  @NonDet int plus(@NonDet int a, @NonDet int b) { return a+b; }
-  @Det int plus(@Det int a, @Det int b) { return a+b; }
-\end{Verbatim}
-This indicates that method \<foo> can be called with arguments having any of the \codeid{@Det} or \codeid{@NonDet} type qualifiers.
-%   (\<@OrderNonDet> is not allowed because it is invalid on primitive types).
- \<PolyDet> gets instantiated to the least upper bound of
-the actual types on arguments. For instance, if this method is called as \codeid{foo(@Det String arg1, @NonDet boolean arg2)}, \theDeterminismChecker instantiates the method declaration as \codeid{@NonDet int foo(@NonDet String param1, @NonDet boolean param2)}
-causing the return type to have the type qualifier \<NonDet>.
+
+This can be used in more contexts than
+
+\begin{verbatim}
+    @Det int plus(@Det int a, @Det int b) { return a+b; }
+\end{verbatim}
+
+\noindent
+can be, as was shown in \cref{sec:basic-polymorphism}.
+
+
+Just as a qualifier variable $\kappa$ is written as \<@PolyDet> in Java
+source code, $\up{\kappa}$ is written as \<@PolyDet("up")>, and
+$\down{\kappa}$ is written as \<@PolyDet("down")>.  An occurrence of a
+qualifier variable that does not affect the binding of that variable
+(\cref{bindings-uses}) is written \<@PolyDet("use")>.
 
 
 
