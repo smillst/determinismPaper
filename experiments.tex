@@ -14,16 +14,18 @@ We modified Randoop by deleting tests that were skipped by its buildfile,
 because the NonDex Gradle plugin does not respect those settings.
 After that, NonDex ran without problems on Randoop.
 NonDex reported no flaky tests.
-\todo{Revise the following text.
-  I renumbered the bugs without realizing that this section refers to them
-  by number, and I don't know which one these refer to any
-  more.
-  Please use cross-references or macros.  Also, this needs to be expanded
-  to account for the additional bugs.}
+%\todo{Revise the following text.
+%  I renumbered the bugs without realizing that this section refers to them
+%  by number, and I don't know which one these refer to any
+%  more.
+%  Please use cross-references or macros.  Also, this needs to be expanded
+%  to account for the additional bugs.}
 We investigated the tests covering code that \theDeterminismChecker reported as nondeterministic.
-Bug 1 and Bug 2 have corresponding test cases whereas Bug 3 does not.
-As NonDex is a \textit{flaky test} detection tool, Bug 3 is outside of its scope.
-The reason for nondeterminism in Bug 2 was a call to the \<System.getProperty()> method which
+\bugHashSet and \bugClasspath have corresponding test cases whereas \bugTimestampOutput and 
+\bugTimestampOutput do not.
+As NonDex is a \textit{flaky test} detection tool, detecting \bugTimestampOutput and \bugTimestampOutput 
+is outside of its scope.
+The reason for nondeterminism in \bugClasspath was a call to the \<System.getProperty()> method which
 is not modeled by NonDex.
 
 
@@ -59,9 +61,9 @@ at compile time.
 For three of the projects, we could not find the flakiness reported in the
 NonDex paper.
 \todo{Important: give a sentence description of each one.}
-\todo{visualee}
-\todo{easy-batch}
-\todo{vraptor}.
+\todo{visualee : Class#getDeclaredMethods}
+\todo{easy-batch: Class#getDeclaredFields}
+\todo{vraptor : Class#getDeclaredFields}.
 
 This left 16 projects.  We ran \theDeterminismChecker on the part of the
 project that the NonDex authors determined as flaky.  In every case,
@@ -83,7 +85,7 @@ All these benchmarks and instructions to reproduce our results can be found at \
         }
     }
         \end{verbatim}
-        \caption{Nondeterministic source code from reflectasm.}
+        \caption{Nondeterministic source code from reflectasm.\vspace{0.5cm}}
         \label{code-reflectasm}
     \end{subfigure}
 
@@ -104,7 +106,7 @@ All these benchmarks and instructions to reproduce our results can be found at \
 \end{figure}
 
 
-\Cref{fig:nondex-source} show samples of nondeterministic code from these
+\Cref{fig:nondex-source} shows samples of nondeterministic code from these
 benchmarks.
 We annotated the benchmarks based on 
 assumptions made downstream of the shown code.
@@ -123,7 +125,7 @@ leads to a warning from \theDeterminismChecker that iterating over
 \<fields.entrySet()> (which is itself \<@OrderNonDet>) yields \<@NonDet>
 \<Entry> values..
 
-Nondex found 14 flaky tests in Apache Commans Lang due to calls
+Nondex found 14 flaky tests in Apache Commons Lang due to calls
 to \<Class.getDeclaredFields>. 
 There are only 5 invocations of \<Class.getDeclaredFields>, so annotating 5 lines of source code
 would have been sufficient to identify all that nondeterminism.
@@ -146,11 +148,11 @@ to the \<assert>* methods.
 \TheDeterminismChecker reports any \<junit> test that passes nondeterministic arguments to
 \<assert>*, even if the test case is not executed.
 
-\todo{Link to det checker repo?}
-\todo{If there is time, we could do a second case study, on a program that
-  NonDex did not find nondeterminism in.  Our hope would be to find
-  nondeterminism that NonDex did not.  Choose a small project that is
-  maintained (it has recent commits), so we can communicate with the authors.}
+%\todo{Link to det checker repo?}
+%\todo{If there is time, we could do a second case study, on a program that
+%  NonDex did not find nondeterminism in.  Our hope would be to find
+%  nondeterminism that NonDex did not.  Choose a small project that is
+%  maintained (it has recent commits), so we can communicate with the authors.}
 
 \section{Comparison to Deflaker}
 Deflaker~\cite{deflaker}, like NonDex, reports tests that could be flaky. 

@@ -1009,7 +1009,7 @@ equality as it is dependent on the iteration order
 
 We annotated the \codeid{equals()} method of the \<Set> class in the JDK as
 \begin{verbatim}
-PolyDet("down") boolean equals(PolyDet Set<E> this, PolyDet Object o)
+PolyDet("up") boolean equals(PolyDet Set<E> this, PolyDet Object o)
 \end{verbatim}
 While this is sound, it is imprecise in the case of \codeid{OrderNonDet
   Set}s.\todo{Explain why.}
