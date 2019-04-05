@@ -22,9 +22,11 @@ the semantics and rules are similar even though the syntax varies.
 For simplicity this
 paper uses the term ``collection'' and the type \<Collection> to represent
 collections and arrays.
-Collections include any class (including user-defined classes) that
+Collections include any type (including user-defined classes) that
 implements the \<Iterable> or \<Iterator> interfaces; this includes all
 Java collections such as \<List>s and \<Set>s.
+Our implementation also supports any type that implements the \<Map>
+interface.
 
 
 \Cref{code-determinism} presents some of the JDK methods that we have annotated with our determinism types and give examples of
@@ -139,42 +141,52 @@ returned by \<entrySet()> to the determinism of the \<Map>. Interestingly, we fo
 interface had the following property: if the \<Set> returned by \<entrySet()> has a determinism type $\kappa$, then
 the \<Set>s returned by \<keySet()> and \<values()> also have the exact same determinism type $\kappa$.
 
-We noticed the following properties with respect to determinism regarding the most widely used \<Map> implementations:
+The most widely used \<Map> implementations have the following properties:
 \begin{itemize}
-    \item \<HashMap> can never guarantee fully deterministic iteration over its entries. A \codeid{Det HashMap} does not exist.
-    \item \<LinkedHashMap> can have any of \<Det>, \<OrderNonDet>, or \<NonDet> types. Iterating over a \<LinkedHashMap> returns
-    its entries in the order of their insertion. An \<OrderNonDet LinkedHashMap> can be created by calling its constructor with a \<HashMap>.
-    \item \<TreeMap> can either be \<Det> or \<NonDet>. An \<OrderNonDet TreeMap> doesn't exist because the entries are always ordered.
+    \item \<HashMap> is implemented in terms of a hash table, which never
+      guarantees deterministic iteration over its entries. A \codeid{@Det
+        HashMap} does not exist.
+    \item \<LinkedHashMap>, like \<List>, can have any of the \<@NonDet>,
+      \<@OrderNonDet>, or \<@Det> type qualifiers. Iterating over a
+      \<LinkedHashMap> returns
+    its entries in the order of their insertion. An \<OrderNonDet
+    LinkedHashMap> can be created by calling its constructor with a
+    \<@OrderNonDet HashMap>.
+    \item \<TreeMap> can either be \<@Det> or \<@NonDet>. An \<@OrderNonDet
+      TreeMap> doesn't exist because the entries are always ordered.
 \end{itemize}
 
-We prohibit the creation of a \codeid{@Det HashMap} or an \codeid{@OrderNonDet TreeMap} in our determinism checker.
-\Cref{fig-creation-rules} formalizes the type wellformedness rules for maps and sets. Similar constraints apply to \<HashSet>s and \<TreeSet>s which are
-also expressed by the last two rules of \cref{fig-creation-rules}.
+\TheDeterminismChecker prohibits the creation of a \codeid{@Det HashMap} or an \codeid{@OrderNonDet TreeMap}.
+\Cref{fig-creation-rules} formalizes the type well-formedness rules for
+Java \<Map>s and \<Set>s.
 
 \begin{figure}
-    $\infer[\rulename{valid hashmap}]{\vdash: \|\kappa\ HashMap()|}{\kappa \in \{ \<OrderNonDet>, \<NonDet> \}}$
+    $\infer[\rulename{valid hashmap}]{\vdash: \|\kappa\ \<HashMap>|}{\kappa \in \{ \<OrderNonDet>, \<NonDet> \}}$
     
     \bigskip
     
-    $\infer[\rulename{valid treemap}]{\vdash: \|\kappa\ TreeMap()|}{\kappa \in \{ \<Det>, \<NonDet> \}}$
+    $\infer[\rulename{valid treemap}]{\vdash: \|\kappa\ \<TreeMap>|}{\kappa \in \{ \<Det>, \<NonDet> \}}$
     
     \bigskip
     
-    $\infer[\rulename{valid hashset}]{\vdash: \|\kappa\ HashSet()|}{\kappa \in \{ \<OrderNonDet>, \<NonDet> \}}$
+    $\infer[\rulename{valid hashset}]{\vdash: \|\kappa\ \<HashSet>|}{\kappa \in \{ \<OrderNonDet>, \<NonDet> \}}$
     
     \bigskip
     
-    $\infer[\rulename{valid treeset}]{\vdash: \|\kappa\ TreeSet()|}{\kappa \in \{ \<Det>, \<NonDet> \}}$
-    \caption{\<Map> and \<Set> creation rules}
-    \todo{Are these type well-formedness rules?}
-    \todo{What about \<new TreeSet(myOrderedCollection<Det ...>)> which yields a
-        deterministic set?}
+    $\infer[\rulename{valid treeset}]{\vdash: \|\kappa\ \<TreeSet>|}{\kappa \in \{ \<Det>, \<NonDet> \}}$
+    \caption{Type well-formedness rules for subclasses of \<Map> and \<Set>.}
     \label{fig-creation-rules}
 \end{figure}
 
-In the JDK, \<LinkedHashSet> is implemented as a subclass of \<HashMap>.
+The JDK implements \<LinkedHashSet> as a subclass of \<HashMap>\todo{should
+  this be HashSet?  It's not true as written.}
+in order to inherit parts of \<HashMap>'s implementation.
 \todo{Talk about this design choice. Josh Bloch's book: "If the code surrounding the first declaration depended on LinkedHashSet's ordering policy,
     then it would be incorrect to substitute HashSet for LinkedHashSet in the declaration, because HashSet makes no guarantee concerning iteration order."} 
+\todo{The above is not clear.  What are the consequences for our
+  implementation.  What goes wrong or is hard to annotate or is surprising?
+  I'm not sure what is the point of this paragraph.}
+
 
 \subsection{Defaulting rules}\label{defaulting}
 
