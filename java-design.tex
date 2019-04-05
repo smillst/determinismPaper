@@ -202,6 +202,23 @@ breaks our determinism guarantees).
 
 \<@Det> equality is with respect to \<.equals()>.
 
+\todo{
+The default annotation for most unannotated types is \<@Det>.
+
+\begin{itemize}
+\item
+  Formal parameter and return types default to \<@PolyDet>.
+\item
+  If a formal parameter/return type is an array, its component type defaults to
+  \<@PolyDet>.
+\item
+  As an exception, the return type of a method with no unannotated or
+  \<@PolyDet> formal parameters (including the receiver) defaults to
+  \<@Det>.
+\end{itemize}
+
+These choices permit all possible arguments to an unannotated method.
+}
 
 \subsection{Polymorphism}\label{java-polymorphism}
 
@@ -250,7 +267,7 @@ Therefore, \<@PolyDet> may be written in methods (signatures and bodies)
 but not on fields.
 \end{itemize}
 
-
+\todo{Explain @PolyDet("up"), "down", "use".}
 
 
 
@@ -332,4 +349,7 @@ corresponding environments.
 The user can specify input properties that must be passed on the \<java>
 command line and thus act like inputs to the program; these are also
 treated as deterministic.
-The inputs to a program are also treated as \<Det>.
+The inputs to a program are also treated as \<Det>.  That is, the parameter
+type of the \<main> method is implicitly annotated as
+\<@Det String @Det []>, a deterministic array of deterministic strings.
+
