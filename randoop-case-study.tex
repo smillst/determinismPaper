@@ -10,7 +10,7 @@ all the case study materials are publicly available at \myurl{\todo{url for
     case study}} for reproducibility.
 
 
-\subsection{Subject program}
+\subsection{Subject program}\label{sec:subject-program}
 
 We chose Randoop because 
 it is frequently used in software engineering experiments,
@@ -90,13 +90,17 @@ We did not annotate Randoop's test suite.
 
 We annotated one package at a time, starting with the most central packges
 that are most depended upon.  Within a package, we followed a similar
-strategy, annotating supertypes first.  If the classes and methods had been
-documented with respect to their determinism, then our annotation effort
+strategy, annotating supertypes first.  If the determinism of classes and methods had been
+documented, then our annotation effort
 would have been easy, just converting English into type qualifiers.
-Unfortunately, this was not the case: we reverse-engineered each
-specification, largely from the methods it calls.  Sometimes after we
+Unfortunately, this was not the case: we had to reverse-engineer each
+specification, largely from the methods it calls.  If a method $m$ calls a
+method that we had previously annotated as nondeterministic, we annotated
+$m$ as nondeterministic.
+Sometimes after we
 annotated a subclass, we had to go back and change existing annotation on
-the supertype or elsewhere.
+the supertype or elsewhere because the subclass implementation was
+inconsistent with the specification we had guessed for the supertype.
 After resolving most type-checking warnings by adding or changing
 annotations, we manually examined each remaining one to determine whether
 it was a bug or a false positive warning.
@@ -211,14 +215,14 @@ We reported another suspicious case of order-nondeterminism, in the
 acceptable, after tracing the flow through the program.  (One said, ``This
 looks OK to me \ldots\ it took me a little while to decide that.'')  The fact
 depended on subtle, undocumented invariants about Randoop that we had not
-been able to reverse-engineer.
+been able to reverse-engineer on our own.
 
 
 
 
 \subsection{False positive warnings}
 
-Java 8 lambdas.
+\todo{Java 8 lambdas could help.}
 
 
 \subsection{Annotation effort}
@@ -226,27 +230,38 @@ Java 8 lambdas.
 \todo{Report the number of annotations required, and say a few words about
   the process and the effort required.}
 
+\todo{Easier for someone familiar with the codebase.  Easier on new code.}
+
+It's higher than we would prefer.
+
 The large number of \<@Det> annotations has two main reasons.
 
 One is that we annotated some core components of Randoop to require all
 boolean expressions used in conditionals to be deterministic.  (This is an
-option in our implementation, which increases soundness.)  This forced
-their clients, and much of the Randoop codebase, to be deterministic.
+option in \theDetminismCheckerImplementation, which increases soundness;
+see \cref{sec:threats}.)  This forced
+their clients --- transitively, much of the Randoop codebase --- to be
+annotated as deterministic.
 These annotations are not incorrect, but they are stricter than necessary
-because some types could otherwise be @PolyDet, which is the default for
+because some method types could otherwise be qualifier-polymorphic.
+This would make them usable in more contexts.  It would also reduce the
+number of necessary annotations, since qualifier-polymorphism (the
+\<@PolyDet> annotation) is the default for
 formal parameter and return types.  We plan to re-do the annotation effort
 from scratch, and the number of annotations will be much lower.
 
-The second reason is a limitation in \theDeterminismCheckerImplementation.
-\TheDeterminismChecker does not support qualifier polymorphism over
-classes.  This means that fields must be deterministic.  Our annotations in
+The second reason is a limitation in \theDeterminismCheckerImplementation,
+which is inherited from the Checker Framework~\cite{checker-framework-tool} upon which
+\theDeterminismChecker is built.
+The Checker Framework does not support qualifier polymorphism over
+classes.  This means that fields must be annotated as deterministic.  Our annotations in
 Randoop use qualifier polymorphism extensively on methods but cannot use it
-on classes, and this leads to many more Det annotations than would be
+on classes, and this leads to many more \<@Det> annotations than would be
 needed otherwise.
 
 
-\todo{When we discuss annotation effort, compare to the manual work.
-  The annotation effort is
-  high, but it's no more than the hundreds of hours that the Randoop
-  developers spent, with less success.}
-
+Even though the number of annotations is higher for our prototype
+implementation than we would prefer, it still compares favorably to the
+extensive effort by the Randoop developers (\cref{sec:subject-program}),
+especially given that that \theDeterminismChecker found issues that the
+developers had not.
