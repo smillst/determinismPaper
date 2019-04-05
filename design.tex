@@ -440,6 +440,30 @@ and our typing must have that as a special case, which is the first line above.
 %    & \wellformed{\tau}
 %    }$
 
+    \rulename{get}: 
+    $
+    \forallt{\tau} \kappa \in \{\<Det>, \<NonDet>\}\ \<OrderNonDet> \ C \angles{\tau} \ \times \kappa \ \<Int> \rightarrow 
+    \<NonDet> \ \<Int>
+    $
+    
+    \bigskip
+    
+    \rulename{set}: 
+    $
+    \forallt{\kappa, \beta} \ \<OrderNonDet> \ C \angles{\kappa \ \beta} \ \times \<Det> \ \<Int> \times \kappa \ \beta_n \rightarrow 
+    \<NonDet> \ \beta
+    $
+    
+    \bigskip
+    
+    \rulename{set invalid}: 
+    $
+    \forallt{\kappa, \beta} \ \<OrderNonDet> \ C \angles{\kappa \ \beta} \ \times \<NonDet> \ \<Int> \times \kappa \ \beta_n \rightarrow 
+    \|INVALID|
+    $
+    
+    \bigskip
+
     \rulename{iteration}: 
     $
     \forallt{\tau} \<OrderNonDet> \ C \angles{\tau} \rightarrow 
