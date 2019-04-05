@@ -16,21 +16,19 @@
 \newcommand{\OurTypeSystem}{Tendon\xspace}
 \newcommand{\theDeterminismChecker}{Gar\c{c}on\xspace}
 \newcommand{\TheDeterminismChecker}{Gar\c{c}on\xspace}
+\newcommand{\theDeterminismCheckerImplementation}{the \theDeterminismChecker implementation\xspace}
+\newcommand{\TheDeterminismCheckerImplementation}{The \theDeterminismChecker implementation\xspace}
 \else
 \newcommand{\ourTypeSystem}{our type system\xspace}
 \newcommand{\OurTypeSystem}{Our type system\xspace}
 \newcommand{\theDeterminismChecker}{the Determinism Checker\xspace}
 \newcommand{\TheDeterminismChecker}{The Determinism Checker\xspace}
-\fi
 \newcommand{\theDeterminismCheckerImplementation}{\theDeterminismChecker implementation\xspace}
 \newcommand{\TheDeterminismCheckerImplementation}{\TheDeterminismChecker implementation\xspace}
+\fi
 
 % A commit hash
-\newcommand{\commit}[1]{\ifanonymous{ (commit #1)}\else\fi}
-\newcommand{\bugOne}{\textbf{Bug 1}}
-\newcommand{\bugTwo}{\textbf{Bug 2}}
-\newcommand{\bugThree}{\textbf{Bug 3}}
-\newcommand{\bugFour}{\textbf{Bug 4}}
+% \newcommand{\commit}[1]{\ifanonymous{ (commit #1)}\else\fi}
 
 %%% Types and type rules
 
@@ -80,6 +78,16 @@
 
 \newcommand{\myurl}[1]{\ifanonymous (URL elided)\else\url{#1}\fi}
 
+
 %%% Citations
 
 \defcitealias{randoop-tool}{Randoop}
+
+
+%%% Data
+
+\newcommand{\numRandoopBugs}{5\xspace}
+\newcommand{\bugHashSet}{\textbf{HashSet bug}}
+\newcommand{\bugClasspath}{\textbf{Classpath bug}}
+\newcommand{\bugHashcodeOutput}{\textbf{Hash code output bug}}
+\newcommand{\bugTimestampOutput}{\textbf{Timestamp output bug}}

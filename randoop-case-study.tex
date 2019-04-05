@@ -1,29 +1,33 @@
 \section{Case study}\label{sec:randoop-case-study}
 
-%% This is not relevant in this section of the paper, where no times are given.
-% We ran all our
-% experiments on a 2.3 GHz Intel Core i5 processor with 8 GB of RAM.
-
-As a case study, we applied \theDeterminismChecker to the Randoop test
+To evaluate the usability of \theDeterminismChecker,
+we applied it to the Randoop test
 generation tool~\ifanonymous\citepalias{randoop-tool}\else\cite{PachecoLEB2007}\fi.
+We also wrote specifications for libraries it uses, such as the JDK, JUnit,
+and others.
+Like \theDeterminismCheckerImplementation,
+all the case study materials are publicly available at \myurl{\todo{url for
+    case study}} for reproducibility.
+
+
+\subsection{Subject program}
+
 We chose Randoop because 
 it is frequently used in software engineering experiments,
 it is actively maintained,
-and its developers have struggled with nondeterminism (personal
-communication, 2019).
+and its developers have struggled with nondeterminism~\cite{randoop-issue-tracker,randoop-mailing-lists}.
 
 Randoop is intended to be deterministic, when invoked on a deterministic
-program.\footnote{Users of Randoop can pass in a different seed in order to
+program~\cite{randoop-manual}.\footnote{Users of Randoop can pass in a different seed in order to
   obtain a different deterministic output.  Randoop has command-line
   options that enable concurrency and timeouts, both of which can lead to
   nondeterministic behavior.}
-
 However, Randoop was not deterministic.  This caused the developers
 problems in 
 reproducing bugs reported by users, 
 reproducing test failures during development, and
-understanding the effect of changes to Randoop (by comparing executions of two
-similar variants of Randoop).
+understanding the effect of changes to Randoop by comparing executions of two
+similar variants of Randoop.
 
 The developers took extensive action to detect and mitigate the effect of nondeterminism.
 They used Docker images to run tests, to avoid system dependencies such as
@@ -33,12 +37,12 @@ possible answers --- for example, in code coverage of generated tests.
 They used linters such as Error Prone, which warns if \<toString> is used on
 array objects, which don't override \<Object.toString> and therefore print a
 hash code which may vary from run to run.
-They used libraries that make hash codes deterministic, by giving each
-object of a type a unique ID that counts up from 1, rather than using a
+They used a library that makes hash codes deterministic, by giving each
+object of a type a unique ID that counts up from 1 rather than using a
 memory address as \<Object.hashCode> does.
-They wrote preprocess output and logs to make nondeterministic ones easier
+They wrote specialized tools to preprocess output and logs to make them easier
 to compare, such as by removing or canonicalizing hash codes, dates, and
-other nondeterministing output.
+other nondeterministing output (commits e15f9155--b473fd14).
 Each of these efforts was helpful, but they were not enough to solve the problem.
 
 In July 2017, the Randoop developers spent two weeks of full-time work to
@@ -48,31 +52,54 @@ Their methodology was to repeatedly
  look for differences in logging output,
  find the root cause of nondeterminism,
  and eliminate it.
-The most common causes were \<toString()> routines and iteration order of sets and maps.
 Some of the nondeterminism was in libraries, such as the JDK\@.
-
-The developers chose not to make every \<Map> a \<LinkedHashMap>, because that
+The most common causes were \<toString> routines and iteration order of sets and maps.
+The most common fixes were to change the implementation of \<toString>
+and to use \<LinkedHashSet> and \<LinkedHashMap> or to sort collections
+before iterating over them.
+The developers did not make every \<Set> and \<Map> a \<LinkedHashSet> or \<LinkedHashMap>, because that
 would have increased memory and CPU costs.  They chose not to make every
 order-nondeterministic \<List> a \<Set>, for similar reasons:  deduplication was
 not always needed and would have increased costs.
 
-\todo{When we discuss annotation effort, compare to this.
-  The annotation effort is
-  high, but it's no more than the hundreds of hours that the Randoop
-  developers spent, with less success.}
-
 That coding sprint did not find all the problems.
 The developers debugged and fixed 5 additional determinism defects over the
-next 12 months, using a similar methodology.
+next 12 months, using a similar methodology
+(commits c15ccbf2, 44bdeebd, 5ff5b4c4, 22eda87f, and b473fd14).
+
+
 % [2413 changed lines in the diffs.
 % (This number slightly overstates the number of code changes made, because sometimes changing code would result in code formatting changes, and some changes in those commits are unrelated to determinism, such as documentation improvements.)]
-We analyzed a version of Randoop from February 2019 (commit 0a8e63fb), over 6 months after the most recent determinism bug fix.
+We analyzed a version of Randoop from late February 2019 (commit 0a8e63fb), over 6 months after the most recent determinism bug fix.
+
+
+\subsection{Methodology}
+
+In brief, we wrote type qualifiers in the Randoop source code to express its
+determinism specification
+We then ran
+\theDeterminismChecker.  Each warning indicated a mismatch between the
+specification and the implementation, which we addressed by changing our
+specification or reporting a bug in the implementation.
 
 We annotated the core of Randoop (the \<src/main/java> directory), which
 contains 24K non-comment, non-blank lines of code.
 % (41 KLOC including blanks and comments).
 % [Maybe we will add 1600 LOC of agent code.]
 We did not annotate Randoop's test suite.
+
+We annotated one package at a time, starting with the most central packges
+that are most depended upon.  Within a package, we followed a similar
+strategy, annotating supertypes first.  If the classes and methods had been
+documented with respect to their determinism, then our annotation effort
+would have been easy, just converting English into type qualifiers.
+Unfortunately, this was not the case: we reverse-engineered each
+specification, largely from the methods it calls.  Sometimes after we
+annotated a subclass, we had to go back and change existing annotation on
+the supertype or elsewhere.
+After resolving most type-checking warnings by adding or changing
+annotations, we manually examined each remaining one to determine whether
+it was a bug or a false positive warning.
 
 % run: ./gradlew clean compileJava;./gradlew clean compileJava;./gradlew clean compileJava;./gradlew clean compileJava;./gradlew clean compileJava
 % then read the times reported by Gradle.
@@ -85,38 +112,56 @@ These numbers are the median of 5 trials on an 8-core Intel i7-3770 CPU running 
 32GB of memory.
 
 
-\todo{Report the number of annotations required, and say a few words about
-  the process and the effort required.}
+\subsection{Results}
 
-
-\TheDeterminismChecker found three previously-unknown nondeterminism bugs in Randoop.
+\TheDeterminismChecker found \numRandoopBugs previously-unknown nondeterminism bugs in Randoop.
 The Randoop developers accepted our bug reports and committed fixes to the repository. A summary
-of these bugs follows:
+of these bugs follows, according to the Randoop developers' categorization:
 
-\begin{itemize}
-\item \bugOne:
-  A use of \<HashSet> that the developers changed to \<LinkedHashSet>\commit{c975a9f7}.
-The old code could cause a problem if a type variable's lower or upper
+\begin{description}
+\item[Severe issues]
+  \strut
+\begin{description}
+\item[\bugHashSet]
+One use of \<HashSet> could cause a problem if a type variable's lower or upper
 bound has a type parameter that the type variable itself does not have.
 This situation does occur, even in Randoop's test suite.
+The developers fixed this by changing a \<HashSet> to \<LinkedHashSet>
+(commit c975a9f7, shown in \cref{fig:randoop-bug-hashset}).
+\TheDeterminismChecker confirmed that 
+25 other uses of \<new HashSet> were acceptable, as were 15 uses of \<new HashMap>.
 
-\item \bugTwo:
-Dependency on the CLASSPATH environment variable in preference to the
-classpath passed on the command line\commit{330e3c56}.
-This could have led to incorrect behavior if a user set the environment variable.
-The developers changed Randoop to not read the environment variable.
+\item[\bugClasspath]
+Randoop used the CLASSPATH environment variable in preference to the
+classpath passed on the command line.
+This could have led to incorrect behavior, both in Randoop's test suite and in the field,
+if a user set the environment variable.
+The developers fixed it by changing Randoop to not read the environment variable
+(commit 330e3c56, shown in \cref{fig:randoop-bug-getenv}).
+\TheDeterminismChecker verified that all other uses of system and Java
+properties did not lead to nondeterministic behavior.
+\end{description}
 
-\item \bugThree:
-Diagnostic output that printed a hash code for brevity, but should have had
-deterministic output\commit{661a4970}.  By contrast to the first two bugs,
-this one is not serious.
+\item[Minor issues]
+\strut
+\begin{description}
+ 
+\item \bugHashcodeOutput:
+  Diagnostic output printed a hash code for brevity.
+  The developers changed it to have deterministic output (commit 661a4970).
+  Although the Randoop developers classified this issue as minor, it is
+  very similar to ones they fixed during their two-week coding sprint.
 
-\item \bugFour:
-Diagnostic output that printed a timestamp, but should have obeyed an
-option about whether to do so\commit{a460df97}.  By contrast to the first
-two bugs, this one is not serious.
+\item \bugTimestampOutput:
+  Diagnostic output printed a timestamp.
+  The developers fixed it by making it obeyed an
+  option about whether to print timestamps (commit a460df97).
+  The developers may not have noticed this because their log-postprocessing
+  tools removed them from the log when doing comparisons.
 
-\end{itemize}
+\end{description}
+
+\end{description}
 
 \begin{figure}
 
@@ -153,7 +198,6 @@ In \<MinimizerTests.java>:
 60:       }
 61:     }
 \end{Verbatim}
-
 \caption{Fixes made by the Randoop developers in response to our bug report
   about use of environment variables.  Lines starting with ``\<->'' were
   removed and those starting with ``\<+>'' were added.
@@ -170,21 +214,17 @@ depended on subtle, undocumented invariants about Randoop that we had not
 been able to reverse-engineer.
 
 
-We annotated one package at a time, starting with the most central packges
-that are most depended upon.  Within a package, we followed a similar
-strategy, annotating supertypes first.  If the classes and methods had been
-documented with respect to their determinism, then our annotation effort
-would have been easy, just converting English into type qualifiers.
-Unfortunately, this was not the case: we reverse-engineered each
-specification, largely from the methods it calls.  Sometimes after we
-annotated a subclass, we had to go back and change existing annotation on
-the supertype or elsewhere.
-After resolving most type-checking warnings by adding or changing
-annotations, we manually examined each remaining one to determine whether
-it was a bug or a false positive warning.
 
 
+\subsection{False positive warnings}
 
+Java 8 lambdas.
+
+
+\subsection{Annotation effort}
+
+\todo{Report the number of annotations required, and say a few words about
+  the process and the effort required.}
 
 The large number of \<@Det> annotations has two main reasons.
 
@@ -203,3 +243,10 @@ classes.  This means that fields must be deterministic.  Our annotations in
 Randoop use qualifier polymorphism extensively on methods but cannot use it
 on classes, and this leads to many more Det annotations than would be
 needed otherwise.
+
+
+\todo{When we discuss annotation effort, compare to the manual work.
+  The annotation effort is
+  high, but it's no more than the hundreds of hours that the Randoop
+  developers spent, with less success.}
+
