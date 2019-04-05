@@ -1023,8 +1023,8 @@ While this is sound, it is imprecise in the case of \codeid{OrderNonDet
     $\infer[\rulename{map precision}]{\Gamma \vdash \|x.get(y)| : \<Det> \ \beta_v}{\Gamma \vdash \|x : \<OrderNonDet> \ \<Map>\angles{ \<Det> \ \beta_k, \kappa_v\ \beta_v }, y : \<Det> \ \beta|}$
     
     \caption{Special rules for set equality and map lookup.}
-\todo{In the \rulename{map precision} rule, should the \<Det> in the
-  conclusion be $\beta_v$?}
+%\todo{In the \rulename{map precision} rule, should the \<Det> in the
+%  conclusion be $\beta_v$?}
     \label{fig-precision-rules}
 \end{figure}
 According to this rule, if the \<Set> receiver has type \codeid{@OrderNonDet Set<@Det List>} and the argument to the \codeid{equals()} method is
