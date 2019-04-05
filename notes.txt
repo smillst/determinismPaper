@@ -8,7 +8,7 @@ which we should admit, of course.
 
 
 
-We should claim thet we did an informal, paper-and-pencil proof of the core of the type system.
+We should claim that we did an informal, paper-and-pencil proof of the core of the type system.
 We did not do a machanized proof (such as in Coq, Isabelle, or K).
 We did not do any proofs about the implementation.
 
@@ -28,25 +28,18 @@ however, the approach I took simply increased the number of annotations
 written while decreasing the number of @SuppressWarnings used.
 
 
-* The biggest thing is mentioning our issues with conditionals and control
-  flow. This is an example of unsoundness in the checker that we are
-  allowing by default, and an interesting challenge we didn't expect at the
-  start (it was a while before we realized this was a problem).
-
 * Our type refinement for sorting also refines PolyDet List<Det T> to
   PolyDet("down") List<Det T>, so the sorting rule might be better
   expressed in terms of the "down" operator.
-
-* Mike mentioned a while ago it might be good to talk about things we tried
- that didn't work out. One major instance was allowing @NonDet collections
- of @Det elements. These types were very prevalent. After disallowing them,
- I had to delete a lot of tests and many of the examples in the manual.
+Response: @PolyDet is not a type, but a type variable.
+The proposal about expressing the sorting rule could still be a good one, though.
 
 * Originally, exceptions in catch blocks were @NonDet. This caused a huge
  amount of errors and so we eventually decided to remove this and default
  exceptions in catch blocks to deterministic. This caused some unsoundness,
  but only in the case exceptions are thrown. It also made the checker much
  more usable.
+Response: mention that throws clauses in the program are required to be @Deterministic
 
 * Finally, one major issue we have with our checker is mixing class level
  fields and type parameters with polymorphic qualifiers. First, the fact
@@ -61,3 +54,4 @@ written while decreasing the number of @SuppressWarnings used.
  would type check at all because PolyDet List<T> where <T extends @NonDet
  Object> is the receiver for many of these methods, and it's illegal to
  write this. Note, both of these problems would be solved by @ThisDet.
+Respones: It would be interesting to discuss why type polymorphism was not sufficient.
