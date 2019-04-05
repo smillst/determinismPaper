@@ -1001,7 +1001,7 @@ order-nondeterministic and deterministic maps; in addition, the iteration
 order is fixed in a deterministic map.
 
 
-\subsection{Determinism checker specific rules for precision}\label{precision}
+\subsection{Improving precision}\label{precision}
 
 \todo{Sets vs lists.  Set equality is independent of order.}
 An order nondeterministic list does not provide any guarantee on the
@@ -1027,6 +1027,32 @@ While this is sound, it is imprecise in the case of \codeid{OrderNonDet
 %  conclusion be $\beta_v$?}
     \label{fig-precision-rules}
 \end{figure}
+
+\todo{
+  In the JDK, the \<equals()> method of \<Set> is annotated as
+
+@PolyDet("up") boolean equals(@PolyDet Set<E> this, @PolyDet Object o);
+
+While this is sound, it is imprecise.
+For example, consider the code below:
+
+    @OrderNonDet Set<@Det Integer> a; \\
+    @OrderNonDet Set<@Det Integer> b; \\
+    a.equals(b);
+
+Here, the return type of \<equals()> gets the annotation \<@NonDet>.
+But it would be more precise to annotate it as \<@Det>.
+To achieve this precision, the checker annotates the return type
+of \<equals()> called on a receiver of type \<Set> as \<@Det> if the
+following conditions are true:
+\begin{itemize}
+    \item the receiver does not have {@code List} or its subtype as a type parameter,
+    \item the argument to equals() is also an {@code @OrderNonDet Set}, and
+    \item the argument to equals() also does not have {@code List} or its subtype as a
+    type parameter
+\end{itemize}
+}
+
 According to this rule, if the \<Set> receiver has type \codeid{@OrderNonDet Set<@Det List>} and the argument to the \codeid{equals()} method is
 also of the same type, the return type gets the qualifier \<Det>. Without this precision rule, the return type would have been instantiated as \<NonDet> which
 is sound but imprecise. This rule is careful enough to not annotate the return type of \<equals()> as \<Det> if a type argument to either the

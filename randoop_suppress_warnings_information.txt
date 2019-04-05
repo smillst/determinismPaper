@@ -3,9 +3,10 @@ In https://github.com/jwaataja/randoop, checkout the "determinism" branch
 For the total number of @SuppressWarnings, run this command:
 grep -r --include='*.java' -n -e '"determinism"' | wc -l
 Current output:
-52
-Divide into 24000 to determine lines of code per annotation:
-461
+40
+Divide into 24000, round to nearest int, to determine lines of code per
+annotation:
+600
 
 
 For a classification of the most important reasons for @SuppressWarnings, run this command:
@@ -14,22 +15,18 @@ grep -r --include='*.java' -n -e '"determinism"' | sed 's/^.*\/\/ //' | sed 's/:
 
 Current output:
 
-     10 https://github.com/t-rasmud/checker-framework/issues/96
       8 constructors guarantee all instances of this class are @Det
+      6 https://github.com/t-rasmud/checker-framework/issues/96
       5 expected nondeterminism
       5 can't specify receiver for anonymous class
-      5 actual type toString returns @PolyDet
-      3 program specific properties are considered deterministic
+      4 actual type toString returns @PolyDet
       2 iterating over @OrderNonDet collection to modify another
       2 enum classes of a @Det Class<?> are @Det, but the checker
-      2 combining elements of @OrderNonDet collection for @Det result
       1 this is code randoop is run on
-      1 this converts what was written to the stream to a String,
-      1 https://github.com/t-rasmud/checker-framework/issues/95
       1 https://github.com/t-rasmud/checker-framework/issues/94
       1 https://github.com/t-rasmud/checker-framework/issues/89
       1 getRuntimeClass returns a @Det Class<?>, so casting one
       1 "--deterministic" option ensures this is deterministic
       1 constructors guarantee all instances of this class are @NonDet
       1 comparing hash codes is deterministic, even if the codes
-      1 assert guarantees this is deterministic
+      1 combining elements of @OrderNonDet collection for @Det result
