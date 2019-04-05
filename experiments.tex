@@ -14,16 +14,18 @@ We modified Randoop by deleting tests that were skipped by its buildfile,
 because the NonDex Gradle plugin does not respect those settings.
 After that, NonDex ran without problems on Randoop.
 NonDex reported no flaky tests.
-\todo{Revise the following text.
-  I renumbered the bugs without realizing that this section refers to them
-  by number, and I don't know which one these refer to any
-  more.
-  Please use cross-references or macros.  Also, this needs to be expanded
-  to account for the additional bugs.}
+%\todo{Revise the following text.
+%  I renumbered the bugs without realizing that this section refers to them
+%  by number, and I don't know which one these refer to any
+%  more.
+%  Please use cross-references or macros.  Also, this needs to be expanded
+%  to account for the additional bugs.}
 We investigated the tests covering code that \theDeterminismChecker reported as nondeterministic.
-Bug 1 and Bug 2 have corresponding test cases whereas Bug 3 does not.
-As NonDex is a \textit{flaky test} detection tool, Bug 3 is outside of its scope.
-The reason for nondeterminism in Bug 2 was a call to the \<System.getProperty()> method which
+\bugHashSet and \bugClasspath have corresponding test cases whereas \bugTimestampOutput and 
+\bugTimestampOutput do not.
+As NonDex is a \textit{flaky test} detection tool, detecting \bugTimestampOutput and \bugTimestampOutput 
+is outside of its scope.
+The reason for nondeterminism in \bugClasspath was a call to the \<System.getProperty()> method which
 is not modeled by NonDex.
 
 
