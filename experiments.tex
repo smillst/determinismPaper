@@ -5,7 +5,7 @@ The state of the art in flaky test detection is NonDex~\cite{nondex}.
 errors reported by NonDex and \theDeterminismChecker. We ran all our
 experiments on a 2.3 GHz Intel Core i5 processor with a RAM configuration of 8 GB 2133 MHz.
 \TheDeterminismChecker doesn't show any noticeable performance change at compile time.
-\TheDeterminismChecker runs on any project that builds with maven or gradle and requires
+\TheDeterminismChecker runs on any project that builds with Maven or Gradle and requires
 Java version 8 or higher (support for annotations was added in Java 8).
 
 \subsection{Case study with NonDex}\label{sec:nondex-randoop}
@@ -15,7 +15,7 @@ of \cref{sec:randoop-case-study}.  This version contains 3 nondeterminism bugs t
 \theDeterminismChecker found.
 
 We modified Randoop by deleting tests that were skipped by its buildfile,
-because the NonDex gradle plugin does not respect those settings. 
+because the NonDex Gradle plugin does not respect those settings.
 After that, NonDex ran without problems on Randoop.
 It completed successfully without reporting any flaky tests.
 We investigated the tests covering code that \theDeterminismChecker reported as nondeterministic.
@@ -128,8 +128,8 @@ empirical evidence of the ease of extensibility of our tool.
 \section{Comparison to Deflaker}
 Deflaker~\cite{deflaker}, like NonDex, reports tests that could be flaky. 
 While we would have like to run DeFlaker on Randoop for a fair comparison of the tools,
-we were unable to do so because Deflaker works with projects built with maven and Randoop
-uses gradle for its build system. We plan to convert Randoop's build system to maven and 
+we were unable to do so because Deflaker works with projects built with Maven and Randoop
+uses Gradle for its build system. We plan to convert Randoop's build system to Maven and
 perform this case study.
 %Ideally, we would have 
 %liked to run all three tools (NonDex, DeFlaker, and \TheDeterminismChecker) on an open source project
@@ -138,7 +138,7 @@ perform this case study.
 %in its repository.
 %\todo{Deflaker works now. Tried on retrofit: only works where there is sufficient change in code coverage between head and its parent.
 %Looked throught= about 10 commits, didn't find differential code coverage and therefore no flakes}
-%\todo{Deflaker requires maven build. Randoop is on gradle.}
+%\todo{Deflaker requires Maven build. Randoop is on Gradle.}
 
 \subsection{\TheDeterminismChecker on DeFlaker benchmarks}\label{sec:deflaker-benchmarks}
 DeFlaker found 87 previously unknown flaky tests in 93 projects that were being actively developed at the the time
