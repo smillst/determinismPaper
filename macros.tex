@@ -4,6 +4,11 @@
 % \newcommand{\todo}[1]{\relax}
 \newcommand{\todo}[1]{{\color{red}\bfseries [[#1]]}}
 
+% Don't show todo commands if this macro is defined.
+\ifdefined\notodocomments
+  \renewcommand{\todo}[1]{\relax}
+\fi
+
 
 %%% Anonymization.
 

@@ -5,6 +5,17 @@ all: bib-update paper.pdf
 paper.pdf: paper.tex
 	latexmk -pdf -pdflatex="pdflatex -interaction=nonstopmode" -use-make paper.tex
 
+paper-notodos.pdf: paper.pdf
+	pdflatex "\def\notodocomments{}\input{paper}"
+	pdflatex "\def\notodocomments{}\input{paper}"
+	cp -pf paper.pdf $@
+
+# This target creates:
+#   https://homes.cs.washington.edu/~mernst/tmp3/determinism.pdf
+web: paper-notodos.pdf
+	cp -pf paper-notodos.pdf ${HOME}/public_html/tmp3/determinism.pdf
+.PHONY: paper-singlecolumn.pdf paper-notodos.pdf
+
 clean:
 	latexmk -CA
 
