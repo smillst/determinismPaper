@@ -1039,9 +1039,14 @@ While this is sound, it is imprecise in the case of \codeid{OrderNonDet
   Set}s.\todo{Explain why.}
  We added the rule shown in \cref{fig-precision-rules} to our checker to improve precision.
 \begin{figure}
-    \todo{add line break}
-    $\infer[\rulename{set precision}]{\Gamma \vdash \|x.equals(y)| : \<Det> \ \|boolean|}{\Gamma \vdash \|x| : \<OrderNonDet> \ \|Set|\angles{ \kappa_{x} \ \beta_{x}}, \|y| : \<OrderNonDet> \ \|Set|\angles{ \kappa_{y} \ \beta_{y}} & \kappa_{x} \ \beta_{x} \nsqsubseteq \<OrderNonDet> \ \<List> & \kappa_{y} \ \beta_{y} \nsqsubseteq \<OrderNonDet> \ \<List> }$
-    
+    \begin{align*}
+    \infer[\rulename{set precision}]{\Gamma \vdash \|x.equals(y)| : \<Det> \ \|boolean|}
+    {
+        &\Gamma \vdash \|x| : \<OrderNonDet> \ \|Set|\angles{ \kappa_{x} \ \beta_{x}}, \|y| : \<OrderNonDet> \ \|Set|\angles{ \kappa_{y} \ \beta_{y}} \\
+        & \kappa_{x} \ \beta_{x} \nsqsubseteq \<OrderNonDet> \ \<List>        \hspace{150pt}   \\
+        & \kappa_{y} \ \beta_{y} \nsqsubseteq \<OrderNonDet> \ \<List>     \hspace{150pt}    
+    }
+    \end{align*}
     \bigskip
     
     $\infer[\rulename{map precision}]{\Gamma \vdash \|x.get(y)| : \<Det> \ \beta_v}{\Gamma \vdash \|x : \<OrderNonDet> \ \<Map>\angles{ \<Det> \ \beta_k, \kappa_v\ \beta_v }, y : \<Det> \ \beta|}$
