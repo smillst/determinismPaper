@@ -58,7 +58,8 @@ which ensured correctness.
 Several techniques have been proposed to test whether a
 deterministic implementation conforms to its non-deterministic finite state machine~\cite{Petrenko1996,Petrenko:1993:NSM:648128.761244,Savor:1997:639710,Hierons:2004:TCD:1040993.1040998}.
 \cite{Cook:2013:RNP:2491956.2491969} presents an approach that can automatically verify properties
-in branching time temporal logic systems that are inherently non-deterministic.
+in branching time temporal logic systems that are inherently non-deterministic. While there has been research on type systems that provide compile time determinism guarantees for parallel programs~\cite{Bocchino:2009:TES:1640089.1640097,Bocchino:2011:SND:1926385.1926447},
+there hasn't been a similar effort for sequential programs.
 
 Failing tests that are unrelated to code changes can be expensive both in terms of monetary costs and
 developer effort. \cite{Herzig:2015:EDF:2819009.2819018} proposes techniques to classify tests as false alarms
