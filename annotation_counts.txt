@@ -23,19 +23,19 @@ If not local, remove -PcfLocal.
 
 Current output:
 
-Det	1391
-NonDet	100
+Det	1083
+NonDet	98
 OrderNonDet	64
-PolyDet	109
+PolyDet	103
 
 Lines of code per annotation, divide 24000 by the number of
 annotations and round to the nearest integer.
 
-Det	17
-NonDet	240
+Det	22
+NonDet	245
 OrderNonDet	375
-PolyDet	220
-All annotations: 14
+PolyDet	233
+All annotations: 18
 
 
 For @SuppressWarnings counts, see file randoop_suppress_warnings_information.txt

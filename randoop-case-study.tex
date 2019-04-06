@@ -293,12 +293,12 @@ Refactoring can also eliminate the last warning.
 \subsection{Annotation effort}
 
 In Randoop's 24K LOC of code, we wrote
-100 \<@NonDet>,
+98 \<@NonDet>,
 64 \<@OrderNonDet>,
-1391 \<@Det>,
-and 109 \<@PolyDet> annotations.
+1083 \<@Det>,
+and 103 \<@PolyDet> annotations.
 
-The number of \<@Det> annotations --- one per 17 lines of code --- is much
+The number of \<@Det> annotations --- one per 22 lines of code --- is much
 higher than we would prefer.
 Nonetheless, it compares favorably to the
 extensive effort by the Randoop developers (\cref{sec:subject-program}),
@@ -324,14 +324,18 @@ The second reason is a limitation in \theDeterminismCheckerImplementation,
 which is inherited from the Checker Framework~\cite{checker-framework-tool} upon which
 \theDeterminismChecker is built.
 The Checker Framework does not support qualifier polymorphism over
-classes.  This means that fields must be annotated as deterministic.  Our annotations in
+classes.  This means that fields must be annotated as deterministic.
+\<@Det> annotations must be added to methods and constructors that modify these
+fields, as well as any methods that call these.
+Our annotations in
 Randoop use qualifier polymorphism extensively on methods but cannot use it
 on classes, and this leads to many more \<@Det> annotations than would be
 needed otherwise.
 
 In future work, we plan to implement qualifier polymorphism for classes,
 then re-do the case study.  We estimate this will reduce the number of
-\<@Det> annotations needed by about an order of magnitude.
+\<@Det> annotations needed by about an order of magnitude. \todo{Do we plan on
+doing other case studies as well?}
 
 
 % LocalWords:  linters preprocess canonicalizing nondeterministing bdeebd
