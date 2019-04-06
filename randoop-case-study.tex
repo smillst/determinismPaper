@@ -7,7 +7,7 @@ We also wrote specifications for libraries Randoop uses, such as the JDK, JUnit,
 and others.
 Like \theDeterminismCheckerImplementation,
 all the case study materials are publicly available at \myurl{\todo{url for
-    case study}} for reproducibility. \todo{This should include our link to
+    case study}} for reproducibility. \todo{This should include our
       our annotated plume-util, which we found was required to reproduce the
     results of the case study}
 
@@ -97,8 +97,8 @@ documented, then our annotation effort
 would have been easy, just converting English into type qualifiers.
 Unfortunately, this was not the case: we had to reverse-engineer each
 specification, largely from the methods it calls.  If a method $m$ calls a
-method that we had previously annotated as nondeterministic, we annotated
-$m$ as nondeterministic.
+method that we had previously annotated as returning a nondeterministic result, we annotated
+$m$ as returning a nondeterministic result.
 Sometimes after we
 annotated a subclass, we had to go back and change annotations on
 the supertype because the subclass implementation was
@@ -106,6 +106,8 @@ inconsistent with the specification we had guessed for the supertype.
 After resolving most type-checking warnings by adding or changing
 annotations, we manually examined each remaining one to determine whether
 it was a bug or a false positive warning.
+\todo{In some cases, the number of \<@Det> annotations was especially prevalent.
+  In these cases we changed the default qualifier for that class to \<@Det>.}
 The effort would have been much easier for someone familiar with Randoop,
 and yet easier if done while code is being written and is malleable.
 
@@ -132,7 +134,7 @@ of these bugs follows, according to the Randoop developers' categorization:
 \begin{description}
 \item[\bugHashSet]
 One use of \<HashSet> could cause a problem if a type variable's lower or upper
-bound has a type parameter that the type variable itself does not have.
+bound in the code Randoop is run on has a type parameter that the type variable itself does not have.
 This situation does occur, even in Randoop's test suite.
 The developers fixed this by changing a \<HashSet> to \<LinkedHashSet>
 (commit c975a9f7, shown in \cref{fig:randoop-bug-hashset}).
@@ -259,11 +261,12 @@ were:
   equivalent to \<@PolyDet>.
 \item (14\%)
 %      5 can't specify receiver for anonymous class
-  Java does not have syntax for specifying the type of an anonymous class.
+  Java does not have syntax for specifying the receiver type in anonymous class
+  methods.
 \item (11\%)
 %      4 actual type toString returns @PolyDet
   A variable is declared as \<Object> which has nondeterministic \<toString>,
-  but at run time the value always has deterministic \<toString>.  For
+  but at run time the subtype of \<Object> stored always has deterministic \<toString>.  For
   example, the run-time value is always an \<Integer> or a \<String>.
 \item (5\%)
 %      2 iterating over @OrderNonDet collection to modify another
@@ -285,14 +288,16 @@ were:
 
 The first two issues can be resolved by improvements to
 \theDeterminismCheckerImplementation.
-The third and fourth issues are limitations of the Java language, but by a
+The third and fourth issues are limitations of the Java language, but a
 local refactoring in the Randoop codebase can make the code type check.
-Refactoring can also eliminate the last warning.
+Refactoring can also eliminate the last warning. \todo{Can it? I thought
+  what happens when iterating over an @OrderNonDet collection is something we
+can't verify with the checker.}
 
 
 \subsection{Annotation effort}
 
-In Randoop's 24K LOC of code, we wrote
+In Randoop's 24K lines of code, we wrote
 98 \<@NonDet>,
 64 \<@OrderNonDet>,
 1083 \<@Det>,

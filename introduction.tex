@@ -26,7 +26,7 @@ Nondeterminism is a serious problem for software developers and users.
 %    Readers will be unhappy if we make a claim but then do not support it.}\cite{Herzig:2015:EDF:2819009.2819018,Huo:2014:IOQ:2635868.2635917,ZhangJWMLEN2014,BellKMD2015,Fowler,Gyori:2015:RTD:2771783.2771793,Dan:2013:10.1007/978-3-642-39038-8_25,Vahabzadeh:2015:7332456,Sudarshan}.
 %  \todo{Citations about bugs related to this?}
 \item
-  Nondeterminism reduces users' and developers' \textbf{trust} in a program's output.
+  Nondeterminism reduces users' and developers' \textbf{trust} in a program's output.\todo{If possible, add a citation here to parallel the earlier bullets.}
 \end{itemize}
 
 Two well-known sources of nondeterminism are concurrency
@@ -34,7 +34,10 @@ Two well-known sources of nondeterminism are concurrency
 and coin-flipping
 (calls to a \<random> API\@).
 It may be surprising that nondeterminism is common even in sequential
-programs that do not flip coins.
+programs that do not flip coins.\todo{MK: This statement is very strong,
+  and is totally unjustified. I went looking for something that justified
+  it, but couldn't find anything good. I think that this is missing is a
+  core problem with the paper as-is.}
 For example, a program that iterates over a hash table
 may produce different output on different runs.
 So may any program that uses default formatting, such as Java's
@@ -53,15 +56,18 @@ the limitations of the
 analysis, notably concurrency, implicit control flow, and unanalyzed libraries (see \cref{sec:threats}).
 %
 Our analysis works at compile time, giving a guarantee over every possible
-execution of the program, by contrast to unsound dynamic tools that attempt
-to discover when a program has exhibited nondeterministic behavior on
-specific runs.  There is no need for a custom runtime system nor rerunning a program
-multiple times.
+execution of the program, unlike unsound dynamic tools that attempt
+to discover when a program has exhibited nondeterministic behavior on a
+specific run.  There is no need for a custom runtime system nor
+rerunning a program multiple times---nor even running it once.
 %
 Our analysis handles collections that will contain the same values, but
 possibly in a different order, on different runs.
 %
-Our analysis is precise enough for practical use.  It permits calls to
+Our analysis is precise enough for practical use.\todo{MK: After reading
+  the eval, I don't believe this claim. Unfortunately, you can't write this
+  paper without it, so I'm not going to remove it.}
+It permits calls to
 nondeterministic APIs, and only issues a warning if they are used in ways
 that may lead to nondeterministic output observed by a user.  Like any
 sound analysis, it can issue false positive warnings.
@@ -86,22 +92,25 @@ methods.
 DeFlaker~\cite{deflaker} looks at a range of commit versions
 of a code, and marks a test as flaky if it doesn't execute any modified code but still fails in the newer version. These techniques
 have been able to identify issues in real-world programs, some of which
-have been fixed by the developers. We believe that identifying and
+have been fixed by the developers. Identifying and
 resolving nondeterminism
-at an earlier phase in the software development lifecycle would be greatly beneficial to
-developers~\cite{briski2008minimizing}.
+earlier in the software development lifecycle is beneficial to
+developers, because they can avoid bugs associated with flaky tests---reducing
+costs~\cite{briski2008minimizing}.
 
-Our analysis uses three main abstractions, or approximations to run-time values:
+Our analysis uses three main abstractions:
+%, or approximations to run-time values:
+% MK: the OOPSLA audience knows what an abstraction is
 \begin{description}
 \item[\<NonDet>] represents values that might differ from run to run.
 \item[\<OrderNonDet>] represents collections that are guaranteed to contain
-  the same elements, albeit in possibly different iteration order.
+  the same elements but whose iteration order is non-deterministic.
 \item[\<Det>] represents values that will be the same across executions.
 \end{description}
 \noindent
 Programmers can write these to specify their program's behavior.
 Our full analysis contains other features that increase
-expressiveness.
+expressiveness, permitting it to scale to programs of practical interest.
 
 \begin{figure}
 
