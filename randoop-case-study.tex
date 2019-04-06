@@ -7,7 +7,9 @@ We also wrote specifications for libraries it uses, such as the JDK, JUnit,
 and others.
 Like \theDeterminismCheckerImplementation,
 all the case study materials are publicly available at \myurl{\todo{url for
-    case study}} for reproducibility.
+    case study}} for reproducibility. \todo{This should include our link to
+      our annotated plume-util, which we found was required to reproduce the
+    results of the case study}
 
 
 \subsection{Subject program}\label{sec:subject-program}
@@ -54,7 +56,7 @@ Their methodology was to repeatedly
  and eliminate it.
 Some of the nondeterminism was in libraries, such as the JDK\@.
 The most common causes were \<toString> routines and iteration order of sets and maps.
-The most common fixes were to change the implementation of \<toString>
+The most common fixes were to change the implementations of \<toString>
 and to use \<LinkedHashSet> and \<LinkedHashMap> or to sort collections
 before iterating over them.
 The developers did not make every \<Set> and \<Map> a \<LinkedHashSet> or \<LinkedHashMap>, because that
@@ -76,7 +78,7 @@ We analyzed a version of Randoop from late February 2019 (commit 0a8e63fb), over
 \subsection{Methodology}
 
 In brief, we wrote type qualifiers in the Randoop source code to express its
-determinism specification
+determinism specification.
 We then ran
 \theDeterminismChecker.  Each warning indicated a mismatch between the
 specification and the implementation, which we addressed by changing our
