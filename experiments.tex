@@ -7,7 +7,8 @@ errors reported by NonDex and \theDeterminismChecker.
 \subsection{Case study with NonDex}\label{sec:nondex-randoop}
 
 We ran NonDex on the same commit of Randoop as we used for the case study
-of \cref{sec:randoop-case-study}.  This version contains all the nondeterminism bugs that
+of \cref{sec:randoop-case-study}.  This version contains all
+\numRandoopBugs nondeterminism bugs that
 \theDeterminismChecker found.
 
 We modified Randoop by deleting tests that were skipped by its buildfile,
@@ -20,6 +21,7 @@ NonDex reported no flaky tests.
 %  more.
 %  Please use cross-references or macros.  Also, this needs to be expanded
 %  to account for the additional bugs.}
+
 We investigated the tests covering code that \theDeterminismChecker reported as nondeterministic.
 \bugHashSet and \bugClasspath have corresponding test cases whereas the remainder of the bugs do not.
 As NonDex is a \textit{flaky test} detection tool, detecting \bugTimestampOutput and \bugTimestampOutput 
@@ -123,7 +125,7 @@ The ActionGenerator code (\cref{code-actiongenerator}) is similar.  Other
 code assumes that \<entry> is deterministic, but annotating it as \<@Det>
 leads to a warning from \theDeterminismChecker that iterating over
 \<fields.entrySet()> (which is itself \<@OrderNonDet>) yields \<@NonDet>
-\<Entry> values..
+\<Entry> values.
 
 Nondex found 14 flaky tests in Apache Commons Lang due to calls
 to \<Class.getDeclaredFields>. 
@@ -140,7 +142,7 @@ which makes it easier for the programmer to fix issues, and the annotation
 effort serves as valuable documentation and prevents regressions.
 
 \TheDeterminismChecker is capable of detecting nondetermism in test
-cases, as some of these examples are.
+cases, as some of the NonDex examples are.
 We wrote specifications for the
 JUnit library (in addition to the JDK and some other libraries).
 The specifications are the \<@Det> type qualifier on the formal parameters
@@ -158,8 +160,10 @@ to the \<assert>* methods.
 Deflaker~\cite{deflaker}, like NonDex, reports tests that could be flaky. 
 We were unable to run DeFlaker on Randoop, because Deflaker works with
 projects built with Maven, but Randoop
-uses Gradle for its build system. We plan to convert Randoop's build system to Maven and
-perform this case study.
+uses Gradle for its build system.
+%% Don't make promises: they give reviewers an excuse to reject the paper
+%% as not a completed research project.
+% We plan to convert Randoop's build system to Maven and perform this case study.
 %Ideally, we would have 
 %liked to run all three tools (NonDex, DeFlaker, and \TheDeterminismChecker) on an open source project
 %that wasn't explored by any of the tool for a fair comparison. Unfortunately, there are issues with the
@@ -188,7 +192,7 @@ an \<OrderNonDet Set> and expected it to be deterministic. \TheDeterminismChecke
 an error in the loop that iterated over the \<Set>.
 The flakiness in \<nutz> was a result of printing a response received over http.
 Since network operations are nondeterministic, we annotated the method in \<nutz> that
-returns this response as \<NonDet> which lead \TheDeterminismChecker to report an error at the print statement. 
-\TheDeterminismChecker was able to find the source of flakiness in \<checkstyle>. This bug was in a test
+returns this response as \<NonDet> which led \TheDeterminismChecker to report an error at the print statement. 
+\TheDeterminismChecker also found the source of flakiness in \<checkstyle>. This bug was in a test
 case that treated an array returned by \<Class.getDeclaredConstructors()>
-as deterministic. This is erroneous because \<getDeclaredConstructors> returns an order nondeterministic array.
+as deterministic. This is erroneous because \<getDeclaredConstructors> returns an order-nondeterministic array.
