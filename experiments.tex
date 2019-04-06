@@ -21,8 +21,7 @@ NonDex reported no flaky tests.
 %  Please use cross-references or macros.  Also, this needs to be expanded
 %  to account for the additional bugs.}
 We investigated the tests covering code that \theDeterminismChecker reported as nondeterministic.
-\bugHashSet and \bugClasspath have corresponding test cases whereas \bugTimestampOutput and 
-\bugTimestampOutput do not.
+\bugHashSet and \bugClasspath have corresponding test cases whereas the remainder of the bugs do not.
 As NonDex is a \textit{flaky test} detection tool, detecting \bugTimestampOutput and \bugTimestampOutput 
 is outside of its scope.
 The reason for nondeterminism in \bugClasspath was a call to the \<System.getProperty()> method which
@@ -117,7 +116,7 @@ In reflectasm (\cref{code-reflectasm}), we changed the type of field
 means a deterministic array of deterministic \<Field>, analogously to
 \codeid{@Det List<@Det Field>}.  Then, \theDeterminismChecker issued a
 warning at the assignment, because \<getDeclaredMethods> returns \<@Det
-Field @Det []>, which is an order-nondeterministic array of deterministic
+Field @OrderNonDet []>, which is an order-nondeterministic array of deterministic
 \<Field>s.
 
 The ActionGenerator code (\cref{code-actiongenerator}) is similar.  Other
@@ -192,4 +191,4 @@ Since network operations are nondeterministic, we annotated the method in \<nutz
 returns this response as \<NonDet> which lead \TheDeterminismChecker to report an error at the print statement. 
 \TheDeterminismChecker was able to find the source of flakiness in \<checkstyle>. This bug was in a test
 case that treated an array returned by \<Class.getDeclaredConstructors()>
-as deterministic.
+as deterministic. This is erroneous because \<getDeclaredConstructors> returns an order nondeterministic array.
