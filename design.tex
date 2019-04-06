@@ -207,7 +207,7 @@ The core of the determinism type system is the following type qualifiers:
     \item \<NonDet> indicates
     that the expression might have different values in two different executions.
     \item \<OrderNonDet> indicates that the expression is a collection or
-      map that contains the same elements in every execution, but possibly
+      a map that contains the same elements in every execution, but possibly
       in a different order.
     \item \<Det> indicates that the expression evaluates to equal values in
       all executions; for a collection, iteration
@@ -893,7 +893,7 @@ $f : \forallt{\kappa} \kappa\ \<Int> \times \<Det>\ \<Int> \times\use{\kappa}\ \
 
 \noindent
 would be instantiated at the least upper bound of the types of its first
-and forth arguments, and the third argument must conform to the
+and fourth arguments, and the third argument must conform to the
 instantiation.  However, the third argument does not affect the instantiation.
 
 This is especially useful in preventing methods from nondeterministically modifying the state
@@ -1024,7 +1024,7 @@ A map is a collection of key--value pairs.
 Like other collections, a map or set can be nondeterministic,
 order-nondeterministic, or deterministic.
 
-It might seem that the notion of an order-nondeterministic set or map is
+It might seem that the notion of a deterministic set or map is
 nonsensical, since the set and map specifications make no promises about
 iteration order.  However, some subtypes do.
 We explain why each of these is possible by considering three common
