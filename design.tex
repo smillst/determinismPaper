@@ -569,7 +569,7 @@ $\forallt{\kappa \ \beta} \kappa \ \beta \rightarrow \kappa \ \beta$.
 
 
 \item
-  Basetype polymorphism lets the basetype vary indepentently of the
+  Basetype polymorphism lets the basetype vary independently of the
   qualifier, which might be fixed or might be polymorphic.
   An example is a nondeterministic \<choose> function, which might have type
 
@@ -813,8 +813,6 @@ $\<get> : \forallt{\kappa} \kappa\ \<List>\angles{\down{\kappa}\ \<String>} \tim
 from the type qualifier on the list, and it better handles
 order-nondeterminism, but this type is enough for illustration in this section.)
 
-\todo{Show actual type.}
-
 Its instantiations are:
 
 $\<get> : \<NonDet List>\angles{\<NonDet String>} \times \<NonDet Int> \rightarrow \<NonDet String>$
@@ -1019,7 +1017,7 @@ calling \<sort> or via assignment.
 %We therefore recommend that programmers explicitly annotate
 %all local variables that are collections to reduce false positives. The same reasoning and recommendation applies to arrays.
 
-\subsection{Maps}\label{maps}
+\subsection{Maps and sets}\label{maps}
 A map is a collection of key--value pairs.
 Like other collections, a map or set can be nondeterministic,
 order-nondeterministic, or deterministic.
@@ -1048,26 +1046,22 @@ order-nondeterministic and deterministic maps; in addition, the iteration
 order is fixed in a deterministic map.
 
 
-\subsection{Improving precision}\label{precision}
+\subsubsection{Improving precision for equality and map lookup}\label{precision}
 
-\todo{Sets vs lists.  Set equality is independent of order.}
-An order nondeterministic list does not provide any guarantee on the
-equality as it is dependent on the iteration order
+List equality is dependent on iteration order, but set equality is not.
+Comparing two objects of type \ptype{OrderNonDet List}{Det String} yields a \<NonDet>
+result:  depending on the execution, the lists might or might not be in the
+same order.  However, 
+comparing two objects of type \ptype{OrderNonDet Set}{Det String} yields a
+\<Det> result:  always the same on every execution.  
 
-We annotated the \codeid{equals()} method of the \<Set> class in the JDK as
-\begin{verbatim}
-PolyDet("up") boolean equals(PolyDet Set<E> this, PolyDet Object o)
-\end{verbatim}
-While this is sound, it is imprecise in the case of \codeid{OrderNonDet
-  Set}s.\todo{Explain why.}
- We added the rule shown in \cref{fig-precision-rules} to our checker to improve precision.
 \begin{figure}
     \begin{align*}
     \infer[\rulename{set precision}]{\Gamma \vdash \|x.equals(y)| : \<Det> \ \|boolean|}
     {
-        &\Gamma \vdash \|x| : \<OrderNonDet> \ \|Set|\angles{ \kappa_{x} \ \beta_{x}}, \|y| : \<OrderNonDet> \ \|Set|\angles{ \kappa_{y} \ \beta_{y}} \\
-        & \kappa_{x} \ \beta_{x} \nsqsubseteq \<OrderNonDet> \ \<List>        \hspace{150pt}   \\
-        & \kappa_{y} \ \beta_{y} \nsqsubseteq \<OrderNonDet> \ \<List>     \hspace{150pt}    
+        &\Gamma \vdash \|x| : \<OrderNonDet> \ \|Set|\angles{ \kappa_{x} \ \beta_{x}}, \|y| : \<OrderNonDet> \ \|Set|\angles{ \kappa_{y} \ \beta_{y}} \hspace{10pt}\\
+        & \kappa_{x} \ \beta_{x} \nsqsubseteq \<OrderNonDet> \ \<List> 
+        \qquad \kappa_{y} \ \beta_{y} \nsqsubseteq \<OrderNonDet> \ \<List>     \hspace{30pt}
     }
     \end{align*}
     \bigskip
@@ -1080,40 +1074,17 @@ While this is sound, it is imprecise in the case of \codeid{OrderNonDet
     \label{fig-precision-rules}
 \end{figure}
 
-\todo{
-  In the JDK, the \<equals()> method of \<Set> is annotated as
-
-@PolyDet("up") boolean equals(@PolyDet Set<E> this, @PolyDet Object o);
-
-While this is sound, it is imprecise.
-For example, consider the code below:
-
-    @OrderNonDet Set<@Det Integer> a; \\
-    @OrderNonDet Set<@Det Integer> b; \\
-    a.equals(b);
-
-Here, the return type of \<equals()> gets the annotation \<@NonDet>.
-But it would be more precise to annotate it as \<@Det>.
-To achieve this precision, the checker annotates the return type
-of \<equals()> called on a receiver of type \<Set> as \<@Det> if the
-following conditions are true:
-\begin{itemize}
-    \item the receiver does not have {@code List} or its subtype as a type parameter,
-    \item the argument to equals() is also an {@code @OrderNonDet Set}, and
-    \item the argument to equals() also does not have {@code List} or its subtype as a
-    type parameter
-\end{itemize}
-}
-
-According to this rule, if the \<Set> receiver has type \codeid{@OrderNonDet Set<@Det List>} and the argument to the \codeid{equals()} method is
-also of the same type, the return type gets the qualifier \<Det>. Without this precision rule, the return type would have been instantiated as \<NonDet> which
-is sound but imprecise. This rule is careful enough to not annotate the return type of \<equals()> as \<Det> if a type argument to either the
-receiver or the argument happens to be an \codeid{OrderNonDet List}.
+More specifically, rule \rulename{set precision} of
+\cref{fig-precision-rules} expresses that the return type of \<equals()>
+is \<Det> if both arguments have type \<OrderNonDet Set> and nether argument
+has {@code List} or a subtype within its type argument.
+Without this rule, the type would be \<NonDet> which is sound but imprecise.
 
 Similarly, the rule \rulename{map precision}\ in \cref{fig-precision-rules}
-improves precision for \<OrderNonDet> receivers.
+improves precision when calling \<get> on an \<OrderNonDet> receiver.
 
 
 % LocalWords:  basetypes NonDet OrderNonDet Det Iterable formedness param1
 % LocalWords:  PolyDet boolean param2 arg1 arg2 localList entrySet keySet
 % LocalWords:  LinkedHashMap TreeMap HashSet LinkedHashSet LinkedHashSet's
+% LocalWords:  basetype ddlist typechecked typecheck ni di
