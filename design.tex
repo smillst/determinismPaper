@@ -217,7 +217,7 @@ The core of the determinism type system is the following type qualifiers:
 relationship among the qualifiers.
 
 \<OrderNonDet> may only be written on collections and maps.
-A map is a dictionary or associative array, such as a hash table.
+A map is a dictionary or an associative array, such as a hash table.
 \OurTypeSystem largely treats a map as a collection of key--value pairs.
 Both collections and maps may be \<Det>, \<OrderNonDet>, or \<NonDet>, and
 the element types can be specified independently of the collection type,
@@ -387,7 +387,7 @@ A collection of type \<OrderNonDet> has special properties, including the follow
 \item
 The individual elements retrieved from it have type \<NonDet>.  This
 affects access, iteration, searching, etc.
-(Rules \rulename{get}, \rulename{iteration}, and \rulename{next element} in \cref{fig-ordernondet-rules}.)
+(As shown by types of methods \rulename{get}, \rulename{iterator}, \rulename{next} in \cref{fig-ordernondet-rules})
 \item
 Size-related operations return a deterministic result.  This also affects
 queries of whether an iterator has more elements.
@@ -421,7 +421,7 @@ result is \<NonDet>.  The above examples only show the case where the index
 is deterministic.)
 The typical type for the list access operation only applies if both
 arguments are \<Det>,
-and our typing must have that as a special case, which is the first line above.
+and our typing must have that as a special case, which is the last line above.
 
 
 
@@ -474,7 +474,7 @@ and our typing must have that as a special case, which is the first line above.
 
     \bigskip
 
-    \rulename{iteration}: 
+    \rulename{iterator}: 
     $
     \forallt{\tau} \<OrderNonDet> \ C \angles{\tau} \rightarrow 
     \<OrderNonDet> \ \<Iterator> \angles{\tau}
@@ -489,7 +489,7 @@ and our typing must have that as a special case, which is the first line above.
 %        & \wellformed{\kappa \ \beta}
 %    }$
 
-    \rulename{next element}:
+    \rulename{next}:
     $
     \forallt{\kappa\ \beta} \<OrderNonDet>\ \<Iterator>\angles{\kappa \ \beta} \rightarrow
     \<NonDet>\ \beta
@@ -504,7 +504,7 @@ and our typing must have that as a special case, which is the first line above.
 %        & \wellformed{\tau}
 %    }$
 
-    \rulename{hasnext element}:
+    \rulename{hasnext}:
     $
     \forallt{\tau} \<OrderNonDet>\ \<Iterator>\angles{\tau} \rightarrow
     \<Det> \ \<boolean>
@@ -521,8 +521,8 @@ and our typing must have that as a special case, which is the first line above.
 \caption{\<OrderNonDet> Collection rules.  $C$ is a collection class.
     These are partial types indicating the methods' behavior on
     \<OrderNonDet> arguments.}
-\todo{These should be method names, not rule names, right?  The figure is
-  just giving the types of methods.}
+%\todo{These should be method names, not rule names, right?  The figure is
+%  just giving the types of methods.}
 \label{fig-ordernondet-rules}
 \end{figure}
 
@@ -592,9 +592,9 @@ $\<plus>\ :\ \forallt{\kappa} \kappa\ \<Int> \times \kappa\ \<Int> \rightarrow \
 Informally, the \<length> method above acts as if it had multiple
 (overloaded) definitions
 
-$\<length>\ : \<NonDet>\ \<String> \rightarrow \<NonDet> \<Int>$
+$\<length>\ : \<NonDet>\ \<String> \rightarrow \<NonDet> \ \<Int>$
 
-$\<length>\ :\<Det>\ \<String> \rightarrow \<Det> \<Int>$
+$\<length>\ :\<Det>\ \<String> \rightarrow \<Det> \  \<Int>$
 
 \noindent
 The body of \<length> must typecheck at every possible instantiation of its
@@ -609,10 +609,10 @@ the call expression:
 
 \begin{tabular}{lll}
   Expression & instantiation & type \\
-\<plus(ni, ni)> & $\<NonDet>\ \<String> \rightarrow \<NonDet> \<Int>$ & \<NonDet> \\
-\<plus(di, di)> & $\<Det>\ \<String> \rightarrow \<Det> \<Int>$ & \<Det> \\
-\<plus(ni, di)> & $\<NonDet>\ \<String> \rightarrow \<NonDet> \<Int>$ & \<NonDet> \\
-\<plus(di, ni)> & $\<NonDet>\ \<String> \rightarrow \<NonDet> \<Int>$ & \<NonDet> \\
+\<plus(ni, ni)> & $\<NonDet>\ \<String> \rightarrow \<NonDet> \ \<Int>$ & \<NonDet> \\
+\<plus(di, di)> & $\<Det>\ \<String> \rightarrow \<Det> \ \<Int>$ & \<Det> \\
+\<plus(ni, di)> & $\<NonDet>\ \<String> \rightarrow \<NonDet> \ \<Int>$ & \<NonDet> \\
+\<plus(di, ni)> & $\<NonDet>\ \<String> \rightarrow \<NonDet> \ \<Int>$ & \<NonDet> \\
 \end{tabular}
 
 \smallskip
