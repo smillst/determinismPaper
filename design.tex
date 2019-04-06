@@ -556,6 +556,7 @@ non-polymorphic type.
 
 
 
+
 \OurTypeSystem supports both basetype polymorphism and qualifier polymorphism.
 When both are applied, it gives the effect of type polymorphism.
 
@@ -800,24 +801,31 @@ found this to be a problem in our case studies.
 
 \subsubsection{Differentiating binding and use}\label{bindings-uses}
 
-This section introduces the another polymorphism feature by contrasting the
+This section introduces another polymorphism feature by contrasting the
 types of the \<get> and \<set> operations on lists.
 
 A simplified type for the list \<get> method for lists of strings is
 
-$\<get> : \forallt{\kappa} \kappa\ \<List>\angles{\kappa\ \<String>} \times \kappa\ \<Int> \rightarrow \up{\kappa}\ \<String>$
+$\<get> : \forallt{\kappa} \kappa\ \<List>\angles{\down{\kappa}\ \<String>} \times \up{\kappa}\ \<Int> \rightarrow \up{\kappa}\ \<String>$
 
 \noindent
+(The actual type permits the qualifier on the type argument to differ
+from the type qualifier on the list, and it better handles
+order-nondeterminism, but this type is enough for illustration in this section.)
+
+\todo{Show actual type.}
+
 Its instantiations are:
 
 $\<get> : \<NonDet List>\angles{\<NonDet String>} \times \<NonDet Int> \rightarrow \<NonDet String>$
 
+$\<get> : \<OrderNonDet List>\angles{\<Det String>} \times \<NonDet Int> \rightarrow \<NonDet String>$
+
 $\<get> : \<Det List>\angles{\<Det String>} \times \<Det Int> \rightarrow \<Det String>$
 
 \noindent
-It cannot be instantiated at $\kappa = \<OrderNonDet>$, but the other two
-instantiations are enough to ensure that if either the list or the index is (order) non-deterministic, then the result is
-nondeterministic.
+The type of \<get> ensures that if either the list or the index is (order)
+non-deterministic, then the result of the call is nondeterministic.
 
 % \begin{Verbatim}
 % NonDet Int ni;
@@ -834,33 +842,79 @@ nondeterministic.
 % get(dl, di) : Det String    // instantiation: NonDet List<Det String> x Det Int -> Det String
 % \end{Verbatim}
 
-
 A similar typing does \emph{not} work for the \<set> function that sets an
-element of a list, because it would permit a deterministic collection to
-be side-effected in non-deterministic ways.  Consider the following
-possible type for
+element of a list.  Consider the putative type
 
-$\<set> : \forall \forallt{\tau}$
+$\<set> : \forallt{\kappa} \kappa\ \<List>\angles{\down{\kappa}\ \<String>} \times \up{\kappa}\ \<Int> \times \down{\kappa}\ \<String> \rightarrow ()$
 
-qualifier 
-on the List add method: \codeid{public void add(PolyDet ArrayList<E> this, PolyDet int index, E element)}.
+\noindent
+which has instantiations
+
+$\<set> : \<NonDet>\ \<List>\angles{\<NonDet>\ \<String>} \times \<NonDet>\ \<Int> \times \<NonDet>\ \<String> \rightarrow ()$
+
+$\<set> : \<OrderNonDet>\ \<List>\angles{\<Det>\ \<String>} \times \<NonDet>\ \<Int> \times \<Det>\ \<String> \rightarrow ()$
+
+$\<set> : \<Det>\ \<List>\angles{\<Det>\ \<String>} \times \<Det>\ \<Int> \times \<Det>\ \<String> \rightarrow ()$
+
+\noindent
 Suppose a client calls this method as follows:
-\begin{verbatim}
-@Det ArrayList<@Det String> list;
-@NonDet int random;
-@Det String str;
-list.add(random, str);
-\end{verbatim}
-This will result in the instantiation \codeid{public void add(@NonDet ArrayList<E> this, @NonDet int index, E element)} and
-the method invocation will type check. This is problematic because even though \<list> was declared to be \<Det>,
-the type checker allows the addition of an element at a \<NonDet> location violating our determinism guarantees.
-We prevent this behavior by introducing another variant of \<PolyDet>, \<PolyDet("use")> that does not affect
-type instantiations. This is especially useful in preventing methods from non-deterministically modifying the state
-of a deterministic receiver. To have this effect, the library method \<ArrayList.add> is annotated as:
-\codeid{public void add(PolyDet ArrayList<E> this, PolyDet("use") int index, E element)}.
-Since \<PolyDet("use")> has no effect on type instantiations, calling this method on a \<Det List>
-will result in the method declaration being instantiated as \codeid{public void add(@Det ArrayList<E> this, @Det int index, E element)}
-irrespective of the type of \<index>, thereby preventing undesired side-effects.
+\begin{Verbatim}[commandchars=\\\{\}]
+    Det \lptype{List}{Det String} dList = ...
+    NonDet int random = ...
+    Det String str = ...
+    set(dList, random, str)  // should be forbidden
+\end{Verbatim}
+
+\noindent
+The call should be forbidden, since on different runs it may make changes at different
+indices of a deterministic list.
+However, the call is permitted.  The middle instantiation is applicable, since
+$\<Det> \ptype{List}{Det String} \sqsubseteq \<OrderNonDet>
+\ptype{List}{Det String}$ and $\<Det> \sqsubseteq \<NonDet>$.
+
+\OurTypeSystem must prevent this behavior.  It does so via another variant
+of qualifier variables, $\use{\kappa}$, which represents a \emph{use} of
+$\kappa$ that does not affect the \emph{instantiation} of $\kappa$.
+
+Ordinarily, the polymorphic function is instantiated at the least upper
+bound of the types of all the arguments that correspond to uses of the type
+parameter.
+For example, function
+
+$f : \forallt{\kappa} \kappa\ \<Int> \times \<Det>\ \<Int> \times\kappa\ \<Int> \times \kappa\ \<Int>$
+
+\noindent
+would be instantiated at the least upper bound of the types of its first,
+third, and fourth arguments at a given call.  (If no such instantiation
+exists, or if the other arguments do not conform to the parameter types, the call does not type-check.)
+By contrast, function
+
+$f : \forallt{\kappa} \kappa\ \<Int> \times \<Det>\ \<Int> \times\use{\kappa}\ \<Int> \times \kappa\ \<Int>$
+
+\noindent
+would be instantiated at the least upper bound of the types of its first
+and forth arguments, and the third argument must conform to the
+instantiation.  However, the third argument does not affect the instantiation.
+
+This is especially useful in preventing methods from non-deterministically modifying the state
+of a deterministic receiver.
+The correct type for \<set> on \ptype{List}{String} is
+
+$\<set> : \forallt{\kappa} \kappa\ \<List>\angles{\down{\kappa}\ \<String>} \times \use{\kappa}\ \<Int> \times \down{\kappa}\ \<String> \rightarrow ()$
+
+\noindent
+and the undesired call \<set(dList, random, str)> does not type-check.
+
+(For the curious reader, the actual types of the \<get> and \<set> methods
+in the JDK are the following.
+
+\begin{Verbatim}
+    @PolyDet("up") E get(@PolyDet List<E> this, @PolyDet int index);
+    @PolyDet("up") E set(@PolyDet List<E> this, @PolyDet("use") int index, E element);
+\end{Verbatim}
+
+\noindent
+The syntax is explained in \cref{java-polymorphism}.)
 
 
 \subsection{Type inference, dataflow analysis, and type refinement}\label{dataflow}
