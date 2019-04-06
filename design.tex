@@ -219,9 +219,13 @@ relationship among the qualifiers.
 \<OrderNonDet> may only be written on collections and maps.
 A map is a dictionary or an associative array, such as a hash table.
 \OurTypeSystem largely treats a map as a collection of key--value pairs.
-Both collections and maps may be \<Det>, \<OrderNonDet>, or \<NonDet>, and
-the element types can be specified independently of the collection type,
-including their qualifiers.
+Both collections and maps may be \<Det>, \<OrderNonDet>, or \<NonDet>.
+The basetypes of their elements can be specified independently of the collection basetypes.
+However, an element type qualifier must be a subtype of the collection type qualifier.
+The next section discusses type well-formedness in detail.
+%and
+%the element types can be specified independently of the collection type,
+%including their qualifiers.
 
 %\todo{A type $\tau$ is represented as $\kappa \ \beta$
 %where $\kappa$ is a type qualifier (that is, \<NonDet>, \<OrderNonDet>, or
@@ -538,8 +542,8 @@ affecting binding of those variables --- that is, it affects which
 instantiation of a (method) abstraction is chosen at a use site
 (\cref{bindings-uses}).
 
-\todo{Can we come up with more examples of interesting functions to
-  describe here?  Or put them in section 3.}
+%\todo{Can we come up with more examples of interesting functions to
+%  describe here?  Or put them in section 3.}
 
 
 \subsubsection{Qualifier and basetype polymorphism}\label{sec:basic-polymorphism}
@@ -839,7 +843,7 @@ non-deterministic, then the result of the call is nondeterministic.
 % \end{Verbatim}
 
 A similar typing does \emph{not} work for the \<set> function that sets an
-element of a list.  Consider the putative type
+element of a list.  Consider the mutative type
 
 $\<set> : \forallt{\kappa} \kappa\ \<List>\angles{\down{\kappa}\ \<String>} \times \up{\kappa}\ \<Int> \times \down{\kappa}\ \<String> \rightarrow ()$
 
@@ -915,7 +919,7 @@ The syntax is explained in \cref{java-polymorphism}.)
 
 \subsection{Type inference, dataflow analysis, and type refinement}\label{dataflow}
 
-\todo{I feel that this section is very confusing.}
+%\todo{I feel that this section is very confusing.}
 
 Some method calls refine the types of their
 arguments.  One example is the \<sort> routine,
@@ -1074,8 +1078,8 @@ comparing two objects of type \ptype{OrderNonDet Set}{Det String} yields a
 
 More specifically, rule \rulename{set precision} of
 \cref{fig-precision-rules} expresses that the return type of \<equals()>
-is \<Det> if both arguments have type \<OrderNonDet Set> and nether argument
-has {@code List} or a subtype within its type argument.
+is \<Det> if both arguments have type \<OrderNonDet Set> and neither argument
+has \code{@OrderNonDet List} or a subtype within its type argument.
 Without this rule, the type would be \<NonDet> which is sound but imprecise.
 
 Similarly, the rule \rulename{map precision}\ in \cref{fig-precision-rules}
