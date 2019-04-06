@@ -104,6 +104,8 @@ inconsistent with the specification we had guessed for the supertype.
 After resolving most type-checking warnings by adding or changing
 annotations, we manually examined each remaining one to determine whether
 it was a bug or a false positive warning.
+The effort would have been much easier for someone familiar with Randoop,
+and yet easier if done while code is being written and is malleable.
 
 % run: ./gradlew clean compileJava;./gradlew clean compileJava;./gradlew clean compileJava;./gradlew clean compileJava;./gradlew clean compileJava
 % then read the times reported by Gradle.
@@ -267,7 +269,7 @@ were:
   \<@OrderNonDet> collection, but the extracted elements have type
   \<@NonDet>.  For example, the following code is safe, but
   \theDeterminismChecker issues a warning.  Variable \<elt> has type
-  \<@NonDet>, so the call to \<add> does not typecheck.
+  \<@NonDet>, so the call to \<add> does not type check.
 \begin{Verbatim}
   void m(@OrderNonDet List<@Det String> input) {
     @OrderNonDet List<@Det String> output = new List<>();
@@ -282,18 +284,24 @@ were:
 The first two issues can be resolved by improvements to
 \theDeterminismCheckerImplementation.
 The third and fourth issues are limitations of the Java language, but by a
-local refactoring in the Randoop codebase can make the code typecheck.
+local refactoring in the Randoop codebase can make the code type check.
 Refactoring can also eliminate the last warning.
 
 
 \subsection{Annotation effort}
 
-\todo{Report the number of annotations required, and say a few words about
-  the process and the effort required.}
+In Randoop's 24K LOC of code, we wrote
+100 \<@NonDet>,
+64 \<@OrderNonDet>,
+1391 \<@Det>,
+and 109 \<@PolyDet> annotations.
 
-\todo{Easier for someone familiar with the codebase.  Easier on new code.}
-
-It's higher than we would prefer.
+The number of \<@Det> annotations --- one per 17 lines of code --- is much
+higher than we would prefer.
+Nonetheless, it compares favorably to the
+extensive effort by the Randoop developers (\cref{sec:subject-program}),
+especially given that that \theDeterminismChecker found issues that the
+developers had not.
 
 The large number of \<@Det> annotations has two main reasons.
 
@@ -308,8 +316,7 @@ because some method types could otherwise be qualifier-polymorphic.
 This would make them usable in more contexts.  It would also reduce the
 number of necessary annotations, since qualifier-polymorphism (the
 \<@PolyDet> annotation) is the default for
-formal parameter and return types.  We plan to re-do the annotation effort
-from scratch, and the number of annotations will be much lower.
+formal parameter and return types.
 
 The second reason is a limitation in \theDeterminismCheckerImplementation,
 which is inherited from the Checker Framework~\cite{checker-framework-tool} upon which
@@ -320,14 +327,14 @@ Randoop use qualifier polymorphism extensively on methods but cannot use it
 on classes, and this leads to many more \<@Det> annotations than would be
 needed otherwise.
 
+In future work, we plan to implement qualifier polymorphism for classes,
+then re-do the case study.  We estimate this will reduce the number of
+\<@Det> annotations needed by about an order of magnitude.
 
-Even though the number of annotations is higher for our prototype
-implementation than we would prefer, it still compares favorably to the
-extensive effort by the Randoop developers (\cref{sec:subject-program}),
-especially given that that \theDeterminismChecker found issues that the
-developers had not.
 
 % LocalWords:  linters preprocess canonicalizing nondeterministing bdeebd
 % LocalWords:  e15f9155 b473fd14 deduplication c15ccbf2 ff5b4c4 eda87f src
 % LocalWords:  f72234 a8e63fb c975a9f7 e3c56 a4970 a460df97 postprocessing
 % LocalWords:  MinimizerTests SpecificationCollection findOverridden Det
+% LocalWords:  methodWeights keySet f212cc7e PolyDet OrderNonDet NonDet i7
+% LocalWords:  elt LOC
