@@ -10,7 +10,7 @@ Nondeterminism is a serious problem for software developers and users.
   oracles must account for all possible behaviors while still enforcing
   correct behaviors.  Test oracles that are too strict lead to flaky
 % ,Gyori:2015:RTD:2771783.2771793
-  tests~\cite{LuoHEM2014,nondex,deflaker,Rahman:2018:IFF:3236024.3275529}
+  tests~\cite{LuoHEM2014,nondex,deflaker,Rahman:2018:IFF:3236024.3275529,LuoHEM2014,Sudarshan}
   that sometimes pass and sometimes fail.  Flaky tests must be re-run, or
   developers ignore them; in either case, their utility to detect defects
   is limited.
@@ -18,7 +18,7 @@ Nondeterminism is a serious problem for software developers and users.
   Nondeterminism makes it difficult to \textbf{compare} two runs of a
   program on different data, or to compare a run of a slightly modified
   program to an original program.  This hinders debugging and maintenance,
-  and prevents use of techniques such as Delta Debugging~\cite{Zeller1999}.
+  and prevents use of techniques such as Delta Debugging~\cite{Zeller1999,YuLCZ2012}.
 %\item
 %  Nondeterminism may make outputs incompatible with previous outputs relied
 %  on by users or by other systems~\todo{These do not seem to be supporting
@@ -90,7 +90,7 @@ have been able to identify issues in real-world programs, some of which
 have been fixed by the developers. We believe that identifying and
 resolving nondeterminism
 at an earlier phase in the software development lifecycle would be greatly beneficial to
-developers.
+developers~\cite{briski2008minimizing}.
 
 Our analysis uses three main abstractions, or approximations to run-time values:
 \begin{description}
