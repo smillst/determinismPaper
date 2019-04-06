@@ -287,23 +287,6 @@ on the same inputs.
 
 \subsection{Type refinement via dataflow analysis}\label{sec:dataflow-java}
 
-\todo{
-\OurTypeSystem performs local type inference within method bodies.
-It does not perform whole-program type inference.
-This makes separate compilation possible.
-It forces programmers to write specifications (type qualifiers) on methods,
-which is good style and valuable documentation.
-
-The local type inference is flow-sensitive.  That is, each variable may
-have a different type on every line of the program, depending on
-assignments to the variable.  The inferred type always respects any
-declared type:  that is, it is always a refinement (a subtype) of the
-declared type, if any.
-}
-
-
-
-
 \OurTypeSystem is
 flow-sensitive~\cite{Hunt:2006:FST:1111037.1111045,Adams:2011:FTR:2048066.2048105,Sui:2016:OSU:2950290.2950296}.
 That is, an expression may have
@@ -330,6 +313,12 @@ lost whenever a non-pure method is called.
 
 This flow-sensitive type refinement achieves local variable inference,
 freeing programmers from writing many local variable types.
+
+Although \theDeterminismChecker performs local type inference within method bodies.
+It does not perform whole-program type inference.
+This makes separate compilation possible.
+It forces programmers to write specifications (type qualifiers) on methods,
+which is good style and valuable documentation.
 
 
 \subsection{The environment}\label{sec:environment-java}
