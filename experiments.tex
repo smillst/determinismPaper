@@ -24,7 +24,7 @@ NonDex reported no flaky tests.
 
 We investigated the tests covering code that \theDeterminismChecker reported as nondeterministic.
 \bugHashSet and \bugClasspath have corresponding test cases whereas the remainder of the bugs do not.
-As NonDex is a \textit{flaky test} detection tool, detecting \bugTimestampOutput and \bugTimestampOutput 
+As NonDex is a \textit{flaky test} detection tool, detecting bugs that don't have corresponding tests 
 is outside of its scope.
 The reason for nondeterminism in \bugClasspath was a call to the \<System.getProperty()> method which
 is not modeled by NonDex.

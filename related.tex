@@ -11,7 +11,7 @@ diverging test output. While this approach produces precise results, it requires
 and considerable debugging effort to locate and fix the source of flakiness. \TheDeterminismChecker, in
 contrast, reports the cause of nondeterminism at compile time requiring
 little to no debugging effort.  However, \theDeterminismChecker requires
-much more upfront effort, and it produce false positive warnings.
+much more upfront effort, and it produces false positive warnings.
 NonDex's approach of identifying and modeling methods with nondeterministic
 specifications is analogous to our library specifications. So far, we have annotated
 928 methods across 41 classes in the JDK, in addition to other libraries.
@@ -70,7 +70,7 @@ in branching time temporal logic systems that are inherently
 nondeterministic.
 Bocchino et
 al.~\cite{Bocchino:2009:TES:1640089.1640097,Bocchino:2011:SND:1926385.1926447}
-provide a type-and-effect system that provides compile-time determinism
+present a type-and-effect system that provides compile-time determinism
 guarantees for parallel programs, with a focus on barrier removal,
 reasoning about interference and thread interleavings.
 We believe our work to be the first verification approach
