@@ -144,7 +144,7 @@ The developers fixed this by changing a \<HashSet> to \<LinkedHashSet>
 \item[\bugClasspath]
 Randoop used the CLASSPATH environment variable in preference to the
 classpath passed on the command line.
-This can cause to incorrect behavior, both in Randoop's test suite and in the field,
+This can cause incorrect behavior, both in Randoop's test suite and in the field,
 if a user sets the environment variable.
 The developers fixed the problem by changing Randoop to not read the environment variable
 (commit 330e3c56, shown in \cref{fig:randoop-bug-getenv}).
@@ -307,7 +307,7 @@ The number of \<@Det> annotations --- one per 22 lines of code --- is much
 higher than we would prefer.
 Nonetheless, it compares favorably to the
 extensive effort by the Randoop developers (\cref{sec:subject-program}),
-especially given that that \theDeterminismChecker found issues that the
+especially given that \theDeterminismChecker found issues that the
 developers did not.
 As another point of comparison,
 there are fewer type qualifiers than Java generic type arguments.
