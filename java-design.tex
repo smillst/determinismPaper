@@ -1,30 +1,173 @@
 \section{Determinism types for Java}\label{sec:java-types}
 
 We have implemented our type system for Java, in a tool named \theDeterminismChecker.
-
+The implementation consists of 1200 lines of Java
+code, plus 1800 lines of tests (all line measurements are non-comment,
+non-blank lines), a manual, etc.
 \TheDeterminismChecker requires Java version 8.
+It is publicly available at
+\myurl{URL for \theDeterminismChecker}.
 
 
-In Java, a type qualifier is written as a type annotation (which has a leading \<@>), as in
-\<@Positive int>.
+\subsection{Determinism type qualifiers}
 
-Our implementation
-handles array types, and any class (including user-defined classes) that
-implements the \<Iterable> or \<Iterator> interfaces; this includes all
-Java collections such as \<List>s and \<Set>s.  For simplicity, and because
-the semantics and rules are similar even though the syntax varies, this
+A type qualifier is written in Java source code as a type annotation.
+A type annotation has a leading ``\<@>'' and is written immediately before a
+Java basetype, as in \<@Positive int> or \codeid{@NonEmpty List<@NonNull String>}.
+
+\TheDeterminismChecker supports the type qualifiers \<@NonDet>,
+\<@OrderNonDet>, and \<@Det> (and others described below).
+The meaning of \<@Det> is with respect to value
+equality, not reference equality; that is,
+values on different executions are the same with respect to \<.equals()>,
+not \<==>.
+
+\TheDeterminismChecker treats arrays analogously to collections:
+the semantics and rules are similar even though the syntax varies.
+For simplicity this
 paper uses the term ``collection'' and the type \<Collection> to represent
-all these types.
+collections and arrays.
+Collections include any type (including user-defined classes) that
+implements the \<Iterable> or \<Iterator> interfaces; this includes all
+Java collections such as \<List>s and \<Set>s.
 
 
-(In Java,
-\<HashMap> cannot be deterministic, but \<TreeMap> and \<LinkedHashMap>
-can.\todo{forward reference?})
 
+\subsection{Java collection types}\label{sec:maps-java}
+
+A \<Map> is deterministic if its \<entrySet> is deterministic.
+In other words, iterating over this \<entrySet> produces the same values in the same order across executions.
+The determinism qualifier on the return type of \<entrySet()> is the
+same as that on the receiver (\cref{code-determinism}).
+That is, its type (ignoring type arguments) is
+$\forallt{\kappa} \kappa\ \<Map> \rightarrow \kappa\ \<Set>$\ .
+
+We have not yet found any implementation of the \<Map>
+interface in which \<entrySet()> \<keySet()>, and \<values()> behave
+differently with respect to determinism:  either all three methods, or none, are deterministic.
+
+The most widely used \<Map> implementations have the following properties:
+\begin{itemize}
+    \item \<HashMap> is implemented in terms of a hash table, which never
+      guarantees deterministic iteration over its entries. A \codeid{@Det
+        HashMap} does not exist.
+    \item \<LinkedHashMap>, like \<List>, can have any of the \aNonDet,
+      \aOrderNonDet, or \aDet type qualifiers. Iterating over a
+      \<LinkedHashMap> returns
+    its entries in the order of their insertion. An \aOrderNonDet\
+    \<LinkedHashMap> can be created by passing an
+    \aOrderNonDet\ \<HashMap> to its constructor, as in \<new
+    LinkedHashMap(myOndHashMap)>.
+    \item \<TreeMap> can either be \<@Det> or \<@NonDet>. An \<@OrderNonDet
+      TreeMap> doesn't exist because the entries are always sorted.
+\end{itemize}
+
+\noindent
+\TheDeterminismChecker prohibits the creation of a \codeid{@Det HashMap} or an \codeid{@OrderNonDet TreeMap}.
+\Cref{fig-creation-rules} formalizes the type well-formedness rules for
+Java \<Map>s and \<Set>s.
+
+\begin{figure}
+    $\infer[\rulename{valid hashmap}]{\vdash: \|\kappa\ \<HashMap>|}{\kappa \in \{ \<OrderNonDet>, \<NonDet> \}}$
+    
+    \bigskip
+    
+    $\infer[\rulename{valid treemap}]{\vdash: \|\kappa\ \<TreeMap>|}{\kappa \in \{ \<Det>, \<NonDet> \}}$
+    
+    \bigskip
+    
+    $\infer[\rulename{valid hashset}]{\vdash: \|\kappa\ \<HashSet>|}{\kappa \in \{ \<OrderNonDet>, \<NonDet> \}}$
+    
+    \bigskip
+    
+    $\infer[\rulename{valid treeset}]{\vdash: \|\kappa\ \<TreeSet>|}{\kappa \in \{ \<Det>, \<NonDet> \}}$
+    \caption{Type well-formedness rules for subclasses of \<Map> and \<Set>.}
+    \label{fig-creation-rules}
+\end{figure}
+
+
+\subsection{Polymorphism}\label{java-polymorphism}
+
+\OurTypeSystem supports three types of polymorphism:  type
+polymorphism, basetype polymorphism, and qualifier polymorphism.
+These apply to both classes and methods.
+
+\begin{itemize}
+\item
+In \theDeterminismCheckerImplementation,
+type polymorphism is handled by Java's generics mechanism, which
+\theDeterminismChecker fully supports, including class and method generics,
+inference, etc.
+Given the Java declaration
+\begin{Verbatim}
+<T> T identity(T param) { return param; }
+\end{Verbatim}
+the type of \<identity> is $\forallt{\tau} \tau \rightarrow \tau$, and
+the type of \<identity(x)> is the same as the type of
+\<x>.  A programmer can also write a type qualifier on a type argument,
+as in \codeid{@NonDet List<@NonDet Integer>}.
+\item
+Basetype polymorphism is enabled by writing a type qualifier on a use of a
+type variable, which overrides the type qualifier at the instantiation
+site.
+For example, a \<choose> operation on sets could be defined in Java as
+\begin{Verbatim}
+interface ChooseableSet<T> implements Set<T> {
+  // return an arbitrary element from the set
+  @NonDet T choose();
+}
+\end{Verbatim}
+\item
+Java does not provide a syntax that can be used for qualifier polymorphism,
+so \theDeterminismChecker uses a special type qualifier name, \<@PolyDet>.  (\<@PolyDet> stands
+for ``polymorphic determinism qualifier''.)
+A qualifier-polymorphic method \<m> with signature
+$\forallt{\kappa} \kappa\ \<int> \times \<Det boolean>
+\rightarrow \kappa\ \<String>$ would be written as
+\begin{Verbatim}
+@PolyDet String m(@PolyDet int, @Det boolean)
+\end{Verbatim}
+Each use of \<@PolyDet> stands for a use of the qualifier variable
+$\kappa$, and there is no need to declare the qualifier variable $\kappa$.
+\TheDeterminismChecker currently supports
+qualifier
+polymorphism on methods but \emph{not} on classes.
+Therefore, \<@PolyDet> may be written in methods (signatures and bodies)
+but not on fields.
+\end{itemize}
+
+Qualifier  polymorphism is common on methods that a programmer might think
+of as deterministic.  For example, an addition method should be defined as
+
+\begin{verbatim}
+    @PolyDet int plus(@PolyDet int a, @PolyDet int b) { return a+b; }
+\end{verbatim}
+
+\noindent
+This can be used in more contexts than
+
+\begin{verbatim}
+    @Det int plus(@Det int a, @Det int b) { return a+b; }
+\end{verbatim}
+
+\noindent
+can be, as was shown in \cref{sec:basic-polymorphism}.
+
+
+Just as a qualifier variable $\kappa$ is written as \<@PolyDet> in Java
+source code, $\up{\kappa}$ is written as \<@PolyDet("up")>, and
+$\down{\kappa}$ is written as \<@PolyDet("down")>.  An occurrence of a
+qualifier variable that does not affect the binding of that variable
+(\cref{bindings-uses}) is written \<@PolyDet("use")>.
+
+
+All of our syntax is legal Java code that can be compiled with any Java 8
+or later compiler.
 
 
 \Cref{code-determinism} presents some of the JDK methods that we have annotated with our determinism types and give examples of
 client code that would produce errors at compile time.
+
 %\begin{figure}
 %    \begin{verbatim}
 %    // Annotated JDK methods
@@ -68,7 +211,7 @@ client code that would produce errors at compile time.
         public static <K extends @PolyDet Object, V extends @PolyDet Object> 
                                 @Det String toString(@PolyDet Map<K,V> map) {
             ...
-            for(Map. @Det Entry<K,V> entry : map.entrySet()) { ... }
+            for (Map. @Det Entry<K,V> entry : map.entrySet()) { ... }
         }
     }
     [ERROR] MapUtils.java:[20,50] [enhancedfor.type.incompatible] 
@@ -84,272 +227,115 @@ client code that would produce errors at compile time.
     \label{code-determinism}
 \end{figure}
 
-\begin{itemize}
-\item
-In \theDeterminismCheckerImplementation,
-type polymorphism is handled by Java's generics mechanism, which
-\theDeterminismChecker fully supports, including class and method generics,
-inference, etc.
-Given the Java declaration
-\begin{Verbatim}
-<T> T identity(T arg) { return arg; }
-\end{Verbatim}
-the type of \<identity(arg)> is the same as the type of
-\<arg>, and a programmer can write a type such as \codeid{List<@NonDet
-  Integer>} (but see below for details about collections).
-\item
-Basetype polymorphism is enabled by writing a type qualifier on a use of a
-type variable, which overrides the type qualifier at the instantiation
-site.
-For example, a \<choose> operation on sets could be defined in Java as
-\begin{Verbatim}
-class ChooseableSet<T> implements Set<T> {
-  // return an arbitrary element from the set
-  @NonDet T choose();
-}
-\end{Verbatim}
-\item
-\todo{We do not support qualifier polymorphism on classes, only on methods.}
-Java does not provide a syntax that can be used for qualifier polymorphism,
-so we use a special type qualifier name, \<@PolyDet>.
-A qualifier-polymorphic method \<m> with signature $\forallt{\kappa} \kappa\ \<int> \times \<Det boolean> \rightarrow
-\kappa\ \<String>$ would be written in our dialect of Java as
-\begin{Verbatim}
-@PolyDet String m(@PolyDet int, @Det boolean)
-\end{Verbatim}
-Each use of \<@PolyDet> stands for a use of the qualifier variable
-$\kappa$, and there is no need to declare the qualifier variable $\kappa$.
-\TheDeterminismChecker currently supports
-qualifier
-polymorphism on methods but not on classes.
-Therefore, \<@PolyDet> may be written in methods (signatures and bodies)
-but not on fields.
-\end{itemize}
 
-\subsection{Java collection types}\label{sec:maps-java}
+\subsection{Defaulting}\label{defaulting}
 
-A \<Map> is deterministic if its \<entrySet> is deterministic.
-In other words, iterating over this \<entrySet> is guaranteed to produce the same values in the exact same order across executions.
-The \<Map> interface in Java doesn't define an \<iterator()> interface. Therefore it's sound to equate the determinism of the \<Set>
-returned by \<entrySet()> to the determinism of the \<Map>. Interestingly, we found that every implementation of the \<Map> 
-interface had the following property: if the \<Set> returned by \<entrySet()> has a determinism type $\kappa$, then
-the \<Set>s returned by \<keySet()> and \<values()> also have the exact same determinism type $\kappa$.
-
-We noticed the following properties with respect to determinism regarding the most widely used \<Map> implementations:
-\begin{itemize}
-    \item \<HashMap> can never guarantee fully deterministic iteration over its entries. A \codeid{Det HashMap} does not exist.
-    \item \<LinkedHashMap> can have any of \<Det>, \<OrderNonDet>, or \<NonDet> types. Iterating over a \<LinkedHashMap> returns
-    its entries in the order of their insertion. An \<OrderNonDet LinkedHashMap> can be created by calling its constructor with a \<HashMap>.
-    \item \<TreeMap> can either be \<Det> or \<NonDet>. An \<OrderNonDet TreeMap> doesn't exist because the entries are always ordered.
-\end{itemize}
-
-We prohibit the creation of a \codeid{@Det HashMap} or an \codeid{@OrderNonDet TreeMap} in our determinism checker.
-\Cref{fig-creation-rules} formalizes the type wellformedness rules for maps and sets. Similar constraints apply to \<HashSet>s and \<TreeSet>s which are
-also expressed by the last two rules of \cref{fig-creation-rules}.
-
-\begin{figure}
-    $\infer[\rulename{valid hashmap}]{\vdash: \|\kappa\ HashMap()|}{\kappa \in \{ \<OrderNonDet>, \<NonDet> \}}$
-    
-    \bigskip
-    
-    $\infer[\rulename{valid treemap}]{\vdash: \|\kappa\ TreeMap()|}{\kappa \in \{ \<Det>, \<NonDet> \}}$
-    
-    \bigskip
-    
-    $\infer[\rulename{valid hashset}]{\vdash: \|\kappa\ HashSet()|}{\kappa \in \{ \<OrderNonDet>, \<NonDet> \}}$
-    
-    \bigskip
-    
-    $\infer[\rulename{valid treeset}]{\vdash: \|\kappa\ TreeSet()|}{\kappa \in \{ \<Det>, \<NonDet> \}}$
-    \caption{\<Map> and \<Set> creation rules}
-    \todo{Are these type well-formedness rules?}
-    \todo{What about \<new TreeSet(myOrderedCollection<Det ...>)> which yields a
-        deterministic set?}
-    \label{fig-creation-rules}
-\end{figure}
-
-In the JDK, \<LinkedHashSet> is implemented as a subclass of \<HashMap>.
-\todo{Talk about this design choice. Josh Bloch's book: "If the code surrounding the first declaration depended on LinkedHashSet's ordering policy,
-    then it would be incorrect to substitute HashSet for LinkedHashSet in the declaration, because HashSet makes no guarantee concerning iteration order."} 
-
-\subsection{Defaulting rules}\label{defaulting}
-
-\TheDeterminismChecker applies a default qualifier at each unannotated type
-use (except uses of type variables, which already stand for a type that was
-defaulted at the instantiation site).
+\TheDeterminismChecker applies a default qualifier at each unqualified Java
+basetype (except uses of type parameters, which already stand for a type that was
+defaulted at the instantiation site where a type argument was supplied).
 This does not change the expressivity of the type system; it merely makes
-the system more convenient to use.
+the system more convenient to use by reducing programmer effort and code clutter.
+Defaulted type qualifiers are not trusted:  they are type-checked just as
+explicitly-written ones are.
 
-In \theDeterminismChecker, we chose \<PolyDet> as the default for all 
-method parameters and return types including constructors.
-The rationale for this design choice was to not make \theDeterminismChecker too restrictive by making everything \<Det>.  This implies that
-\theDeterminismChecker still allows some non-determinism as long as it doesn't break any determinism specifications explicitly written by the programmer.
+Formal parameter and return types default to \<@PolyDet>.  That is, a
+programmer-written method
 
-\begin{verbatim}
-@PolyDet int foo(@PolyDet int x) { ... }
-
-void bar(@NonDet int random, @Det int value) {
-    @NonDet int x = foo(random);      // No error.
-    @Det int y = foo(value);          // No error.
-    System.out.println(foo(random));  // Error.
-}
-\end{verbatim}
-In the example above, the method \codeid{foo} is annotated with the \<PolyDet> type qualifier which allows
-the caller method \codeid{bar} to invoke it with both \<Det> and \<NonDet> arguments. \TheDeterminismChecker flags an error 
-only when the returned value is used in a way that breaks any deterministic specification (Printing a \<NonDet> value
-breaks our determinism guarantees).
-
-
-\<@Det> equality is with respect to \<.equals()>.
-
-\todo{
-The default annotation for most unannotated types is \<@Det>.
-
-\begin{itemize}
-\item
-  Formal parameter and return types default to \<@PolyDet>.
-\item
-  If a formal parameter/return type is an array, its component type defaults to
-  \<@PolyDet>.
-\item
-  As an exception, the return type of a method with no unannotated or
-  \<@PolyDet> formal parameters (including the receiver) defaults to
-  \<@Det>.
-\end{itemize}
-
-These choices permit all possible arguments to an unannotated method.
-}
-
-\subsection{Polymorphism}\label{java-polymorphism}
-
-\OurTypeSystem supports three types of polymorphism:  type
-polymorphism, basetype polymorphism, and qualifier polymorphism.
-These apply to both classes and methods.
-
-\begin{itemize}
-\item
-In \theDeterminismCheckerImplementation,
-type polymorphism is handled by Java's generics mechanism, which
-\theDeterminismChecker fully supports, including class and method generics,
-inference, etc.
-Given the Java declaration
 \begin{Verbatim}
-<T> T identity(T arg) { return arg; }
+  int plus(int a, int b) { ... }
 \end{Verbatim}
-the type of \<identity(arg)> is the same as the type of
-\<arg>, and a programmer can write a type such as \codeid{List<@NonDet
-  Integer>} (but see below for details about collections).
-\item
-Basetype polymorphism is enabled by writing a type qualifier on a use of a
-type variable, which overrides the type qualifier at the instantiation
-site.
-For example, a \<choose> operation on sets could be defined in Java as
+
+\noindent
+is treated as if the programmer had written
+
 \begin{Verbatim}
-class ChooseableSet<T> implements Set<T> {
-  // return an arbitrary element from the set
-  @NonDet T choose();
-}
+  @PolyDet int plus(@PolyDet int a, @PolyDet int b) { ... }
 \end{Verbatim}
-\item
-Java does not provide a syntax that can be used for qualifier polymorphism,
-so we use a special type qualifier name, \<@PolyDet>.
-A qualifier-polymorphic method \<m> with signature $\forallt{\kappa} \kappa\ \<int> \times \<Det boolean> \rightarrow
-\kappa\ \<String>$ would be written in our dialect of Java as
-\begin{Verbatim}
-@PolyDet String m(@PolyDet int, @Det boolean)
-\end{Verbatim}
-Each use of \<@PolyDet> stands for a use of the qualifier variable
-$\kappa$, and there is no need to declare the qualifier variable $\kappa$.
-\TheDeterminismChecker currently supports
-qualifier
-polymorphism on methods but not on classes.
-Therefore, \<@PolyDet> may be written in methods (signatures and bodies)
-but not on fields.
-\end{itemize}
 
-\todo{Explain @PolyDet("up"), "down", "use".}
+\noindent
+and its function type is
+
+$\forallt{\kappa}  \kappa\ \<int> \times \kappa\ \<int> \rightarrow \kappa\ \<int>$
+
+\noindent
+This choice type-checks if the method body does not make calls to any
+interfaces that require \<@Det> arguments or produce \<@NonDet> results.
+Otherwise, the programmer must write explicit type qualifiers in the method
+signature.
+
+If a formal parameter or return type is a collection, its element type
+defaults to \<@PolyDet>.  No other choice would result in a valid type
+after instantiation.
+
+As an exception to the above rules about return types, if a method's formal
+parameters (including the receiver) are all \<@Det> --- that is, there are
+no unannotated or \<@PolyDet> formal parameters --- then an unannotated
+return type defaults to \<@Det>.  This is particularly useful for methods
+that take no formal parameters.  A type like $\forallt{\kappa} ()
+\rightarrow \kappa\ \<int>$ does not make sense, because there is no basis
+on which to choose an
+instantiation for the type argument $\kappa$.  Treating the type as $()
+\rightarrow \<Det>\ \<int>$ permits just as many uses.
+
+Types are inferred for unannotated local variables; see \cref{sec:dataflow-java}.
+
+The default annotation for other unannotated types is \<@Det>, because
+programmers generally expect their programs to behave the same when re-run
+on the same inputs.
 
 
 
-When a user writes a polymorphic qualifier on a method signature or a type parameter,
-it indicates that it could be instantiated
-%\todo{Should all occurrences of ``resolve'' be ``can be instantiated''} 
-to any type in the type system depending on how it is used.
-In \theDeterminismChecker, we define a polymorphic qualifier \<PolyDet>.
-One of the most common locations for a polymorphic qualifier is at a method signature.
-Consider the following declaration of addition:
+\subsection{Type refinement via dataflow analysis}\label{sec:dataflow-java}
+
+\OurTypeSystem is
+flow-sensitive~\cite{Hunt:2006:FST:1111037.1111045,Adams:2011:FTR:2048066.2048105,Sui:2016:OSU:2950290.2950296}.
+That is, an expression may have
+a different type on every line of the program, based on assignments and
+side effects.  The current type must always be consistent with the declared
+type, if any.
+Consider the example below:
+
 \begin{verbatim}
-@PolyDet int plus(@PolyDet int a, @PolyDet int b) { return a+b; }
+  @NonDet int x = ...;
+                          // The type of x is @NonDet int
+  x = 42;
+                          // The type of x is @Det int
+  @Det int y = x;
+  x = random();
+                          // The type of x is @NonDet int
+  y = random();           // Error: y is declared as @Det int
 \end{verbatim}
-\todo{It has the standard meaning.  There are two ways to interpret this.}
-There are two valid instantiations for this declaration:
-\begin{Verbatim}
-  @NonDet int plus(@NonDet int a, @NonDet int b) { return a+b; }
-  @Det int plus(@Det int a, @Det int b) { return a+b; }
-\end{Verbatim}
-This indicates that method \<foo> can be called with arguments having any of the \codeid{@Det} or \codeid{@NonDet} type qualifiers.
-%   (\<@OrderNonDet> is not allowed because it is invalid on primitive types).
- \<PolyDet> gets instantiated to the least upper bound of
-the actual types on arguments. For instance, if this method is called as \codeid{foo(@Det String arg1, @NonDet boolean arg2)}, \theDeterminismChecker instantiates the method declaration as \codeid{@NonDet int foo(@NonDet String param1, @NonDet boolean param2)}
-causing the return type to have the type qualifier \<NonDet>.
+
+Arbitrary expressions can be given more specific types, including fields
+and pure method calls.  A type refinement is lost whenever a side effect
+might affect the value.  For example, type refinements to all fields are
+lost whenever a non-pure method is called.
+
+This flow-sensitive type refinement achieves local variable inference,
+freeing programmers from writing many local variable types.
 
 
-
-\subsection{Dataflow analysis and type refinement}\label{sec:dataflow-java}
-
-\todo{Relate this to defaulting.}
-
-It also performs dataflow analysis and refines the types of these locals, thereby reducing the qualifier burden 
-on the programmer. Consider the example below:
-\begin{verbatim}
-void foo(@Det int x) {
-    @NonDet int y = x;    // Type of y gets refined to @Det.
-    @Det int z = y;       // No error here.
-}
-\end{verbatim}
-In the example above, even though the local variable \codeid{y} was declared to be \codeid{NonDet}, it gets
-type refined to \codeid{Det} after the first assignment statement. As the result, the assignment of \codeid{y}
-to a \codeid{Det} variable \codeid{z} is sound. In the following example,
-\begin{verbatim}
-void foo(@NonDet Object x, @Det Object y) {
-    x = y;                // No type refinement for x.
-    @Det Object z = x;    // Error.
-}
-\end{verbatim}
-\theDeterminismChecker reports a warning at the second assignment statement of \codeid{foo}. Type refinement only applies to locals. Refining non-locals can result in side effects making the analysis unsound.
-
-With the above rules, \theDeterminismChecker will automatically annotate a local collection with type \<NonDet> and its
-type arguments will get the type qualifier \<Det>. For example, a locally declared \codeid{List} of \codeid{Strings} will be automatically annotated
-as \codeid{NonDet List<Det String>}. Recall from~\cref{collection-rules} that \theDeterminismChecker does not allow this type on
-any collection. While this is still sound, it will result in \theDeterminismChecker reporting a lot of errors because every locally declared 
-collection gets annotated with this invalid type. To avoid this situation, we make an exception to the defaulting rules for local collections
-and annotate their type parameters also with \<NonDet>. So a local list of Strings gets the default qualifier of \codeid{NonDet List<NonDet String>}. While this defaulting eliminates the possibility of automatically annotating locals collections with an invalid
-type, it could result in a high number of false positives. In the following code snippet,
-\begin{verbatim}
-void test(@Det List<@Det String> argList) {
-    List<String> localList = argList;
-}    
-\end{verbatim}
-\theDeterminismChecker would report an error at the assignment statement since the inferred type for \codeid{localList} is 
-\codeid{NonDet List<NonDet> String} and since collections types are invariant.
-We therefore recommend that programmers explicitly annotate
-all local variables that are collections to reduce false positives.
-
-\subsection{Precision improvements}\label{sec:precision-java}
+\subsection{The environment}\label{sec:environment-java}
 
 The return type of \<System.getenv>, which reads an operating system
-environment variable, is always \<NonDet>.
-The return type of \codeid{System.getProperty} is usually \<NonDet>. However,
-the result is \<Det> if the argument is \codeid{"line.separator"}; although
-it varies by operating system, many programs including \<diff> hide those
+environment variable, is always \<@NonDet>.
+
+The return type of \codeid{System.getProperty} is usually \<@NonDet>. However,
+the result is \<@Det> if the argument is \codeid{"line.separator"}; although
+it varies by operating system, many programs including \<diff> and editors hide those
 differences from the user.
 The result is also deterministic for \codeid{"path.separator"} and
 \codeid{"file.separator"}, because these lead to the same behavior given
 corresponding environments.
-The user can specify input properties that must be passed on the \<java>
-command line and thus act like inputs to the program; these are also
-treated as deterministic.
-The inputs to a program are also treated as \<Det>.  That is, the parameter
-type of the \<main> method is implicitly annotated as
+A user of \theDeterminismChecker can specify Java properties that must be passed on the \<java>
+command line and thus act like inputs to the program;
+\theDeterminismChecker treats these as deterministic.
+
+The inputs to a program are also treated as deterministic.  That is, the type of
+the formal parameter to \<main> is
 \<@Det String @Det []>, a deterministic array of deterministic strings.
 
+
+% LocalWords:  basetype NonEmpty NonDet OrderNonDet Det Iterable entrySet
+% LocalWords:  keySet LinkedHashMap myOndHashMap formedness PolyDet getenv
+% LocalWords:  expressivity getProperty

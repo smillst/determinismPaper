@@ -3,11 +3,10 @@ In https://github.com/jwaataja/randoop, checkout the "determinism" branch
 For the total number of @SuppressWarnings, run this command:
 grep -r --include='*.java' -n -e '"determinism"' | wc -l
 Current output:
-40
+37
 Divide into 24000, round to nearest int, to determine lines of code per
 annotation:
-600
-
+650
 
 For a classification of the most important reasons for @SuppressWarnings, run this command:
 
@@ -17,15 +16,17 @@ Current output:
 
       8 constructors guarantee all instances of this class are @Det
       6 https://github.com/t-rasmud/checker-framework/issues/96
-      5 expected nondeterminism
       5 can't specify receiver for anonymous class
       4 actual type toString returns @PolyDet
+NOT COUNTED in 37 above      3 bug
       2 iterating over @OrderNonDet collection to modify another
       2 enum classes of a @Det Class<?> are @Det, but the checker
       1 this is code randoop is run on
+      1 missing JDK annotation
       1 https://github.com/t-rasmud/checker-framework/issues/94
       1 https://github.com/t-rasmud/checker-framework/issues/89
       1 getRuntimeClass returns a @Det Class<?>, so casting one
+      1 expected nondeterminism
       1 "--deterministic" option ensures this is deterministic
       1 constructors guarantee all instances of this class are @NonDet
       1 comparing hash codes is deterministic, even if the codes

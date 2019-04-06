@@ -59,11 +59,12 @@ their tests, but that did not hinder us since \theDeterminismChecker works
 at compile time.
 
 For three of the projects, we could not find the flakiness reported in the
-NonDex paper.
-\todo{Important: give a sentence description of each one.}
-\todo{visualee : Class#getDeclaredMethods}
-\todo{easy-batch: Class#getDeclaredFields}
-\todo{vraptor : Class#getDeclaredFields}.
+NonDex paper. The reported root cause of flakiness in \<easy-batch> and
+\<vraptor> was a call to \<Class.getDeclaredFields>. We couldn't find a call
+to this method in any of the source files of these two repositories.
+Similarly, the flakiness in \<visualee> was attributed to an invocation of
+\<Class.getDeclaredMethods> which we didn't find in the source code.
+%\todo{Important: give a sentence description of each one.}
 
 This left 16 projects.  We ran \theDeterminismChecker on the part of the
 project that the NonDex authors determined as flaky.  In every case,
@@ -101,7 +102,7 @@ All these benchmarks and instructions to reproduce our results can be found at \
         \caption{Annotated source code from ActionGenerator.}
         \label{code-actiongenerator}
     \end{subfigure}    
-    \caption{Errors detected by \TheDeterminismChecker.}
+    \caption{Errors detected by \TheDeterminismChecker in NonDex benchmarks.}
     \label{fig:nondex-source}
 \end{figure}
 
@@ -170,7 +171,7 @@ perform this case study.
 %\todo{Deflaker requires Maven build. Randoop is on Gradle.}
 
 \subsection{\TheDeterminismChecker on DeFlaker benchmarks}\label{sec:deflaker-benchmarks}
-DeFlaker found 87 previously unknown flaky tests in 93 projects that were being actively developed at the the time
+DeFlaker found 87 previously unknown flaky tests in 93 projects that were being actively developed at the time
 the paper was written. The authors reported 19 of these tests, out of which 7 were addressed by the maintainers of
 those projects~\cite{deflaker}.
 We ran \theDeterminismChecker on the part of each of these
@@ -178,11 +179,17 @@ codebases where the reported bug was fixed, as in \cref{sec:nondex-benchmarks}.
 % The DeFlaker authors graciously fixed problems we discovered while using
 % their tool.
 
-Two of the seven flaky tests (in \<achilles> and \<jackrabbit-oak>)
+Four of the seven flaky tests (two in \<achilles>, one each in \<jackrabbit-oak> and \<togglz>)
 were caused by a race condition, which \theDeterminismChecker
 cannot detect.  (This is a strength of DeFlaker over \theDeterminismChecker.)
-We couldn't find the link to one of the issues in the issue tracker of \<jackrabbit-oak>.
-We were unable to build \<tigglz> and \<nutz> which had two and one flakiness issues respectively.
+We were unable to build \<togglz> and \<nutz> which had one flakiness issue each.
+However, we extracted the source code causing the flakiness in these repositories into test cases
+after looking at the corresponding issues on Github. The bug in \<togglz> was caused by a copy method that iterated over
+an \<OrderNonDet Set> and expected it to be deterministic. \TheDeterminismChecker correctly flagged
+an error in the loop that iterated over the \<Set>.
+The flakiness in \<nutz> was a result of printing a response received over http.
+Since network operations are nondeterministic, we annotated the method in \<nutz> that
+returns this response as \<NonDet> which lead \TheDeterminismChecker to report an error at the print statement. 
 \TheDeterminismChecker was able to find the source of flakiness in \<checkstyle>. This bug was in a test
 case that treated an array returned by \<Class.getDeclaredConstructors()>
 as deterministic.
