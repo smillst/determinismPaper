@@ -3,13 +3,11 @@
 To evaluate the usability of \theDeterminismChecker,
 we applied it to the Randoop test
 generator~\ifanonymous\citepalias{randoop-tool}\else\cite{PachecoLEB2007}\fi.
-We also wrote specifications for libraries Randoop uses, such as the JDK, JUnit,
-and others.
+We also wrote specifications for libraries Randoop uses, such as the JDK,
+JUnit, plume-util, and others.
 Like \theDeterminismCheckerImplementation,
 all the case study materials are publicly available at \myurl{\todo{url for
-    case study}} for reproducibility. \todo{This should include our
-      our annotated plume-util, which we found was required to reproduce the
-    results of the case study}
+    case study}} for reproducibility.
 
 
 \subsection{Subject program}\label{sec:subject-program}
@@ -106,8 +104,9 @@ inconsistent with the specification we had guessed for the supertype.
 After resolving most type-checking warnings by adding or changing
 annotations, we manually examined each remaining one to determine whether
 it was a bug or a false positive warning.
-\todo{In some cases, the number of \<@Det> annotations was especially prevalent.
-  In these cases we changed the default qualifier for that class to \<@Det>.}
+When the number of \<@Det> annotations in a file was overwhelming,
+we changed the default qualifier for that class to \<@Det>.  (Users
+  can control defaulting on a file-by-file and method-by-method basis.)
 The effort would have been much easier for someone familiar with Randoop,
 and yet easier if done while code is being written and is malleable.
 
@@ -244,7 +243,7 @@ been able to reverse-engineer on our own.
 
 \subsection{False positive warnings}
 
-\TheDeterminismChecker issued 37 false positive warnings, or 1 every 650
+\TheDeterminismChecker issued 37 false positive warnings, or 1 for every 650
 lines of code.
 
 The most common reasons (responsible for 67\% of false positive warnings)
@@ -290,9 +289,9 @@ The first two issues can be resolved by improvements to
 \theDeterminismCheckerImplementation.
 The third and fourth issues are limitations of the Java language, but a
 local refactoring in the Randoop codebase can make the code type check.
-Refactoring can also eliminate the last warning. \todo{Can it? I thought
-  what happens when iterating over an @OrderNonDet collection is something we
-can't verify with the checker.}
+Refactoring can also eliminate the last warning, for example by using the
+higher-order \<map()> function instead of a loop; alternately,
+\theDeterminismChecker could be enhanced to pattern-match some loops.
 
 
 \subsection{Annotation effort}
