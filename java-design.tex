@@ -158,7 +158,7 @@ Just as a qualifier variable $\kappa$ is written as \<@PolyDet> in Java
 source code, $\up{\kappa}$ is written as \<@PolyDet("up")>, and
 $\down{\kappa}$ is written as \<@PolyDet("down")>.  An occurrence of a
 qualifier variable that does not affect the binding of that variable
-(\cref{bindings-uses}) is written \<@PolyDet("use")>.
+($\use{\kappa}$ in \cref{bindings-uses}) is written \<@PolyDet("use")>.
 
 
 All of our syntax is legal Java code that can be compiled with any Java 8
@@ -314,8 +314,8 @@ lost whenever a non-pure method is called.
 This flow-sensitive type refinement achieves local variable inference,
 freeing programmers from writing many local variable types.
 
-Although \theDeterminismChecker performs local type inference within method bodies.
-It does not perform whole-program type inference.
+Although \theDeterminismChecker performs local type inference within method bodies,
+it does not perform whole-program type inference.
 This makes separate compilation possible.
 It forces programmers to write specifications (type qualifiers) on methods,
 which is good style and valuable documentation.
