@@ -282,7 +282,6 @@ including their qualifiers.
     {C \sqsubseteq \<Map> & \wellformed{\<NonDet> \ \beta_k} & \wellformed{\<NonDet> \ \beta_v}}$
     
     \caption{Type well-formedness}
-\todo{What if $\beta$ has \<List> within?  Be sure everything works in that case.}
 
 %\todo{\todo{I think this will be OK, by redefining $\beta$.}
 %  The collection rules do not permit nested collections; similarly, the
@@ -321,7 +320,7 @@ rules of \ourTypeSystem.
 \end{figure}
 
 The element type of a \<NonDet> collection must be \<NonDet>.
-Otherwise, the type qualifier on a collection's element must be a subtype or equal to
+For other collections, the type qualifier on a collection's element must be a subtype or equal to
 the collection's type qualifier (\rulename{collection} rules of
 \cref{type-validity}). Note that the \rulename{ordernondet} rules also
 permit \<Det> collections,
@@ -388,7 +387,7 @@ A collection of type \<OrderNonDet> has special properties, including the follow
 \item
 The individual elements retrieved from it have type \<NonDet>.  This
 affects access, iteration, searching, etc.
-(Rules \rulename{iteration} and \rulename{next element} in \cref{fig-ordernondet-rules}.)
+(Rules \rulename{get}, \rulename{iteration}, and \rulename{next element} in \cref{fig-ordernondet-rules}.)
 \item
 Size-related operations return a deterministic result.  This also affects
 queries of whether an iterator has more elements.
@@ -399,7 +398,7 @@ that does sorting, the result is deterministic.
 
 To state the first point more formally, the 
 typical type for a list access operation, such as \<get>, is
-$$\forallt{\tau} \<List>\angles{\tau} \times \<Det Int> \rightarrow \tau$$
+$$\forallt{\tau} \<List>\angles{\tau} \times \<Int> \rightarrow \tau$$
 but this type is incorrect for \ourTypeSystem.  Each of the following is a
 correct (but overly restrictive) type for \<get>:
 \begin{eqnarray*}
@@ -443,7 +442,10 @@ and our typing must have that as a special case, which is the first line above.
 
     \rulename{get}: 
     $
-    \forallt{\tau} \kappa \in \{\<Det>, \<NonDet>\}\ \<OrderNonDet> \ C \angles{\tau} \ \times \kappa \ \<Int> \rightarrow 
+    \forallt{\tau\ \kappa}
+    % Not necessary: invalid instantiantions are not created
+    % \in \{\<Det>, \<NonDet>\}\
+    \<OrderNonDet> \ C \angles{\tau} \ \times \kappa \ \<Int> \rightarrow 
     \<NonDet> \ \<Int>
     $
     
@@ -451,18 +453,27 @@ and our typing must have that as a special case, which is the first line above.
     
     \rulename{set}: 
     $
-    \forallt{\kappa, \beta} \ \<OrderNonDet> \ C \angles{\kappa \ \beta} \ \times \<Det> \ \<Int> \times \kappa \ \beta_n \rightarrow 
+    \forallt{\kappa\ \beta} \ \<OrderNonDet> \ C \angles{\kappa \ \beta} \ \times \<Det> \ \<Int> \times \kappa \ \beta \rightarrow 
     \<NonDet> \ \beta
     $
     
     \bigskip
     
-    \rulename{set invalid}: 
-    $
-    \forallt{\kappa, \beta} \ \<OrderNonDet> \ C \angles{\kappa \ \beta} \ \times \<NonDet> \ \<Int> \times \kappa \ \beta_n \rightarrow 
-    \|INVALID|
-    $
+%% We don't need this.  Just leaving it out means the expression has no
+%% typing and is therefore invalid.
+%     \rulename{set invalid}: 
+%     $
+%     \forallt{\kappa, \beta} \ \<OrderNonDet> \ C \angles{\kappa \ \beta} \ \times \<NonDet> \ \<Int> \times \kappa \ \beta \rightarrow 
+%     \|INVALID|
+%     $
     
+    \rulename{size}:
+    $
+    \forallt{\tau} \<OrderNonDet>\ C\angles{\tau} \rightarrow
+    \<Det> \ \<int>
+    $
+   
+
     \bigskip
 
     \rulename{iteration}: 
@@ -500,7 +511,6 @@ and our typing must have that as a special case, which is the first line above.
     \forallt{\tau} \<OrderNonDet>\ \<Iterator>\angles{\tau} \rightarrow
     \<Det> \ \<boolean>
     $
-    \bigskip
 
 %    $\infer[\rulename{size}]
 %    {\Gamma \vdash \|y| : \|Det \ int|}
@@ -510,12 +520,6 @@ and our typing must have that as a special case, which is the first line above.
 %        & \wellformed{\tau}
 %    }$
 
-    \rulename{size}:
-    $
-    \forallt{\tau} \<OrderNonDet>\ C\angles{\tau} \rightarrow
-    \<Det> \ \<int>
-    $
-    
 \caption{\<OrderNonDet> Collection rules.  $C$ is a collection class.
     These are partial types indicating the methods' behavior on
     \<OrderNonDet> arguments.  Full types are given in \cref{polymorphism}.}
