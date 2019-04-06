@@ -56,6 +56,18 @@ Diff: test command-line argument, and print timestamp or not
 
 ----------------
 
+commit f212cc7e57d9a1bf407d2fc2dfe44f65dc1c5b64
+Author: Michael Ernst <mernst@alum.mit.edu>
+Date:   Fri Apr 5 18:31:29 2019 -0700
+
+    Make debugging output in deterministic order
+    
+    Bug found by the Determinism Checker
+
+Diff:
+-      for (TypedOperation typedOperation : methodWeights.keySet()) {
++      for (TypedOperation typedOperation : new TreeSet<>(methodWeights.keySet())) {
+
 ===========================================================================
 
 Changes made to improve determinism, before running the Determinism Checker:

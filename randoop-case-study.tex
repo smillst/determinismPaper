@@ -155,8 +155,8 @@ arbitrary order, making the output difficult to compare across different
 executions, or even to find information in.
 The class already implemented \<Comparable>, so
 the developers changed \<methodWeights.keySet()> to
-\codeid{new TreeSet<>(methodWeights.keySet()} in a \<for> loop (commit
-\todo{TO DO}).
+\codeid{new TreeSet<>(methodWeights.keySet())} in a \<for> loop (commit
+f212cc7e).
 % This was actually introduced after the coding sprint.  Maybe some other
 % defects were too, so our criticism should be about regressions rather
 % than not finding them in the first place.
@@ -170,7 +170,7 @@ the developers changed \<methodWeights.keySet()> to
   Diagnostic output printed a hash code for brevity.
   The developers changed it to have deterministic output (commit 661a4970).
   Although the Randoop developers classified this issue as minor, it is
-  very similar to ones they fixed during their two-week coding sprint.
+  similar to ones they fixed during their two-week coding sprint.
 
 \item[\bugTimestampOutput]
   Diagnostic output printed a timestamp.
@@ -238,7 +238,52 @@ been able to reverse-engineer on our own.
 
 \subsection{False positive warnings}
 
-\todo{Java 8 lambdas could help.}
+\TheDeterminismChecker issued 37 false positive warnings, or 1 every 650
+lines of code.
+
+The most common reasons (responsible for 67\% of false positive warnings)
+were:
+
+\begin{itemize}
+\item   (22\%)
+%      8 constructors guarantee all instances of this class are @Det
+  When every instance of a class is \<@Det>, \<@PolyDet> is equivalent to
+  \<@Det>, but \theDeterminismChecker does not yet recognize this fact.
+\item  (16\%)
+%      6 https://github.com/t-rasmud/checker-framework/issues/96
+  For a type that cannot be \<@OrderNonDet>, \<@PolyDet("up")> is
+  equivalent to \<@PolyDet>.
+\item (14\%)
+%      5 can't specify receiver for anonymous class
+  Java does not have syntax for specifying the type of an anonymous class.
+\item (11\%)
+%      4 actual type toString returns @PolyDet
+  A variable is declared as \<Object> which has nondeterministic \<toString>,
+  but at run time the value always has deterministic \<toString>.  For
+  example, the run-time value is always an \<Integer> or a \<String>.
+\item (5\%)
+%      2 iterating over @OrderNonDet collection to modify another
+  Iteration over an \<@OrderNonDet> collection in order to make another
+  \<@OrderNonDet> collection, but the extracted elements have type
+  \<@NonDet>.  For example, the following code is safe,
+  \theDeterminismChecker issues a warning.  Variable \<elt> has type
+  \<@NonDet>, so the call to \<add> does not typecheck.
+\begin{Verbatim}
+  void m(@OrderNonDet List<@Det String> input) {
+    @OrderNonDet List<@Det String> output = new List<>();
+    for (String elt : input) {
+      output.add(elt);
+    }
+  }
+\end{Verbatim}
+  
+\end{itemize}
+
+The first two issues can be resolved by improvements to
+\theDeterminismCheckerImplementation.
+The third and fourth issues are limitations of the Java language, but by a
+local refactoring in the Randoop codebase can make the code typecheck.
+Refactoring can also eliminate the last warning.
 
 
 \subsection{Annotation effort}
