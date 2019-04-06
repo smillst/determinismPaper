@@ -2,7 +2,7 @@
 
 \todo{TODO}
 
-The state of the art is NonDex~\cite{nondex}.  It is a highly effective tool.
+The state of the art for detecting nondeterministic tests is NonDex~\cite{nondex}.  It is a highly effective tool.
 % https://github.com/TestingResearchIllinois/NonDex/wiki/Supported-APIs
 NonDex uses a hand-crafted list of 47 methods (25 unique method names)
 in 13 classes that were identified as potential sources of flakiness. 
@@ -39,11 +39,13 @@ researchers and software developers alike~\cite{Fowler,Sudarshan}.
 \cite{LuoHEM2014} study 51 open source projects and analyze the most common root causes of
 test flakiness. The findings in the paper suggest that most of the flakiness in tests is caused by
 the use of async await, concurrency, or due to test order dependency.~\cite{Plotkin:1993:LPP:645891.671433}
-perform an empirical study on open source benchmarks that concur with the results of~\cite{LuoHEM2014}.
+perform an empirical study on open source benchmarks, the results of which concur with those of~\cite{LuoHEM2014}.
 Additionally, the authors of this paper study the effects of removing these test smells. Their results suggest that
-refactoring the test code smells fixed more than half of the identified flaky tests.
+refactoring the test code smells fixed more than half of the identified flaky tests. Our approach is complementary to
+these techniques and aims to prevent nondeterminism from causing harmful effects. 
 
-\cite{Jin:2012:UDR:2254064.2254075} study the effect of inefficient code sequences on the performance of software.
+The problem of inconsistencies between specifications and implementations
+is quite prevalent.~\cite{Jin:2012:UDR:2254064.2254075} study the effect of inefficient code sequences on the performance of software.
 Their findings suggest that incorrect understanding of performance specifications of APIs is a very common root cause for
 performance bugs. ~\cite{Rui:2013:180377} analyze the APIs related to security such as authorization and authentication.
 These APIs which come as a part of the SDKs provided by online providers are used by application developers to 
@@ -67,7 +69,8 @@ controlled and uncontrolled.~\cite{ZhangJWMLEN2014} investigate the effects of t
 on other techniques such as test prioritization, selection, etc. Other approaches~\cite{BellKMD2015,Gyori:2015:RTD:2771783.2771793}
 analyze test dependencies and either prevent them or use this information for other optimizations.
 \cite{Dan:2013:10.1007/978-3-642-39038-8_25,Vahabzadeh:2015:7332456} focus on differentiating bugs due to tests
-from those caused by source code.
+from those caused by source code. While we haven't fully accounted for all nondeterministic sources due
+to the environment, our technique is easily extensible by adding annotations to the corresponding classes.
 
 %\todo{A NonDet annotation:
 %  \url{http://www.swi-prolog.org/pldoc/man?section=modes}}
