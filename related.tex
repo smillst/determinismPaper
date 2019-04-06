@@ -64,14 +64,22 @@ which ensured correctness.
 Several techniques have been proposed to test whether a
 deterministic implementation conforms to its non-deterministic finite state machine~\cite{Petrenko1996,Petrenko:1993:NSM:648128.761244,Savor:1997:639710,Hierons:2004:TCD:1040993.1040998}.
 \cite{Cook:2013:RNP:2491956.2491969} presents an approach that can automatically verify properties
-in branching time temporal logic systems that are inherently non-deterministic. While there has been research on type systems that provide compile time determinism guarantees for parallel programs~\cite{Bocchino:2009:TES:1640089.1640097,Bocchino:2011:SND:1926385.1926447},
-there hasn't been a similar effort for sequential programs.
+in branching time temporal logic systems that are inherently
+non-deterministic.
+Bocchino et
+al.~\cite{Bocchino:2009:TES:1640089.1640097,Bocchino:2011:SND:1926385.1926447}
+provide a type-and-effect system that provides compile-time determinism
+guarantees for parallel programs, with a focus on barrier removal,
+reasoning about interference and thread interleavings.
+We believe our work to be the first verification approach
+aimed at ensuring determinism in sequential programs.
 
 Failing tests that are unrelated to code changes can be expensive both in terms of monetary costs and
 developer effort. \cite{Herzig:2015:EDF:2819009.2819018} proposes techniques to classify tests as false alarms
 if they are known to be caused by testing infrastructure or other environment issues.~\cite{Huo:2014:IOQ:2635868.2635917}
 presents an approach that detects brittle assertions in tests by performing a taint analysis on inputs classified as 
-controlled and uncontrolled.~\cite{ZhangJWMLEN2014} investigates the effects of test independence assumption
+controlled and uncontrolled.~\cite{ZhangJWMLEN2014} investigates the
+effects of the test independence assumption
 on other techniques such as test prioritization, selection, etc. Other approaches~\cite{BellKMD2015,Gyori:2015:RTD:2771783.2771793}
 analyze test dependencies and either prevent them or use this information for other optimizations.
 The approaches in \cite{Dan:2013:10.1007/978-3-642-39038-8_25,Vahabzadeh:2015:7332456} focus on differentiating bugs due to tests
