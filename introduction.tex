@@ -26,7 +26,7 @@ Nondeterminism is a serious problem for software developers and users.
 %    Readers will be unhappy if we make a claim but then do not support it.}\cite{Herzig:2015:EDF:2819009.2819018,Huo:2014:IOQ:2635868.2635917,ZhangJWMLEN2014,BellKMD2015,Fowler,Gyori:2015:RTD:2771783.2771793,Dan:2013:10.1007/978-3-642-39038-8_25,Vahabzadeh:2015:7332456,Sudarshan}.
 %  \todo{Citations about bugs related to this?}
 \item
-  Nondeterminism reduces users' and developers' \textbf{trust} in a program's output.\todo{If possible, add a citation here to parallel the earlier bullets.}
+  Nondeterminism reduces users' and developers' \textbf{trust} in a program's output~\cite{Tene,Shah}.
 \end{itemize}
 
 Two well-known sources of nondeterminism are concurrency
@@ -34,10 +34,11 @@ Two well-known sources of nondeterminism are concurrency
 and coin-flipping
 (calls to a \<random> API\@).
 It may be surprising that nondeterminism is common even in sequential
-programs that do not flip coins.\todo{MK: This statement is very strong,
-  and is totally unjustified. I went looking for something that justified
-  it, but couldn't find anything good. I think that this is missing is a
-  core problem with the paper as-is.}
+programs that do not flip coins.
+%\todo{MK: This statement is very strong,
+%  and is totally unjustified. I went looking for something that justified
+%  it, but couldn't find anything good. I think that this is missing is a
+%  core problem with the paper as-is.}
 For example, a program that iterates over a hash table
 may produce different output on different runs.
 So may any program that uses default formatting, such as Java's
