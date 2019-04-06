@@ -919,26 +919,9 @@ The syntax is explained in \cref{java-polymorphism}.)
 
 \subsection{Type inference, dataflow analysis, and type refinement}\label{dataflow}
 
-\todo{Move all of this to Section 3 since the core calculus has no type
-  inference?
-  But we do want to discuss \<sort>.  So maybe just move the discussion of type inference?}
+\todo{I feel that this section is very confusing.}
 
-\todo{The core calculus requires a qualifier on every type.}
-
-\TheDeterminismChecker performs local type inference within method bodies.
-It does not perform whole-program type inference.
-This makes separate compilation possible.
-It forces programmers to write specifications (type qualifiers) on methods,
-which is good style and valuable documentation.
-
-The local type inference is flow-sensitive.  That is, each variable may
-have a different type on every line of the program, depending on
-assignments to the variable.  The inferred type always respects any
-declared type:  that is, it is always a refinement (a subtype) of the
-declared type, if any.
-
-
-In addition to assignments, some method calls refine the types of their
+Some method calls refine the types of their
 arguments.  One example is the \<sort> routine,
 as shown in \cref{fig-sorting}.  One notable fact about the \rulename{sort}
 rule is that it requires the type argument to be deterministic (type
@@ -948,8 +931,6 @@ type argument subtyping.
 Second, the only possible element type for a \<Det> collection is \<Det>.
 
 
-\TheDeterminismChecker has additional type refinement rules for the sorting
-methods of \<List>, \<Collections>, and \<Arrays> classes.
 \begin{figure}
 %     $\infer[\rulename{list sort}]{\Gamma \vdash x : \|Det \ List|\angles{\<Det> \ \beta}}{\Gamma \vdash x : \|OrderNonDet \ List|\angles{\<Det> \ \beta} & \|x.sort()|}$
 %     
@@ -970,11 +951,12 @@ methods of \<List>, \<Collections>, and \<Arrays> classes.
     }
     \label{fig-sorting}
 \end{figure}
-As an example, if \codeid{sort()} is called on a receiver of type
-\codeid{OrderNonDet List<Det Set<Det String>>}, it will be type refined to
-\codeid{Det List<Det Set<Det String>>}. However, it is not permitted to
-call \<sort> on a receiver of type \codeid{OrderNonDet List<OrderNonDet
-  Set<Det String>>}.  The rule is not applicable, because doing so would
+
+For example, if \codeid{sort()} is called on a receiver of type
+\ptype{OrderNonDet List}{\lptype{Det Set}{Det String}}, it will be type refined to
+\ptype{Det List}{\lptype{Det Set}{Det String}}. However, it is not permitted to
+call \<sort> on a receiver of type \ptype{OrderNonDet List}{\lptype{OrderNonDet
+  Set}{Det String}}.  The rule is not applicable, because doing so would
 instantiate invalid types.
 
 
@@ -986,7 +968,6 @@ is permitted to call \<shuffle> on a receiver of type \ptype{Det List}{Det
   String} that was declared as \ptype{OrderNonDet List}{Det
   String} but then refined to \ptype{Det List}{Det String}, for example by
 calling \<sort> or via assignment.
-
 
 
 %\subsection{CLIMB-to-top and collection, array locals}\label{climb-rules}
