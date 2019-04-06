@@ -87,9 +87,10 @@ object-oriented language.
   \label{fig:grammar}
 \end{figure}
 
-In a type system,
-a \textit{type} represents a set of values.  It abstracts or restricts the
-set of possible run-time values that an expression may evaluate to.
+One way to view a type is as
+a set of values.  A type abstracts or restricts the
+set of possible run-time values that an expression may evaluate to
+and the operations that may be performed.
 A programming language provides \emph{basetypes}, such as \<Int>.
 A \textit{type qualifier} on a basetype adds additional constraints;
 that is, it reduces the size of the set of values.
@@ -111,21 +112,24 @@ permit users to omit type qualifiers.
 
 A type checker verifies the types written in a program.
 \OurTypeSystem checks all the standard typing rules including the ones
-shown in \cref{typecheck-rules-standard}.  For \ourTypeSystem, $\tau$
-represents a qualified type rather than a basetype.
+shown in \cref{typecheck-rules-standard}, which
+shows a sample of standard typing rules for
+an object-oriented programming language.
+% For \ourTypeSystem, $\tau$
+% represents a qualified type rather than a basetype.
 
 A type qualifier constrains the set of possible run-time values, that is,
 $\kappa \ \beta \sqsubseteq \beta$.
 As a result, a qualifier type system does not allow any values that the
-original type system does not.
+original type system does not, in the same program without qualifiers.
 However, the qualifier type system may reject more programs, and thus
 affords stronger guarantees.
 % (Our implementation \theDeterminismChecker runs the underlying base type
 % system, then issues additional errors and warnings.)
 
 Type qualifier systems are sometimes defined independently of the
-underlying type system.  Because there are interactions between the
-basetypes and the type qualifiers, defining them together improves
+underlying type system.  In \ourTypeSystem, there are interactions between the
+basetypes and the type qualifiers.  Defining them together improves
 precision, which is important in practice.
 
 
@@ -181,8 +185,6 @@ precision, which is important in practice.
 %  $\beta = C | C\angles{\overline{\tau}}$.
 %  }
 
-\Cref{typecheck-rules-standard} shows a sample of standard typing rules for
-an object-oriented programming language.
 
 
 
@@ -219,7 +221,7 @@ A map is a dictionary or associative array, such as a hash table.
 \OurTypeSystem largely treats a map as a collection of key--value pairs.
 Both collections and maps may be \<Det>, \<OrderNonDet>, or \<NonDet>, and
 the element types can be specified independently of the collection type,
-including qualifiers.
+including their qualifiers.
 
 %\todo{A type $\tau$ is represented as $\kappa \ \beta$
 %where $\kappa$ is a type qualifier (that is, \<NonDet>, \<OrderNonDet>, or
