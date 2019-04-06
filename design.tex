@@ -839,7 +839,7 @@ non-deterministic, then the result of the call is nondeterministic.
 % \end{Verbatim}
 
 A similar typing does \emph{not} work for the \<set> function that sets an
-element of a list.  Consider the putative type
+element of a list.  Consider the mutative type
 
 $\<set> : \forallt{\kappa} \kappa\ \<List>\angles{\down{\kappa}\ \<String>} \times \up{\kappa}\ \<Int> \times \down{\kappa}\ \<String> \rightarrow ()$
 
@@ -1074,7 +1074,7 @@ comparing two objects of type \ptype{OrderNonDet Set}{Det String} yields a
 
 More specifically, rule \rulename{set precision} of
 \cref{fig-precision-rules} expresses that the return type of \<equals()>
-is \<Det> if both arguments have type \<OrderNonDet Set> and nether argument
+is \<Det> if both arguments have type \<OrderNonDet Set> and neither argument
 has {@code List} or a subtype within its type argument.
 Without this rule, the type would be \<NonDet> which is sound but imprecise.
 
