@@ -547,8 +547,7 @@ instantiation of a (method) abstraction is chosen at a use site
 \subsubsection{Qualifier and basetype polymorphism}\label{sec:basic-polymorphism}
 
 \OurTypeSystem supports parametric
-polymorphism~\cite{Abadi:1989:FIM:77350.77373,Plotkin:1993:LPP:645891.671433}
-over both classes and methods.
+polymorphism~\cite{Abadi:1989:FIM:77350.77373,Plotkin:1993:LPP:645891.671433}.
 A polymorphic abstraction (a class or method) is written and
 typechecked once.
 It acts as if it has multiple different types, and each use site is
@@ -559,7 +558,6 @@ non-polymorphic type.
 
 \OurTypeSystem supports both basetype polymorphism and qualifier polymorphism.
 When both are applied, it gives the effect of type polymorphism.
-Polymorphism applies to both classes and methods.
 
 \begin{itemize}
 \item
@@ -577,7 +575,7 @@ $\forallt{\kappa \ \beta} \kappa \ \beta \rightarrow \kappa \ \beta$.
   $\<choose> : \forallt{\beta} \<Set>\angles{\<Det>\ \beta} \rightarrow \<NonDet>\ \beta$
 
   Basetype polymorphism is rarely used on its own.  Full type polymorphism is more
-  common, even if the type is decomposed and the parts used independently,
+  common, even if the function type decomposes the type parameter and uses the parts independently,
   as in this more general type for the \<choose> function:
 
   $\<choose> : \forallt{\kappa\ \beta} \<Set>\angles{\kappa\ \beta} \rightarrow \<NonDet>\ \beta$
@@ -599,12 +597,13 @@ $\<length>\ : \<NonDet>\ \<String> \rightarrow \<NonDet> \<Int>$
 
 $\<length>\ :\<Det>\ \<String> \rightarrow \<Det> \<Int>$
 
+\noindent
 The body of \<length> must typecheck at every possible instantiation of its
 polymorphic function type.  At a use site of \<length>,
 the most specific applicable instantiation is chosen.
-Here is an example:
 
-Suppose we have two variables $\<ni> : \<NonDet Int>$ and $\<di> : \<Det Int>$.
+For example,
+suppose we have two variables $\<ni> : \<NonDet Int>$ and $\<di> : \<Det Int>$.
 This table shows, for several method invocations, the 
 most specific applicable instantiation for that invocation and the type of
 the call expression:
@@ -624,7 +623,8 @@ that would create invalid types.  For example, the \<length> and \<plus> polymor
 functions would not be instantiated at $\kappa = \<OrderNonDet>.$
 This makes no difference for these particular functions:  such an
 instantiation would never be the most specific applicable one.
-This is important for some of the type rules given in this paper, which
+The general rule about instantiations and type validity
+is important for some of the type rules given in this paper, which
 would otherwise need complex preconditions that recapitulate the type
 well-formedness rules.
 
@@ -646,7 +646,7 @@ $\<size>\ :\ \<OrderNonDet>\ \CollectionE \rightarrow \<OrderNonDet>\ \<Int>$
 because such an instantiation would include the invalid return type \<OrderNonDet Int>.
 This means that the only two instantiations are at 
 $\kappa = \<NonDet>$ and $\kappa = \<Det>$.  An invocation on an
-\<OrderNonDet> collection would choose the \<NonDet> instantiation and the
+\<OrderNonDet> collection would choose the \<NonDet> instantiation, and the
 return type at that call site would be \<NonDet Int> rather than the
 desired \<Det Int>.
 
@@ -732,8 +732,8 @@ $\<first> : \<Det>\ \ListKB \rightarrow \<Det>\ \beta_e$
 
 In the type of \<first>, the $\uparrow$ is not strictly necessary.
 
-Suppose that $\<myStrings> : \ptype{OrderNonDet List}{Det String}$.
-The type of \<first(myStrings)> should be \<NonDet String>.
+Suppose that $\<myOndStrings> : \ptype{OrderNonDet List}{Det String}$.
+The type of \<first(myOndStrings)> should be \<NonDet String>.
 
 If the type of \<first> were 
 
@@ -746,7 +746,7 @@ $\<first> : \<OrderNonDet>\ \ptype{List}{$\kappa$ String} \rightarrow \<OrderNon
 
 \noindent
 would be invalid.
-At the call \<first(myStrings)>, the most specific instantiation would be
+At the call \<first(myOndStrings)>, the most specific instantiation would be
 
 $\<first> : \<NonDet>\ \ptype{List}{$\kappa$ String} \rightarrow \<NonDet>\ \<String>$
 
@@ -761,9 +761,9 @@ instantiations, rather than requiring
 a reader to reason about valid types.
 
 
-The rules prevent some invocations.  Suppose we have the following variable:
+The given type prevents some invocations.  Suppose we have the following variable:
 
-$\<listOfLists> : \ptype{OrderNonDet List}{\ptype{Det List}{Det String}}$
+$\<listOfLists> : \ptype{OrderNonDet List}{\lptype{Det List}{Det String}}$
 
 \noindent
 Then the invocation \<first(listOfLists)> is illegal.
@@ -800,56 +800,39 @@ found this to be a problem in our case studies.
 
 \subsubsection{Differentiating binding and use}\label{bindings-uses}
 
-\todo{TODO: Need to work on this section.}
-
-In the annotated JDK, the type of get is:
-
-\begin{Verbatim}
-    @PolyDet("up") E get(@PolyDet List<E> this, @PolyDet int index);
-\end{Verbatim}
-
+This section introduces the another polymorphism feature by contrasting the
+types of the \<get> and \<set> operations on lists.
 
 A simplified type for the list \<get> method for lists of strings is
 
-$\<get> : \forallt{\kappa} \kappa\ \<List>\angles{\kappa\ \<String>} \times \kappa\ \<Int> \rightarrow \kappa\ \<String>$
-\todo{Used to be $\up{\kappa}$ for return type, but I don't think that is needed.}
-\todo{Oh, maybe it's because we need to be able to instantiate in the tye
-  parameter differently?  How do we enable that?}
+$\<get> : \forallt{\kappa} \kappa\ \<List>\angles{\kappa\ \<String>} \times \kappa\ \<Int> \rightarrow \up{\kappa}\ \<String>$
 
-(The actual typing permits the qualifier on the type argument to differ
-from the type qualifier on the list, and it handles arbitrary basetypes
-including collections that may themselves be order-nondeterministic.)
-
-Instantiations are:
+\noindent
+Its instantiations are:
 
 $\<get> : \<NonDet List>\angles{\<NonDet String>} \times \<NonDet Int> \rightarrow \<NonDet String>$
 
 $\<get> : \<Det List>\angles{\<Det String>} \times \<Det Int> \rightarrow \<Det String>$
 
-\todo{We don't need the \<OrderNonDet> instantiation.  The other two
-  instantiations are enough.
-  We don't need the following instantiation:}
-\begin{Verbatim}
-   // instantiation: OrderNonDet List<Det String> x _ Int -> NonDet String 
-\end{Verbatim}
+\noindent
+It cannot be instantiated at $\kappa = \<OrderNonDet>$, but the other two
+instantiations are enough to ensure that if either the list or the index is (order) non-deterministic, then the result is
+nondeterministic.
 
-If either the list or the index is (order) non-deterministic, then the result is
-nondeterministic:
-
-\begin{Verbatim}
-NonDet Int ni;
-   Det Int di;
-NonDet List<NonDet String> nl;
-OrderNonDet List<Det String> ol;
-Det List<Det String> dl;
-
-get(nl, ni) : NonDet String // instantiation: NonDet List<NonDet String> x NonDet Int -> NonDet String
-get(nl, di) : NonDet String
-get(ol, ni) : NonDet String
-get(ol, di) : NonDet String
-get(dl, ni) : NonDet String
-get(dl, di) : Det String    // instantiation: NonDet List<Det String> x Det Int -> Det String
-\end{Verbatim}
+% \begin{Verbatim}
+% NonDet Int ni;
+%    Det Int di;
+% NonDet List<NonDet String> nl;
+% OrderNonDet List<Det String> ol;
+% Det List<Det String> dl;
+% 
+% get(nl, ni) : NonDet String // instantiation: NonDet List<NonDet String> x NonDet Int -> NonDet String
+% get(nl, di) : NonDet String
+% get(ol, ni) : NonDet String
+% get(ol, di) : NonDet String
+% get(dl, ni) : NonDet String
+% get(dl, di) : Det String    // instantiation: NonDet List<Det String> x Det Int -> Det String
+% \end{Verbatim}
 
 
 A similar typing does \emph{not} work for the \<set> function that sets an

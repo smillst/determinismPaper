@@ -19,6 +19,8 @@ web: paper-notodos.pdf
 clean:
 	latexmk -CA
 
+martin: paper.pdf
+	open paper.pdf
 
 export BIBINPUTS ?= .:bib
 bib:
