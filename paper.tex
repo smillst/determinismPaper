@@ -197,12 +197,12 @@ order-nondeterminism, and determinism; type well-formedness rules to
 restrict the typings for collections; and enhancements to polymorphism that
 improve precision when analyzing collection operations. While state-of-the-art
 nondeterminism detection tools rely on observing runtime output, our approach
-aims to verify determinism thereby providing stronger soundness guarantees.
+aims to verify determinism at compile time, thereby providing stronger soundness guarantees.
 
 We implemented our type system for Java.
 Our type checker, \theDeterminismChecker, warns if a
 program is nondeterministic or verifies that the program is deterministic.
-In a case study of a 24,000 line software project, it found
+In a case study of a 24,000-line software project, it found
 previously-unknown nondeterminism errors in a program that had been heavily
 vetted by its developers,
 who were greatly concerned about nondeterminism errors.
@@ -237,7 +237,7 @@ state-of-the-art dynamic approaches to detecting flaky tests.
 
 %% Keywords
 %% comma separated list
-\keywords{\todo{keyword1}, \todo{keyword2}, \todo{keyword3}}  %% \keywords are mandatory in final camera-ready submission
+\keywords{nondeterminism, type system, verification, specification, hash table}  %% \keywords are mandatory in final camera-ready submission
 
 
 %% \maketitle
