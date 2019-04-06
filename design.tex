@@ -575,7 +575,7 @@ $\forallt{\kappa \ \beta} \kappa \ \beta \rightarrow \kappa \ \beta$.
   $\<choose> : \forallt{\beta} \<Set>\angles{\<Det>\ \beta} \rightarrow \<NonDet>\ \beta$
 
   Basetype polymorphism is rarely used on its own.  Full type polymorphism is more
-  common, even if the type is decomposed and the parts used independently,
+  common, even if the function type decomposes the type parameter and uses the parts independently,
   as in this more general type for the \<choose> function:
 
   $\<choose> : \forallt{\kappa\ \beta} \<Set>\angles{\kappa\ \beta} \rightarrow \<NonDet>\ \beta$
@@ -597,12 +597,13 @@ $\<length>\ : \<NonDet>\ \<String> \rightarrow \<NonDet> \<Int>$
 
 $\<length>\ :\<Det>\ \<String> \rightarrow \<Det> \<Int>$
 
+\noindent
 The body of \<length> must typecheck at every possible instantiation of its
 polymorphic function type.  At a use site of \<length>,
 the most specific applicable instantiation is chosen.
-Here is an example:
 
-Suppose we have two variables $\<ni> : \<NonDet Int>$ and $\<di> : \<Det Int>$.
+For example,
+suppose we have two variables $\<ni> : \<NonDet Int>$ and $\<di> : \<Det Int>$.
 This table shows, for several method invocations, the 
 most specific applicable instantiation for that invocation and the type of
 the call expression:
@@ -622,7 +623,8 @@ that would create invalid types.  For example, the \<length> and \<plus> polymor
 functions would not be instantiated at $\kappa = \<OrderNonDet>.$
 This makes no difference for these particular functions:  such an
 instantiation would never be the most specific applicable one.
-This is important for some of the type rules given in this paper, which
+The general rule about instantiations and type validity
+is important for some of the type rules given in this paper, which
 would otherwise need complex preconditions that recapitulate the type
 well-formedness rules.
 
@@ -644,7 +646,7 @@ $\<size>\ :\ \<OrderNonDet>\ \CollectionE \rightarrow \<OrderNonDet>\ \<Int>$
 because such an instantiation would include the invalid return type \<OrderNonDet Int>.
 This means that the only two instantiations are at 
 $\kappa = \<NonDet>$ and $\kappa = \<Det>$.  An invocation on an
-\<OrderNonDet> collection would choose the \<NonDet> instantiation and the
+\<OrderNonDet> collection would choose the \<NonDet> instantiation, and the
 return type at that call site would be \<NonDet Int> rather than the
 desired \<Det Int>.
 
