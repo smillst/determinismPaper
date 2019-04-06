@@ -34,24 +34,24 @@ They used Docker images to run tests, to avoid system dependencies such as
 a different JDK having a different number of classes or methods.
 They wrote tests with relaxed oracles (assertions) that permit multiple
 possible answers --- for example, in code coverage of generated tests.
-They used linters such as Error Prone, which warns if \<toString> is used on
-array objects, which don't override \<Object.toString> and therefore print a
+They used linters such as Error Prone to warn if \<toString> is used on
+objects, such as arrays, that don't override \<Object.toString> and therefore print a
 hash code which may vary from run to run.
 They used a library that makes hash codes deterministic, by giving each
 object of a type a unique ID that counts up from 1 rather than using a
 memory address as \<Object.hashCode> does.
 They wrote specialized tools to preprocess output and logs to make them easier
 to compare, such as by removing or canonicalizing hash codes, dates, and
-other nondeterministing output (commits e15f9155--32f72234).
+other nondeterministing output.
 Each of these efforts was helpful, but they were not enough to solve the problem.
 
 In July 2017, the Randoop developers spent two weeks of full-time work to
-eliminate unintentional nondeterministic behavior in Randoop.
+eliminate unintentional nondeterministic behavior in Randoop (commits e15f9155--32f72234).
 Their methodology was to repeatedly
  run Randoop with verbose logging enabled,
  look for differences in logging output,
  find the root cause of nondeterminism,
- and eliminate it.
+ and eliminate it (personal communication, 2019).
 Some of the nondeterminism was in libraries, such as the JDK\@.
 The most common causes were \<toString> routines and iteration order of sets and maps.
 The most common fixes were to change the implementation of \<toString>
@@ -76,11 +76,11 @@ We analyzed a version of Randoop from late February 2019 (commit 0a8e63fb), over
 \subsection{Methodology}
 
 In brief, we wrote type qualifiers in the Randoop source code to express its
-determinism specification
-We then ran
+determinism specification,
+then ran
 \theDeterminismChecker.  Each warning indicated a mismatch between the
-specification and the implementation, which we addressed by changing our
-specification or reporting a bug in the implementation.
+specification and the implementation.  We addressed each warning by changing our
+specification, reporting a bug in Randoop, or suppressing a false positive warning.
 
 We annotated the core of Randoop (the \<src/main/java> directory), which
 contains 24K non-comment, non-blank lines of code.
@@ -98,8 +98,8 @@ specification, largely from the methods it calls.  If a method $m$ calls a
 method that we had previously annotated as nondeterministic, we annotated
 $m$ as nondeterministic.
 Sometimes after we
-annotated a subclass, we had to go back and change existing annotation on
-the supertype or elsewhere because the subclass implementation was
+annotated a subclass, we had to go back and change annotations on
+the supertype because the subclass implementation was
 inconsistent with the specification we had guessed for the supertype.
 After resolving most type-checking warnings by adding or changing
 annotations, we manually examined each remaining one to determine whether
@@ -138,9 +138,9 @@ The developers fixed this by changing a \<HashSet> to \<LinkedHashSet>
 \item[\bugClasspath]
 Randoop used the CLASSPATH environment variable in preference to the
 classpath passed on the command line.
-This could have led to incorrect behavior, both in Randoop's test suite and in the field,
-if a user set the environment variable.
-The developers fixed it by changing Randoop to not read the environment variable
+This can cause to incorrect behavior, both in Randoop's test suite and in the field,
+if a user sets the environment variable.
+The developers fixed the problem by changing Randoop to not read the environment variable
 (commit 330e3c56, shown in \cref{fig:randoop-bug-getenv}).
 \TheDeterminismChecker verified that all other uses of system and Java
 properties did not lead to nondeterministic behavior.
@@ -177,7 +177,7 @@ f212cc7e).
   The developers fixed it by making it obey an
   option about whether to print timestamps (commit a460df97).
   The developers may not have noticed this because their log-postprocessing
-  tools removed them from the log when doing comparisons.
+  tools removed timestamps from the log when doing comparisons.
 
 \end{description}
 
