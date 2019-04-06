@@ -64,10 +64,10 @@ rerunning a program multiple times---nor even running it once.
 Our analysis handles collections that will contain the same values, but
 possibly in a different order, on different runs.
 %
-Our analysis is precise enough for practical use.\todo{MK: After reading
-  the eval, I don't believe this claim. Unfortunately, you can't write this
-  paper without it, so I'm not going to remove it.}
-It permits calls to
+% Our analysis is precise enough for practical use.\todo{MK: After reading
+%   the eval, I don't believe this claim. Unfortunately, you can't write this
+%   paper without it, so I'm not going to remove it.}
+Our analysis permits calls to
 nondeterministic APIs, and only issues a warning if they are used in ways
 that may lead to nondeterministic output observed by a user.  Like any
 sound analysis, it can issue false positive warnings.
