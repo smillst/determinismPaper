@@ -56,7 +56,7 @@ analysis, notably concurrency, implicit control flow, and unanalyzed libraries (
 Our analysis works at compile time, giving a guarantee over every possible
 execution of the program, by contrast to unsound dynamic tools that attempt
 to discover when a program has exhibited nondeterministic behavior on
-specific runs.  There is no need for a special JVM nor rerunning a program
+specific runs.  There is no need for a custom runtime system nor rerunning a program
 multiple times.
 %
 Our analysis handles collections that will contain the same values, but
@@ -132,14 +132,14 @@ In \<TypeVariable.java>:
 
 This paper makes the following contributions:
 \begin{enumerate}
-  \item We designed a type system, named \ourTypeSystem, for expressing determinism properties.
+  \item We designed a type system for expressing determinism properties.
 
   \item We implemented the analysis, as a pluggable type system for Java, in a
     tool called \theDeterminismChecker.
 
   \item
-  \todo{It's a bit weird that we call this a contribution but it is never
-    explicitly discussed in the paper.  I think it's probably OK.}
+%  \todo{It's a bit weird that we call this a contribution but it is never
+%    explicitly discussed in the paper.  I think it's probably OK.}
   In a case study, we annotated several libraries, including the collection
     classes and other parts of the JDK (Java's standard library).  This
     provides a formal, machine-readable specification for the libraries, and
