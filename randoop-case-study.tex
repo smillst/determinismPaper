@@ -146,6 +146,22 @@ The developers fixed it by changing Randoop to not read the environment variable
 properties did not lead to nondeterministic behavior.
 \end{description}
 
+\item[Moderate issues]
+  \strut
+\begin{description}
+\item[\bugHashMapOutput]
+While printing diagnostic output, Randoop iterated over a \<HashMap> in
+arbitrary order, making the output difficult to compare across different
+executions, or even to find information in.
+The class already implemented \<Comparable>, so
+the developers changed \<methodWeights.keySet()> to
+\codeid{new TreeSet<>(methodWeights.keySet()} in a \<for> loop (commit
+\todo{TO DO}).
+% This was actually introduced after the coding sprint.  Maybe some other
+% defects were too, so our criticism should be about regressions rather
+% than not finding them in the first place.
+\end{description}
+
 \item[Minor issues]
 \strut
 \begin{description}
