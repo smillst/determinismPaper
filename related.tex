@@ -3,17 +3,18 @@
 The state of the art for detecting nondeterministic tests is NonDex~\cite{nondex}.  It is a highly effective tool.
 % https://github.com/TestingResearchIllinois/NonDex/wiki/Supported-APIs
 NonDex uses a hand-crafted list of 47 methods (25 unique method names)
-in 13 classes that were identified as potential sources of flakiness. 
+in 13 classes as potential sources of flakiness. 
 For each of the identified methods, the authors built models that
 return different results when called consecutively. A modified JVM then
 runs a given test multiple times and reports the test as being flaky if it observes
 diverging test output. While this approach produces precise results, it requires manual inspection
 and considerable debugging effort to locate and fix the source of flakiness. \TheDeterminismChecker, in
-contrast, reports the cause of nondeterminism at compile time requiring little to no debugging effort with the
-caveat of producing higher false positives compared to NonDex. 
-Identifying and modeling methods with nondeterministic
-specifications is analogous to our annotations on the JDK\@. So far, we have annotated
-928 methods across 41 classes.
+contrast, reports the cause of nondeterminism at compile time requiring
+little to no debugging effort.  However, \theDeterminismChecker requires
+much more upfront effort, and it produce false positive warnings.
+NonDex's approach of identifying and modeling methods with nondeterministic
+specifications is analogous to our library specifications. So far, we have annotated
+928 methods across 41 classes in the JDK, in addition to other libraries.
 %\todo{Check whether our JDK is missing anything they support - No}
 %\todo{Did the NonDex authors contact the maintainers of the tools in which
 %  they found nondeterminism - No!}
@@ -23,19 +24,20 @@ specifications is analogous to our annotations on the JDK\@. So far, we have ann
 %that have been already fixed by the open-source software
 %developers."}
 
-DeFlaker~\cite{deflaker} is another approach for flake test detection. It relies on
-version control history to detect tests that behave differently. It computes a diff of the code covered
+DeFlaker~\cite{deflaker} is another approach for flaky test detection. It
+relies on a
+version control history. It computes a diff of the code covered
 in the current version and the previous one. If there exists a test case whose code coverage does not include
 this diff but still produces different results on the two versions being compared, it is flagged as being flaky.
 This approach doesn't require JVM modifications
-and integrates easily with a production software. DeFlaker reported 19 previously unknown bugs
+and integrates easily with production software. DeFlaker reported 19 previously unknown bugs
 in open source projects, 7 of which were addressed by the developers of these projects. DeFlaker is agnostic
-to the code under test and can therefore report flakiness arising out of concurrency which \TheDeterminismChecker cannot.
+to the code under test and can therefore report flakiness arising out of concurrency, which \theDeterminismChecker cannot.
 
 Nondeterminism in tests is of interest to both
 researchers and software developers alike~\cite{Fowler,Sudarshan}.
-In \cite{LuoHEM2014}, the authors studied 51 open source projects and analyzed the most common root causes of
-test flakiness. The findings in the paper suggest that most of the flakiness in tests is caused by
+Luo et al.~\cite{LuoHEM2014} studied 51 open source projects and analyzed the most common root causes of
+test flakiness. The findings suggest that most of the flakiness in tests is caused by
 the use of async await, concurrency, or due to test order dependency. The authors of~\cite{Plotkin:1993:LPP:645891.671433}
 perform an empirical study on open source benchmarks, the results of which concur with those of~\cite{LuoHEM2014}.
 Additionally,~\cite{Plotkin:1993:LPP:645891.671433} studies the effects of removing these test smells. The results suggest that
