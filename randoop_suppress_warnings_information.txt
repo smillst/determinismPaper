@@ -15,16 +15,30 @@ grep -r --include='*.java' -n -e '"determinism"' | sed 's/^.*\/\/ //' | sed 's/:
 Current output:
 
       8 constructors guarantee all instances of this class are @Det
+        These only appear within a method taking @PolyDet (but all instances are @Det).
+        These ar in implementations of toString, equals, run.
+        PR #2431 may fix this?  If not, open issue in CF.
       6 https://github.com/t-rasmud/checker-framework/issues/96
-      5 can't specify receiver for anonymous class
+        @PolyDet("up") should be converted @PolyDet if type can't be @OrderNonDet
+        Jason will fix the issue
       4 actual type toString returns @PolyDet
+        First three look unavoidable.
+        Jason will investigate the last one.
+      3 can't specify receiver for anonymous class
+        http://tinyurl.com/cfissue/2433
 NOT COUNTED in 37 above      3 bug
       2 iterating over @OrderNonDet collection to modify another
       2 enum classes of a @Det Class<?> are @Det, but the checker
+        Jason will investigate
       1 this is code randoop is run on
       1 missing JDK annotation
+        Jason will fix.
       1 https://github.com/t-rasmud/checker-framework/issues/94
+        Implement same ".equals" precision for Map as Set.
+        Jason will implement
       1 https://github.com/t-rasmud/checker-framework/issues/89
+        Array getClass always creates an error
+        Rashmi should investigate
       1 getRuntimeClass returns a @Det Class<?>, so casting one
       1 expected nondeterminism
       1 "--deterministic" option ensures this is deterministic
