@@ -43,5 +43,6 @@ NOT COUNTED in 37 above      3 bug
       1 expected nondeterminism
       1 "--deterministic" option ensures this is deterministic
       1 constructors guarantee all instances of this class are @NonDet
+        PR #2431 may fix this?  If not, open issue in CF.
       1 comparing hash codes is deterministic, even if the codes
       1 combining elements of @OrderNonDet collection for @Det result
