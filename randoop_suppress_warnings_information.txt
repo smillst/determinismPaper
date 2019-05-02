@@ -18,24 +18,31 @@ Current output:
         These only appear within a method taking @PolyDet (but all instances are @Det).
         These ar in implementations of toString, equals, run.
         PR #2431 may fix this?  If not, open issue in CF.
+            #2431 is "closed in favor of a new design"
       6 https://github.com/t-rasmud/checker-framework/issues/96
         @PolyDet("up") should be converted @PolyDet if type can't be @OrderNonDet
         Jason will fix the issue
+            PR #100.
       4 actual type toString returns @PolyDet
         First three look unavoidable.
         Jason will investigate the last one.
+            All uses of @SuppressWarnings were necessary.
       3 can't specify receiver for anonymous class
         http://tinyurl.com/cfissue/2433
 NOT COUNTED in 37 above      3 bug
       2 iterating over @OrderNonDet collection to modify another
       2 enum classes of a @Det Class<?> are @Det, but the checker
         Jason will investigate
+            JDK annotations in progress.
       1 this is code randoop is run on
       1 missing JDK annotation
         Jason will fix.
+            This warning seems to have been removed at some point, not there
+            anymore.
       1 https://github.com/t-rasmud/checker-framework/issues/94
         Implement same ".equals" precision for Map as Set.
         Jason will implement
+            PR #101.
       1 https://github.com/t-rasmud/checker-framework/issues/89
         Array getClass always creates an error
         Rashmi should investigate
