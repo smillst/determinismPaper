@@ -8,8 +8,8 @@ Nondeterminism is a serious problem for software developers and users.
   Nondeterminism makes a program difficult to \textbf{test}, because test
   oracles must account for all possible behaviors while still enforcing
   correct behaviors.  Test oracles that are too strict lead to flaky
-% ,Gyori:2015:RTD:2771783.2771793
-  tests~\cite{LuoHEM2014,nondex,deflaker,Rahman:2018:IFF:3236024.3275529,Sudarshan}
+% ,GyoriSHM2015
+  tests~\cite{LuoHEM2014,ShiGLM2016,BellLHEYM2018,Rahman:2018:IFF:3236024.3275529,Sudarshan}
   that sometimes pass and sometimes fail.  Flaky tests must be re-run, or
   developers ignore them; in either case, their utility to detect defects
   is limited.
@@ -23,7 +23,7 @@ Nondeterminism is a serious problem for software developers and users.
 %  on by users or by other systems~\todo{These do not seem to be supporting
 %    the claim about bugs related to incompatibilities between outputs.
 %    These seem to be general citations about test flakiness or dependence.
-%    Readers will be unhappy if we make a claim but then do not support it.}\cite{Herzig:2015:EDF:2819009.2819018,Huo:2014:IOQ:2635868.2635917,ZhangJWMLEN2014,BellKMD2015,Fowler,Gyori:2015:RTD:2771783.2771793,Dan:2013:10.1007/978-3-642-39038-8_25,Vahabzadeh:2015:7332456,Sudarshan}.
+%    Readers will be unhappy if we make a claim but then do not support it.}\cite{Herzig:2015:EDF:2819009.2819018,Huo:2014:IOQ:2635868.2635917,ZhangJWMLEN2014,BellKMD2015,Fowler,GyoriSHM2015,Dan:2013:10.1007/978-3-642-39038-8_25,Vahabzadeh:2015:7332456,Sudarshan}.
 %  \todo{Citations about bugs related to this?}
 \item
   Nondeterminism reduces users' and developers' \textbf{trust} in a program's output~\cite{Tene,Shah}.
@@ -82,15 +82,15 @@ statically.
 Other researchers have also recognized the importance of the problem of nondeterminism.
 Previous work in program analysis for nondeterminism has focused on unsound dynamic
 approaches that identify flaky test cases.
-NonDex~\cite{nondex} uses a modified JVM that returns different results on different
+NonDex~\cite{ShiGLM2016} uses a modified JVM that returns different results on different
 executions, for a few key JDK methods with loose specifications.  Running a
 test suite multiple times can reveal unwarranted dependence on those
 methods.
-%NonDex~\cite{nondex} is a tool that manually\todo{This is confusing:  the
+%NonDex~\cite{ShiGLM2016} is a tool that manually\todo{This is confusing:  the
 %  tool can't manually identify.  Do you mean that the developers manually
 %  identified, then the tool uses those models?}
 %identifies 
-DeFlaker~\cite{deflaker} looks at a range of commit versions
+DeFlaker~\cite{BellLHEYM2018} looks at a range of commit versions
 of a code, and marks a test as flaky if it doesn't execute any modified code but still fails in the newer version. These techniques
 have been able to identify issues in real-world programs, some of which
 have been fixed by the developers. Identifying and

@@ -1,6 +1,6 @@
 \section{Comparison to NonDex}
 
-The state of the art in flaky test detection is NonDex~\cite{nondex}.
+The state of the art in flaky test detection is NonDex~\cite{ShiGLM2016}.
 \Cref{sec:related} explains how NonDex works. This section compares the
 errors reported by NonDex and \theDeterminismChecker.
 
@@ -38,14 +38,14 @@ is not modeled by NonDex.
         \<DateFormatSymbols> & : \<getZoneStrings> \\
         \<HashMap> & : \<entrySet>, \<keySet>, \<values>
     \end{tabular}
-\caption{Souces of flakiness known to NonDex~\cite{nondex}.}
+\caption{Souces of flakiness known to NonDex~\cite{ShiGLM2016}.}
 \label{fig:flaky-sources}
 \end{figure}
 
 \Cref{sec:nondex-randoop} shows that \theDeterminismChecker finds errors that NonDex does not.
 This section determines whether NonDex finds errors that \theDeterminismChecker does not.
 Its authors ran NonDex on 195 open-source projects, and NonDex found flaky tests in
-21 of them~\cite{nondex}.
+21 of them~\cite{ShiGLM2016}.
 The authors also reported the sources of flakiness
 after manually inspecting these tests. 
 The flakiness that NonDex found was due to 7 methods in 3 classes (\cref{fig:flaky-sources}).
@@ -157,7 +157,7 @@ to the \<assert>* methods.
 %  maintained (it has recent commits), so we can communicate with the authors.}
 
 \section{Comparison to Deflaker}
-Deflaker~\cite{deflaker}, like NonDex, reports tests that could be flaky. 
+Deflaker~\cite{BellLHEYM2018}, like NonDex, reports tests that could be flaky. 
 We were unable to run DeFlaker on Randoop, because Deflaker works with
 projects built with Maven, but Randoop
 uses Gradle for its build system.
@@ -176,7 +176,7 @@ uses Gradle for its build system.
 \subsection{\TheDeterminismChecker on DeFlaker benchmarks}\label{sec:deflaker-benchmarks}
 DeFlaker found 87 previously unknown flaky tests in 93 projects that were being actively developed at the time
 the paper was written. The authors reported 19 of these tests, out of which 7 were addressed by the maintainers of
-those projects~\cite{deflaker}.
+those projects~\cite{BellLHEYM2018}.
 We ran \theDeterminismChecker on the part of each of these
 codebases where the reported bug was fixed, as in \cref{sec:nondex-benchmarks}.
 % The DeFlaker authors graciously fixed problems we discovered while using
