@@ -1,0 +1,503 @@
+OOPSLA 2019 Paper #408 Reviews and Comments
+===========================================================================
+Paper #408 Making Sequential Programs Deterministic
+
+
+Review #408A
+===========================================================================
+
+Overall merit
+-------------
+B. Weak accept
+
+Reviewer expertise
+------------------
+Y. Knowledgeable
+
+Paper summary
+-------------
+This paper presents a type system for tracing non-determinism in
+sequential Java programs. Such a type system is a great mean of
+detecting flaky tests, with strong benefits compared with using
+only a dynamic approach. The paper claims to provide the first
+type system of this kind.
+
+The type system makes the distinction between determinism, non-determinism,
+and order-non-determinism. The latter corresponds to a data structure for
+which the order of iteration for the elements from a container may vary.
+
+The paper motivates and presents solutions to deal with subtyping and
+polymorphism that apply to the 3 type qualifiers introduced.
+
+The authors present a full-blown implementation, tested at scale
+on a large program, and compared against state-of-the-art dynamic
+approaches. They report on detection of new determinism bugs in
+their case study, despite extensive prior effort by the developers of
+the program considered to eliminate sources of nondeterminism.
+
+Assessment
+----------
+Despite a few limitations of the proposed approach (listed further),
+I felt that this paper was describing a solid and useful contribution.
+
+1) The paper starts by considering what appears as a trivial hierarchy
+of type qualifies (nondet/orderednondet/det), and demonstrates through
+a series of convincing, minimal examples, the necessity of adding all
+the ingredients that are introduced in the paper.
+
+2) The presentation is very pedagogical, and the text is very clear
+throughout the paper.
+
+3) The approach is fully implemented, and works on real-life Java code.
+Particular care has been taken to design a Java-compatible syntax
+for the annotations, to design local type inference, and to come up
+with sensible default type qualifiers.
+
+4) The approach has been field tested on a large-scale case study
+(24k lines of code that appears to be nontrivial).
+
+5) The authors also invested great effort into comparing the result
+of their static tool against state-of-the-art dynamic approaches.
+
+
+This paper also has a number of limitations, which are properly identified
+by the authors.
+
+1) There are limits to expressivity. In particular, when nesting data structures,
+e.g. lists of lists, or sets of lists, and the determinism of the outer structure
+does not match the determinism of the inner structure. It's not clear how many
+real-world programs would get hit by this limitation, and whether there is a
+possible fix to increase expressivity.
+
+2) There is a tradeoff between the amout of false positive and the desired
+degree of soundness for the tools, as Section 7 explains. In particular,
+one seem to be happy to give up on soundness, by allowing nondeterminism
+to be introduced on conditionals, to avoid severe restrictions on all
+conditionals.
+
+3) The paper does not provide a soundness theorem (for the part that is sound),
+and does not appear to provide a complete set of typing rules. I support the paper
+because it comes with a complete, thoroughly tested, implementation; but
+nevertheless I would encourage the authors to work on the missing material.
+
+4) There are a few limits in the implementation. They are clearly stated in
+sec 4.4 in particular, and it seems that they could be easily addressed in
+the future. (The authors seem to have already invested significant effort into
+a working implementation.)
+
+Detailed comments
+-----------------
+Questions:
+
+*) Could you speculate on which other programming languages your technique
+might also apply, and for which other languages it surely would be very
+hard to adapt the technique?
+
+*) Given that your are giving up on some aspect of type soundness in practice
+but turning off some checks (as explained in section 7), would it make sense
+to consider extending dynamic tools such as NonDex so as to interpret Garçon's
+annotation? For example, one could record all intermediate results, and report
+an error as soon as a Det-annotated intermediate result takes different values.
+
+*) Line 426, with the type of "set", I am not sure to understand the
+intended semantics of the type "use(k) Int" when the other arguments impose
+k=OrderedNonDet, given that "OrderedNonDet Int" is not a valid type.
+Could you explain the typing rules for "use"?
+
+*) More generally, the paper shows a number of typing rules, but I am not
+sure in the end whether the paper really contains the typing rules that
+the full system implements. Have you tried to state all the typing rules ?
+It would be great to have an appendix with them.
+
+*) I did not quite understand how the special rules for sets and maps (fig 11)
+get integrated into the tool. Is the tool recognizing specific classes
+from the standard libraries? Are the standard libraries annotated with types
+that may be exploited by client code but that is trusted w.r.t. the
+implementation of the library (i.e. these Java libraries are not checked)?
+Further details would be welcome.
+
+*) Was NonDex applied to Randoop? Could it have found the bugs that Garçon
+spotted?
+
+
+Typos:
+
+*) The sentence line 26 appears meant to give a definition to "flaky test",
+however in the current formulation it does not. I believe this would be
+fixed by replacing ".. flaky tests that sometimes pass and sometimes fail."
+with ".. flaky tests, which sometimes pass and sometimes fail."
+
+*) line 97: "to make +it+ deterministic".
+
+*) The contents of fig 7 is not obvious to understand; it does not seem
+to match the comments on line 193, which simply says that one qualifier
+must be a subtype or equal to the other qualifier. (Else, I would have
+naively expected a full triangle of "valid".) Further explanations may
+be helful there.
+
+*) line 130: the subtyping symbol is undefined at this point of the text.
+
+*) line 288: "as if it has" => "as if it had" (I suppose)
+
+*) line 344: "polymorhic"
+
+*) line 412: "the middle instantion is applicable, since ... and Det \inc NonDet".
+I do not see how this latter inclusion comes into play in the argument.
+
+*) line 613: it mentions that all the chosen syntax is legal Java code.
+I suggest to put this information earlier, in the introduction of section 3,
+or even in the introduction to the paper.
+
+*) line 752: likewise, the information that Garçon is a "compiler plugin"
+should be provided in the intro. (The term "pluggable type system" is used
+there, but it was not obvious to me what it meant.)
+
+*) The information about the number of false positive given line 824 can
+only be properly interpreted when knowing what checks are disabled,
+however this information only comes at line 1008. Some reordering
+(or at the very least a forward pointer) is necessary to restore a
+legitimate order.
+
+*) line 997, unsoundness via "implicit flows" could be mentioned earlier
+in the paper. Indeed, a number of PL researchers have an implicit
+understanding that "type system" is a terminology that refers to a
+"sound type system".
+
+*) line 998, regarding non-deterministic conditionals: a concrete
+example would be very helpful there.
+
+*) line 1016: "lanugages" => spellcheck.
+
+
+
+Review #408B
+===========================================================================
+
+Overall merit
+-------------
+C. Weak reject
+
+Reviewer expertise
+------------------
+Y. Knowledgeable
+
+Paper summary
+-------------
+The paper presents a type qualifier system for Java programs to detect
+non-deterministic values that can be different in different executions.
+The system is implemented as an instance of the Checker Framework. The
+two basic qualifiers are Det and NonDet, tracking which expressions can
+have non-deterministic values. Much of the technical development in the
+paper focuses on collections whose set of elements is deterministic but
+whose order is not, for which a third qualifier, OrderNonDet, is added.
+The main part of the evaluation is a case study on Randoop, a test
+generator that is supposed to be deterministic. The paper also compares
+with NonDex and DeFlaker, two dynamic detectors of non-determinism.
+
+Assessment
+----------
+The paper addresses a relevant problem, of the possibility of program
+behavior to not be reproducible due to non-determinism.
+
+On the theoretical side, the novelty in the type qualifier system is
+quite limited. The Det and NonDet qualifiers are similar to corresponding
+qualifiers in taint tracking system, in that they track value flow from
+library functions that are possible sources of non-determinism (taint).
+The OrderNonDet is new. It handles more precisely a specific aspect of
+the Java collections, that the often contain the same set of values but
+in a non-deterministic order. This is due to the design decision in the
+Java library to require all collections to be able to iterate over the
+elements in the collection but to not require any consistency in the
+order in which a collection iterates over these elements. The challenges
+addressed in most of section 2 seem to be quite specific to this
+particular qualifier (and the fact that it is not allowed on
+expressions that are not collections) and to limitations in the
+support for qualifier polymorphism by the Checker Framework implementation.
+
+One might therefore consider the paper more of a practical contribution,
+and focus on the empirical evaluation. But the main part of the evaluation
+is a case study limited to a single application, so it is not clear how
+well the conclusions generalize.
+
+Although the paper is framed at the general problem of non-determinism,
+most of the development focuses on a specific issue in the Java library:
+non-determinism of object hash codes, and the unspecified and therefore
+non-deterministic iteration order of certain collection implementations
+that depend on hash code.
+
+As discussed in section 4.5, the annotation effort is significant. If one
+wants to avoid non-determinism in a program, writing such annotations is
+one possible choice in which to invest effort. Another choice is to
+inspect the code for known Java idioms that lead to non-determinism.
+Some important such idioms have been identified here: iterating over
+collections with non-deterministic iteration order, outputting
+hash codes and time stamps, and depending on environment variables.
+Given a list of such common non-determinism idioms, does it take
+more or less effort to look for these idioms in a program than to
+annotate the program with determinism annotations?
+
+The choice of Randoop for the case study was not clearly motivated.
+The paper states that Randoop is intended to be deterministic, but
+Randoop is a tool that generates random tests. Its very purpose is
+to generate a variety of different tests using randomness: one might
+say that its very purpose is to be non-deterministic (i.e. dependent
+on randomness). Why was it specifically chosen as the case study?
+Is it really Randoop that needs to be deterministic (generate the
+same tests every time) or is it the tests that need to be deterministic
+(cause the program under test to generate the same output every time)?
+But the latter would be a property of the program under test, not of
+Randoop or the tests that it generates. I am still confused about why
+Randoop was chosen as a particularly appropriate program for the 
+case study.
+
+The title is somewhat misleading in that it suggests that the approach
+not only detects non-determinism but also removes it.
+
+l 246: Should the return type of get be NonDet tau instead of NonDet Int?
+
+l 437: Why must the argument of sort be deterministic? Does the system
+prevent a program from sorting a non-deterministic collection? Or
+is it just that sorting a non-deterministic collection will yield a
+non-deterministic result?
+
+In section 2.5, the key problem is that methods like sort and shuffle
+do not return the sorted or shuffled collection, but destructively
+mutate their receiver. I was very confused until I realized this.
+This should be stated clearly at the beginning of the section.
+
+At the beginning of section 3 at the discussion of the implementation, I
+was going to suggest that the implementation could be facilitated by the
+Checker Framework. Its use should be mentioned here, rather than buried
+as a limitation near the end of the paper.
+
+l 826: What do you mean by "When every instance of a class is @Det"? I
+understan @Det to be a property of an expression that states that the
+expression evaluates to the same value (or sequence of values)
+in every execution. What does it mean to apply @Det to a particular
+value (instance)?
+
+section 5.1: Of the 5 tests, 3 are out of scope for NonDex due to not
+being triggered by the test suite and 1 is not modeled by NonDex (the
+Classpath bug). What about the fifth bug?
+
+l 1008: It -> in
+
+
+
+Review #408C
+===========================================================================
+
+Overall merit
+-------------
+C. Weak reject
+
+Reviewer expertise
+------------------
+Y. Knowledgeable
+
+Paper summary
+-------------
+The paper introduces a type system that let's Java programmers annotate
+their code with qualifiers about determinism.  The paper first
+discusses its type system, how it is implemented, and then discusses
+how the tool is applied to a real world program.  The paper discusses
+the annotation and false-positive burden of its static, compile-time
+approach, and then concludes by comparing against other state of the
+art flakey test approaches.
+
+Assessment
+----------
++ Relatively simple take on complex problem.
+
++ Evaluation suggests it works and helps diagnose issues statically
+  (which is the paper's main contribution)
+
++ Nicely evaluated with great description of the effort required on
+  both the tool writers in addition to programmer annotations
+
++ The threat to validity section is great.  A frank discussion of
+  weaknesses (or more politely, limitations) is a plus and makes me,
+  as a user, more likely to use the tool as I know what I am up
+  against
+
+- I am not sure why the problem requires a compile time approach. The
+  contribution seems very focused on collections (contribution is
+  tailored to it) and the lattice is linear thus simplifying
+  inference.
+  
+- managing false positives seems to be on the burden of the developer
+  (paper describes tricks to make them manageable)
+  
+- relatively high annotations required at the application side.
+
+Detailed comments
+-----------------
+The paper's contribution is clear and seems a well-reasoned approach
+to type qualifying collections in Java (like) codes.  I appreciate the
+importance of flaky tests and know first-hand that it is a huge
+problem.  Despite reading the paper, I am not convinced 100% that such
+an annotation heavy static approach outweighs the alternatives.  That
+said, the paper provides a nice step in the right direction.
+
+"This makes separate compilation possible. It forces programmers to
+write specifications (type qualifiers) on methods, which is good style
+and valuable documentation" While yes, types do provide documentation
+and are good style, the overheads here (false positives and
+annotations) are substantial.  
+
+I do not see the paper address floating point.  The title alludes to
+all sequential programs, however, many real world sequential programs
+use floating point operations.  While the Java language standard (I
+think) forbids the compiler for re-ordering floating point operations,
+the OrderedNonDet type qualifier might cause some non-trivial issues
+with a reduction over a set / list of that type.  I did not see a
+discussion of this nor is it clear how Garcon deals with such a
+problem (even if the solution is pushed to the developer to manage).
+Further, a discussion of floating point with respect to the JLS would
+be good to have in the paper even if it all it says is the JIT
+compiler cannot re-order operations.
+
+The details in Section 2.3.2 seem to constrain the programmer
+specifically when doing reductions.  Bullet 1 says that the result of
+a get from the collection has type NonDet. From this I assume a
+floating point sum of all elements in the collection will have type
+NonDet (floating point sum is not commutative). If, however, the
+reduction operation is max then the type *should* be Det.  Yes, Det is
+a subtype of NonDet but does Garcon require the programmer to
+explicitly cast the result of the reduction to the appropriate type?
+And, if a programmer forgets to apply this cast when doing a max
+operation (but not when doing a sum), the result will be imprecision
+in the resulting analysis.  If my understanding is correct, Section
+4.4 might be a place to include such a discussion.
+
+How does a programmer reason about buggy annotations?  In my example
+above, what if a programmer explicitly labels an operation as Det while
+in fact, it is NonDet.  For normal types, this kind of annotation
+mistake is likely resolved by the compilation process and/or executing
+the program.  In contrast, Garcon will emit warnings about
+non-deterministic behavior but it is not entirely clear that those
+warnings are correct given the programmer's mistake!  Moreover, unless
+we execute the program; we cannot understand if the program is
+actually deterministic.  Is there such a possibility for buggy
+annotations?
+
+
+
+Review #408D
+===========================================================================
+
+Overall merit
+-------------
+D. Reject
+
+Reviewer expertise
+------------------
+Y. Knowledgeable
+
+Paper summary
+-------------
+The authors present a type (qualification) system that checks sequential programs for undesired non-determinism. They have applied their implementation in Java to a midsize program and detected several relevant determinism errors. Although the main context set by the paper is writing deterministic test cases, it is easy to envision uses that go beyond testing.
+
+Assessment
+----------
+Overall, I am quite enthusiastic about the authors’ work, and also the (current) achievements (annotating the JDK and finding a significant number of errors in production code). I can easily imagine that a sound determinism checker will quickly belong to the tool suite of many programmers. The main question is, however, whether the maturity of the presented work clears the OOPSLA bar. Unfortunately, I am rather sceptical in this regard.
+
+Below I have summarized the (numerous) issues I have stumbled across (as an additional reviewer). While not all of these may identify real problems (or only omissions in the presentation), they add up to an impression of ad hocery. To quote Luca Cardelli: 
+
+> The purpose of a type system is to prevent the occurrence of execution errors during the running of a program. The accuracy of this informal statement depends on the rather subtle issue of what constitutes an execution error. Even when that is settled, the type soundness of a programming language (the absence of certain execution errors in all program runs) is a non-trivial property. A fair amount of careful analysis is required to avoid false and embarrassing claims of type soundness; as a consequence, the classification, description, and study of type systems has emerged as a formal discipline.
+
+Although the efforts of the authors are commendable, I am not convinced they are sufficient to avoid embarrassment (even beyond the problems mentioned in section 7). Maybe they can team up with someone who knows exactly what it takes to make this fly at a conference that has a preference for proven soundness claims, be it for a toy (or core) language.
+
+Detailed comments
+-----------------
+line 1: The title is somewhat misleading, since as far as I can see, you can only check determinism; achieving it is still burdened on the programmer.
+
+line 68: „like any sound analysis, it can issue false positive language“ I can imagine sound analyses that do not issue false positives (even though they may not be very useful).
+
+line 124: What does it mean that “$\beta$” lacks a top-level type?
+
+line 141: Does “different values” mean non-equal values (incl. objects) or non-identical values (objects)? I guess the former, since identity across different runs may be difficult to establish. Yet, how do you define equality for objects? Is equality determined by the equals method (this is later answered for the Java implementation with yes)? If so, does type checking not depend on a method that can be overridden? I’d like to see a discussion of how Java’s spec for equals (including for HashMaps and HashSets) interacts with your type rules (and soundness)!
+
+line 142: I think it would be indicated to say what OrderNonDet means in terms of identity or equality of the collection object.
+
+line 144: “the expression evaluates to equal values” Again, what does equal mean? 
+
+line 182: How about streams? Speaking of it, how is input annotated?
+
+line 192: How do NonDet collections come about? As elements of OrderNonDet collections? Why, then, does not the type of every generically typed member of a generic type need to be NonDet? E.g., is
+
+class C<T> { T f; }
+NonDet C<Det Object> c = …
+
+legal?
+
+line 228 and following: I am confused. Is not the problem using an indet index? Also, AFAIK, neither Collection nor Map offer indexed access. If you need to cater for a type hole that List could introduce, how about other (present and future) subtypes of Collection?
+
+line 269 and following: This may be my ignorance, but I do not understand the meaning of the “in this case” phrases, when the preceding statement is universally quantified over $\kappa$.
+
+lines 305 and 309: what do you mean by “common”? Frequent in your experiments?
+
+line 537: While it is not uncommon that a type system relates to special types, I would like to see some (informal) specification that all subclasses must obey (just like Java’s specs for hash and equals).
+
+line 563: I find the overriding of type qualifiers provided at the use (instantiation) site, at the definition site, ad hoc. It appears there are no rules (restrictions) for this overriding? How does this affect soundness?
+
+
+
+Review #408E
+===========================================================================
+
+Overall merit
+-------------
+D. Reject
+
+Reviewer expertise
+------------------
+Y. Knowledgeable
+
+Paper summary
+-------------
+This paper proposes a refinement type system for analysing Java programs to determine whether they are deterministic or non-deterministic. Considerable effort is spent analysing collection types and determining their computation effects.
+
+Assessment
+----------
++ Super interesting area
++ Detailed analysis of the issues
++ Use of formal language to illustrate their analysis
++ A tool has been successfully built
++ Has been applied to an interesting example
+
+- Formality is broken as far as I can see (I think the authors need a different system)
+- No proofs of correctness (Am not too sure it is correct)
+- Has only studied in action with one application. Is this representative?
+
+Detailed comments
+-----------------
+I should say from the start that I am no expert on non-determinism analysis. But I do know about the formalism that the authors use, and also various flow-based analyses. So, I can't comment on the advances in the field of non-determinism but I am a pretty representative OOPSLA attendee.
+
+I have to say that I find the area very interesting. Moreover, I think the authors have done the right thing which is to pick a fragment of Java that can be used to illustrate the problems that they have dealt with. In that sense, really the heart of the paper is section 2. This section contains an idealised fragment of Java, and the outline of a typing judgement relation to specify the approach used in the Garcon system. 
+
+However, unfortunately I am not at all convinced by this section. I strongly suggest that the authors consider an overhaul. Here are some pointers:
+
+- The standard approach for fragments of Java is Featherweight (Generic) Java. I think you might be helped by implying extending this core calculus. (There are others if you prefer). I think this would help you tidy up the grammar in Fig 2. For example, in FGJ they make everything generic, and allow, for example, String<>, to be abbreviated as String. Also your lumping together of all the qualifiers together I think is a little suspect. You could simplify the rules in Fig 6, for example, if you actually distinguish between the collection and non-collection types _syntactically_ in your grammar. 
+
+- Figures 3, 4. Please don't overload the $\sqsubseteq$ in this way - it's not helpful.
+
+- Figure 3: The rule \textsc{Invariant type arg} is strange. I would expect this to be a property not a rule. I expect a rule that uses the class declaration to generate a relation between a class and it's superclass (rule S-Class in FGJ).
+
+- Line 130. I don't think you mean $\kappa~\beta\sqsubseteq \beta$, at least given what you write. I think you mean something like $[\!| \kappa~\beta |\!] \subseteq [\!| \beta |\!]$
+
+- Line 140-145: This really ought to be the heart of the section. *Please explain in more detail, maybe with examples, what these mean. Especially wrt collection types.*
+
+- Line 186: Please don't say "...an element type qualifier must be a subtype of a collection type qualifier" only to overturn this statement a handful of lines later: (Line 192: "The element type of a NonDet collection must be NonDet"!!
+
+- Lines 230-233. I puzzled over this example. Not because it's wrong, but because I really had to struggle to understand what a NonDet collection could be. Clearly if a list is updated at random places then it has to be considered NonDet. I note also that if enlist had been given the type qualifier OrderNonDet then this would also not type check either...
+
+- Lines 260-277. At this point I'm wondering whether you don't have the wrong foundation here. Looks like you should really be using ad-hoc polymorphism rather than parametric polymorphism. (See the paper "Compiling polymorphism using intensional type analysis" in POPL'95)
+
+- Section 2.4.1. Hmm... you're talking about parameterisation here, but your grammar in fig 2 didn't have any variables in it!
+
+- Line 350. Okay, now I really believe that you need intensional type analysis here (you have some amount of type level computation here!)
+
+- Line 417 - what's the return type for the function f?
+
+- You also then reveal that this system is flow sensitive. How did you do that? Please give more details.
