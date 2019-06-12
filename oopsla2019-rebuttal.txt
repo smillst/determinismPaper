@@ -1,0 +1,134 @@
+We thank the reviewers for their constructive feedback.
+We are glad that they are enthusiastic about our choice of problem and our approach.
+For the future, we will address the reviewers’ two key points:  a proof of soundness (using a different formalization) and expanded case studies.
+The remainder of this response explains other points.
+
+
+Applying our tool to more benchmarks:
+We have applied our determinism checker to all the benchmarks of NonDex (21 in total as described in Section 5.2) and three benchmarks from DeFlaker (these were benchmarks for which the authors reported the bug to the maintainers; more details are in Section 6.1).
+
+“Was NonDex applied to Randoop? Could it have found the bugs that Garçon
+spotted?”
+
+We did run NonDex on Randoop (Section 5.1).  NonDex was unable to find the bugs that Garçon spotted.
+
+*) section 5.1: Of the 5 tests, 3 are out of scope for NonDex due to not being triggered by the test suite and 1 is not modeled by NonDex (the Classpath bug). What about the fifth bug?
+
+The fifth bug could have been found by NonDex (it is in scope and executed), but NonDex did not find it.
+
+
+Why use Randoop for a case study?
+As explained in Section 4.1 and in Randoop’s documentation, Randoop generates the same tests when run on the same inputs (unless the program under test is itself deterministic).  It is a misconception that Randoop is nondeterministic.
+
+A user can pass in a different seed for the pseudo-random number generator (for instance, to run Randoop twice to obtain different test suites), but that seed is an input and defaults to zero.
+
+
+Limits to Expressivity:
+The type well-formedness rules for nested types do not limit expressivity (also see Section 2.1). 
+For instance, 
+a) We do not allow “Det List<NonDet Integer>”. According to our semantics of types on collections, this type indicates a “List” that upon iteration would result in the same values of elements in the same order, but the contained elements are nondeterministic which is contradictory. Any collection that has “NonDet” elements has to be “NonDet” in order to be consistent with our definition of a collection type.
+b) Similarly, a “NonDet List<Det Integer>” is not more expressive than a “NonDet List<NonDet Integer>” because the collection type here says that there is no guarantee either on the order of iteration or the element values.
+
+Unsoundness caused by turning off warnings on conditionals:
+Our type system does not allow nondeterminism on conditionals. However, our tool implementation enables the user to enable or disable this behavior.  This can be useful to limit tool output when first applying the type-checker to a legacy program.
+
+“consider extending dynamic tools such as NonDex so as to interpret Garçon's annotation?”
+
+
+That’s an interesting suggestion. This heuristic will still not be able to guarantee soundness because NonDex cannot guarantee that a nondeterministic execution will manifest in its reruns. In our experiments, NonDex could not detect nondeterminism that our tool discovered.  However, the hybrid approach could potentially expose some determinism bugs that are not reported when the warnings are disabled.
+
+Generality of our technique:
+Our technique applies to any statically-typed object-oriented language, requiring only engineering effort. We chose Java because of its support for type annotations and to enable direct comparison with previous work, which also used Java.
+
+Overheads of false positives and Annotations:
+“Another choice is to inspect the code for known Java idioms that lead to non-determinism.”
+
+Manual examination is much more work in the long run, because it must be repeated after every code change.  It is easier to annotate once and have a verification tool run on every subsequent compile.
+
+The Randoop authors tried manual examination, and our tool found errors despite their effort.
+
+Note that a user doesn't want to forbid all uses of nondeterminism.  Nondeterminism is often acceptable in a certain part of the program, such as within a given module, behind an abstraction barrier, or for certain values.  What matters is how the nondeterminism is used and where it can flow, and this cannot be captured by a lexical or local analysis.  People are not good at performing this sort of analysis manually.
+
+Hard-coding a limited number of Java idioms would restrict the guarantees to just those idioms and would make the approach inextensible.  It might apply only to clients of the standard library but not to user-defined classes, for example.
+
+Special typing rules for Sets and maps:
+“Are the standard libraries annotated with types that may be exploited by client code but that is trusted w.r.t. the implementation of the library”
+
+There is no type loophole, and clients cannot exploit map and set types.  When clients implement sets or maps, the clients use the map and set types, and they are fully checked, never trusted. The typechecker sometimes issues false positive warnings for an algorithm that is beyond its capabilities, especially for low-level implementations such as some in the standard library.  These must be verified in some other way, such as by manual inspection.
+
+Clarification on type refinement rules:
+The rules in Section 2.5 apply for refining the types, not their validity. The argument of “sort” can be of any type. We refine the type of the receiver only when it is order-nondeterministic and all its type arguments are deterministic.
+Sorting a nondeterministic collection yields a nondeterministic collection and does not refine the receiver type.
+
+Imprecision of Floating point operations:
+Our type system operates on source code and cannot be cognizant of reordering operations performed by compiler optimizations.  Imprecision due to floating-point reordering is not nondeterminism and is not within scope for our paper.
+
+Specific Reviewer Questions:
+
+
+Review #408B:
+
+*) l 826: What do you mean by "When every instance of a class is @Det"? 
+
+When defining a class, a programmer can specify that all instances are deterministic.
+
+Suppose a method “foo” has type “@PolyDet foo (@PolyDet X arg)”. This method must type check for every instantiation of “@PolyDet”. However, if class X has type “@Det class X”, it means that every valid instance of X will be “@Det”. So it is sufficient that “foo” type checks for “@Det”. Our checker currently doesn’t recognize this and issues false warnings as a result.
+
+
+Review #408C:
+
+*) How does a programmer reason about buggy annotations? 
+
+If a programmer writes a wrong annotation, it will be caught during compilation by our type checker.  There is no type loophole.
+Consider a field.  If the annotation is too strict (@Det when it should be @NonDet), then assignments to the field will fail.  If the annotation is too loose (@NonDet when it should be @Det), then uses of the field will fail, such as attempts to pass the field to a method that requires a @Det argument.
+
+As a minor point, your example said “labels an operation as Det while in fact, it is NonDet”, but our system is a type system where types are labeled (qualified), not an effect system where operations are labeled.
+
+
+Review #408D:
+
+*) line 124: What does it mean that “$\beta$” lacks a top-level type?
+
+A type in our type system consists of two components: a type qualifier and a basetype. ““$\beta$” lacks a top-level type” means that “$\beta$” doesn’t have a type qualifier (Explained in Section 2.1).
+
+*) line 141: Does “different values” mean non-equal values (incl. objects) or non-identical values (objects)? … I’d like to see a discussion of how Java’s spec for equals (including for HashMaps and HashSets) interacts with your type rules (and soundness)!
+
+Yes, equality is determined by the equals() method. When a class overrides the equals() method, this more specific equals() method establishes determinism guarantees.  This applies to HashSets and HashMaps as well.
+
+*) line 142: I think it would be indicated to say what OrderNonDet means in terms of identity or equality of the collection object.
+
+OrderNonDet has no effect on identity or equality.  It indicates the nondeterministic iteration order of a collection.
+
+*) line 192: How do NonDet collections come about? As elements of OrderNonDet collections? Why, then, does not the type of every generically typed member of a generic type need to be NonDet? E.g., is
+
+class C<T> { T f; }
+NonDet C<Det Object> c = …
+
+legal?
+
+NonDet collections could be constructed as a result of iterating over other Nondet or OrderNonDet collections.  They can also be constructed from random values (or values that are not known to be deterministic).
+“NonDet C<Det Object>” is illegal according to our type well-formedness rules (Section 2.3). For generic types, our default upper bound is “NonDet”
+
+*) line 228 and following: I am confused. Is not the problem using an indet index? Also, AFAIK, neither Collection nor Map offer indexed access. If you need to cater for a type hole that List could introduce, how about other (present and future) subtypes of Collection?
+
+The problem is aliasing where a “Nondet List<Det Int>” and a “Det List<Det Int>” both point to the same “List” instance. Mutating a “NonDet” location in the “NonDet List<Det Int>” causes the determinism guarantees to break for the “Det List<Det Int>”. Disallowing “NonDet List<Det Int>” ensures that the aliasing these two types isn’t possible (Because of Java’s invariant subtyping rules). 
+While Collection and Map do not offer indexed accesses, not allowing “NonDet Collection<Det ...>” or “NonDet Map<Det ...>” has no impact on the expressivity of valid types.
+
+*) line 269 and following: This may be my ignorance, but I do not understand the meaning of the “in this case” phrases, when the preceding statement is universally quantified over $\kappa$.
+
+Our writing wasn’t clear here. Consider the first type of “get”. We mean that if the return type of “get” was “NonDet $beta$”, then “$kappa$” was instantiated as “NonDet”.
+
+*) lines 305 and 309: what do you mean by “common”? Frequent in your experiments?
+
+“common” as in common for any type system.
+
+*) line 563: I find the overriding of type qualifiers provided at the use (instantiation) site, at the definition site, ad hoc. It appears there are no rules (restrictions) for this overriding? How does this affect soundness?
+
+A type variable represents any type. The type qualifier of its lower bound is the bottom type and that of its upper bound is the top type. Overriding this with a specific type qualifier at instantiation cannot allow a type that isn’t otherwise allowed. So this does not affect soundness.
+
+Review #408E
+
+*) You also then reveal that this system is flow sensitive. How did you do that? Please give more details.
+
+We built our checker on top of the Checker Framework.  Any type system built with it is automatically flow-sensitive. It has a built-in dataflow framework.
+
