@@ -1,6 +1,7 @@
 > > "NonDet C<Det Object>" is illegal according to our type well-formedness
 > > rules (Section 2.3). For generic types, our default upper bound is
 > > "NonDet"
+
 > Is this not a major weakness of your work? I mean: you designed this type
 > system to fix problems for collections, but take all generic types captive?
 
@@ -16,33 +17,38 @@ This is anecdotal evidence, but it does support our design.
 1b. Suppose that `NonDet C<Det Object>` existed.
 With slight abuse of notation, here is its definition:
 
+```
   class NonDet C<Det Object> {
     NonDet Object get() { ... }
     put(Det Object) { ... }
     ...
   }
+```
 
 The return type of `get()` is `NonDet Object` rather than `Det Object` because `get(0)` might return any of the values in the collection.
 
 Here is the definition of the legal type `NonDet C<NonDet Object>`:
 
+```
   class NonDet C<NonDet Object> {
     NonDet Object get() { ... }
     put(NonDet Object) { ... }
     ...
   }
+```
 
-We will see that the hypothetical type `NonDet C<Det Object>` is less expressive than the permitted type `NonDet C<NonDet Object>`.
+We will see that the hypothetical type `NonDet C<Det Object>` is less expressive than the legal type `NonDet C<NonDet Object>`.
 
 The `get()` methods return the same type.  
 
-A client can pass any argument to the `put()` method of the permitted type `NonDet C<NonDet Object>`, including an argument of type `Det Object` which is a subtype of the formal parameter type `NonDet Object`,
+A client can pass any argument to the `put()` method of the legal type `NonDet C<NonDet Object>`, including an argument of type `Det Object` which is a subtype of the formal parameter type `NonDet Object`,
 
 Similar arguments apply to other collection methods.
 
 
 2. We must forbid the existence of the type `NonDet C<Det Object>`, which would introduce an unsound type loophole (unless we introduced complicated machinery to try to prevent it).  Here is a way to exploit the type loophole:
 
+```
    Det C<Det Object> dd;
 NonDet C<Det Object> nd;
 
@@ -50,7 +56,7 @@ dd = ...;
 nd = dd;       // permitted by subtyping
 nd.shuffle()   // permitted because nd has non-deterministic order
 // PROBLEM: the order of deterministic list dd has changed non-deterministically
-
+```
 
 3. Regarding our quoted text "our default upper bound is `NonDet`", defaults have no effect on expressiveness, only on brevity.  Defaults enable a programmer to omit type qualifiers from the source code, but a programmer is always permitted to write type qualifiers explicitly.
 
