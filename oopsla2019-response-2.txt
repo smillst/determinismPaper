@@ -10,7 +10,7 @@ I believe you are asking about the expressiveness of the type system.
 
 1. The prohibition on `NonDet C<Det Object>` does not restrict expressiveness.  Here are two arguments why.
 
-1a. In our annotation of several libraries including the JDK, and of a real application, the type well-formedness rules never prevented us from expressing a specification or contract.  The libraries were more challenging to annotate than the application, because they had to be annotated for all possible clients.
+1a. In our annotation of several libraries including the JDK, and of a real application, the type well-formedness rules never prevented us from expressing a specification or contract.  Our annotations used a variety of collection and element types.  The libraries were more challenging to annotate than the application, because they had to be annotated for all possible clients.
 This is anecdotal evidence, but it does support our design.
 
 1b. Suppose that `NonDet C<Det Object>` existed.
