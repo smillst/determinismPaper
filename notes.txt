@@ -1,4 +1,35 @@
 
-We should claim that we did an informal, paper-and-pencil proof of the core of the type system.
+We should do an informal, paper-and-pencil proof of the core of the type system,
+so that we can claim it in the paper.
 We did not do a mechanized proof (such as in Coq, Isabelle, or K).
 We did not do any proofs about the implementation.
+
+===========================================================================
+
+Determinism Checker and concurrency
+
+I find it annoying to say that the Determinism Checker detects
+non-concurrency-related nondeterminism, or to compare to NonDex and
+DeFlaker and say that the Determinism Checker detects a subset of the
+nondeterminism that the other tools found.
+
+I propose that we extend Determinism Checker to handle concurrency in a
+simplistic but sound way:  it a program uses concurrency, then the
+Determinism Checker issues a warning that the program might be
+nondeterministic.  Now, we can claim that it finds *all* the
+nondeterminism that any of the previous techniques found.
+
+In the future, we might refine it to report fewer false positive warnings
+about concurrency, but in the meanwhile this will simplify our comparison
+with other tools and make our results seem more compelling.
+
+===========================================================================
+
+Restructure the experiment section of the paper so it first says the
+Determinism Checker handles everything handled by previous tools, and then
+in addition mention our case studies.  We find the new case study of
+Randoop more impressive, but it comes across as underwhelming when it is
+the focus of the experiments, and readers were confused about our
+comparison to previous approaches.
+
+===========================================================================
