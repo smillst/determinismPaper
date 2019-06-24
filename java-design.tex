@@ -133,7 +133,7 @@ $\kappa$, and there is no need to declare the qualifier variable $\kappa$.
 qualifier
 polymorphism on methods but \emph{not} on classes.
 Therefore, \<@PolyDet> may be written in methods (signatures and bodies)
-but not on fields.
+but not on fields. \todo{PolyDet on fields is now supported.}
 \end{itemize}
 
 Qualifier  polymorphism is common on methods that a programmer might think
@@ -340,6 +340,7 @@ command line and thus act like inputs to the program;
 The inputs to a program are also treated as deterministic.  That is, the type of
 the formal parameter to \<main> is
 \<@Det String @Det []>, a deterministic array of deterministic strings.
+\todo{Add a method declaration annotation EntryPoint that changes the type of all parameters to Det.}
 
 
 % LocalWords:  basetype NonEmpty NonDet OrderNonDet Det Iterable entrySet

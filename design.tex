@@ -381,6 +381,15 @@ arbitrary (that is, nondeterministic) index.  This must be prohibited,
 because it unsoundly permits the deterministic list \<ddlist> to differ
 from execution to execution.  \OurTypeSystem does so by forbidding the type
 \ptype{NonDet List}{Det String}.
+\todo{This isn't true.  Using standard typing rules, the type of an array index
+expression, "ni" in this example, doesn't have to be related to the array
+element type. The Determinism Checker adds a rule for this.}
+\todo{We also need to add a section about non-standard typing rules. We
+implemented non-standard rules for both fields and arrays.}
+\todo{ Also, we should point out that nondet collection types are not related
+to order non det collection types.  But order non det collection types are a
+supertype of det collection types.  We use this fact elsewhere in the paper,
+but don't explicitly state it.}
 
 
 \subsubsection{Behavior of order-nondeterministic collections}\label{sec:ond-behavior}
@@ -649,9 +658,16 @@ $\<size>\ :\ \<OrderNonDet>\ \CollectionE \rightarrow \<OrderNonDet>\ \<Int>$
 because such an instantiation would include the invalid return type \<OrderNonDet Int>.
 This means that the only two instantiations are at 
 $\kappa = \<NonDet>$ and $\kappa = \<Det>$.  An invocation on an
-\<OrderNonDet> collection would choose the \<NonDet> instantiation, and the
+\<OrderNonDet> collection would choose the \<NonDet> instantiation,
+\todo{Because OrderNonDet collection is not a subtype of NonDet collections,
+this isn't true.  It just would not be legal to call the method with an
+OrderNonDet collection.  Any time @PolyDet is on both a collection type and a
+non-collection type, then the method can't be called on an OrderNonDet
+collection.  This is also true when @PolyDet("use") is used.}
+and the
 return type at that call site would be \<NonDet Int> rather than the
 desired \<Det Int>.
+
 
 \begin{figure}
     $\infer{\up{\<NonDet>} = \<NonDet>}{}
@@ -753,6 +769,7 @@ At the call \<first(myOndStrings)>, the most specific instantiation would be
 
 $\<first> : \<NonDet>\ \ptype{List}{$\kappa$ String} \rightarrow \<NonDet>\ \<String>$
 
+\todo{Because NonDet collections are not related to OrderNonDet collections, this is not the most specific instantiation. Without @PolyDet("up"), first can't be called on an OrderNonDet collection.}
 \noindent making the type of the expression \<NonDet String> as desired.
 We prefer the type 
 
@@ -769,7 +786,7 @@ The given type prevents some invocations.  Suppose we have the following variabl
 $\<listOfLists> : \ptype{OrderNonDet List}{\lptype{Det List}{Det String}}$
 
 \noindent
-Then the invocation \<first(listOfLists)> is illegal.
+Then the invocation \<first(listOfLists)> is illegal. \todo{I don't understand why this is illegal, but \<first(myOndStrings)> isn't}
 Its type would be \ptype{NonDet List}{Det String}, which is an invalid
 type.
 
@@ -909,12 +926,14 @@ and the undesired call \<set(dList, random, str)> does not type-check.
 in the JDK are the following.
 
 \begin{Verbatim}
-    @PolyDet("up") E get(@PolyDet List<E> this, @PolyDet int index);
+    @PolyDet("up") E get(@PolyDet List<E> this, @PolyDeti("up") int index);
     @PolyDet("up") E set(@PolyDet List<E> this, @PolyDet("use") int index, E element);
 \end{Verbatim}
 
 \noindent
 The syntax is explained in \cref{java-polymorphism}.)
+
+\todo{Add a section for @PolyDet("upDet") which should be renmaed to @PolyDet("shuffle")}
 
 
 \subsection{Type inference, dataflow analysis, and type refinement}\label{dataflow}
@@ -959,7 +978,8 @@ call \<sort> on a receiver of type \ptype{OrderNonDet List}{\lptype{OrderNonDet
   Set}{Det String}}.  The rule is not applicable, because doing so would
 instantiate invalid types.
 
-
+\todo{\<shuffle> should only be called on an @NonDet Collection or an
+OrderNonDet collection that has no alaises that are Det collections.}
 As another example, it is only sometimes permitted to call \<shuffle> on a receiver of
 type \ptype{Det List}{Det String}.  It is illegal to call \<shuffle> on a
 receiver of \emph{declared} type \ptype{Det List}{Det String}, because doing so would change
@@ -1080,10 +1100,12 @@ More specifically, rule \rulename{set precision} of
 \cref{fig-precision-rules} expresses that the return type of \<equals()>
 is \<Det> if both arguments have type \<OrderNonDet Set> and neither argument
 has \codeid{@OrderNonDet List} or a subtype within its type argument.
+\todo{The type argument must be Det for any base type.}
 Without this rule, the type would be \<NonDet> which is sound but imprecise.
 
 Similarly, the rule \rulename{map precision}\ in \cref{fig-precision-rules}
 improves precision when calling \<get> on an \<OrderNonDet> receiver.
+\todo{I don't understand why the return type isn't just PolyDet("up")?}
 
 
 % LocalWords:  basetypes NonDet OrderNonDet Det Iterable formedness param1
